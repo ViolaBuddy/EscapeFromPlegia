@@ -34,6 +34,22 @@ def create_char(char: Character, growths: Growths, lvl: int):
     new_char.DEF = char.DEF + int((growths.DEF * increase + offset) / 100)
     return new_char
 
+# Base Sword (15, 13 = 14) (17, 15 = 16) (12, 9 = 10.5)
+# Base Greatsword (16, 20 = 18) (18, 12 = 15) (7, 4 = 5.5)
+# Base Lance (16, 17, 16, 12 = 16) (17, 16, 15, 13 = 15) (3, 2, 12, 7 = 5.5)
+# Base Axe (22, 20 = 21) (10, 8 = 9) (5, 4 = 4.5)
+# Base Dagger (11) (14) (13)
+
+# Sword POW +5, SKL +4, SPD -1
+# Greatsword POW +8, SKL +2, SPD -5
+# Lance POW +6, SKL +2, SPD -3, BRV -1
+# Axe POW +9, SKL +1, SPD -5
+# Dagger POW +2, SKL +1, SPD +0
+
+# Level 1 Myrm 6 POW, 10 SKL, 10 SPD, 9 BRV, 2 DEF
+# Level 1 Fighter 10 POW, 7 SKL, 8 SPD, 5 BRV, 3 DEF
+# Level 1 Knight 9 POW, 11 SKL, 4 SPD, 2 BRV, 9 DEF
+
 myrm = Character('Myrmidon', 5, 21, 13, 17, 12, 11, 3)
 fighter = Character('Fighter', 5, 31, 22, 10, 5, 7, 5)
 knight = Character('Knight', 5, 26, 17, 16, 2, 2, 11)
@@ -44,13 +60,24 @@ wyvern_knight = Character('Wyvern', 5, 29, 20, 12, 4, 6, 9)
 thief = Character('Thief', 5, 19, 11, 14, 13, 7, 1)
 soldier = Character('Soldier', 5, 22, 16, 17, 3, 1, 5)
 brigand = Character('Brigand', 5, 32, 20, 8, 4, 9, 1)
-lord = Character('Lord', 5, 27, 15, 15, 8, 9, 4)
+lord = Character('Lord', 5, 27, 15, 15, 9, 9, 4)
 
-myrm_growths = Growths('Myrmidon', 105, 50, 70, 65, 50, 25)
-fighter_growths = Growths('Fighter', 150, 70, 40, 40, 40, 40)
+myrm_growths = Growths('Myrmidon', 105, 50, 70, 65, 55, 25)
+fighter_growths = Growths('Fighter', 150, 70, 40, 40, 45, 40)
 knight_growths = Growths('Knight', 120, 60, 75, 30, 25, 55)
+merc_growths = Growths('Mercenary', 135, 55, 65, 55, 60, 30)
+cav_growths = Growths('Cavalier', 115, 60, 70, 45, 40, 45)
+peg_growths = Growths('Peg Knight', 90, 40, 55, 75, 70, 20)
+wyvern_growths = Growths('Wyvern', 140, 65, 50, 40, 50, 50)
+thief_growths = Growths('Thief', 95, 35, 50, 80, 35, 25)
+soldier_growths = Growths('Soldier', 110, 60, 70, 35, 25, 45)
+brigand_growths = Growths('Brigand', 160, 65, 30, 40, 55, 25)
+lord_growths = Growths('Lord', 125, 55, 65, 55, 65, 45)
 
-for stat, growth in [(myrm, myrm_growths), (fighter, fighter_growths), (knight, knight_growths)]:
+for stat, growth in [(myrm, myrm_growths), (fighter, fighter_growths), (knight, knight_growths),
+                     (merc, merc_growths), (cavalier, cav_growths), (peg_knight, peg_growths),
+                     (wyvern_knight, wyvern_growths), (thief, thief_growths), (soldier, soldier_growths),
+                     (brigand, brigand_growths), (lord, lord_growths)]:
     c1 = create_char(stat, growth, 1)
     c5 = create_char(stat, growth, 5)
     c10 = create_char(stat, growth, 10)
@@ -62,9 +89,10 @@ for stat, growth in [(myrm, myrm_growths), (fighter, fighter_growths), (knight, 
     print(c20)
     print(c30)
 
-myrm20 = create_char(myrm, myrm_growths, 20)
-fighter20 = create_char(fighter, fighter_growths, 20)
-knight20 = create_char(knight, knight_growths, 20)
+myrm20 = create_char(myrm, myrm_growths, 10)
+fighter20 = create_char(fighter, fighter_growths, 10)
+knight20 = create_char(knight, knight_growths, 10)
+lord20 = create_char(lord, lord_growths, 10)
 
 swordmaster30 = Character('Swordmaster', 30, 47, 29, 36, 34, 29, 11)
 warrior30 = Character('Warrior', 30, 68, 39, 23, 20, 24, 16)
@@ -117,7 +145,7 @@ arena(knight, knight)
 import itertools
 comb = [myrm, knight, fighter, merc, cavalier, peg_knight, wyvern_knight, thief, soldier, brigand, lord]
 comb = [myrm, knight, fighter]
-comb = [myrm20, knight20, fighter20]
+comb = [lord20, knight20, fighter20]
 # comb = []
 for pair in itertools.combinations(comb, 2):
     print("")
