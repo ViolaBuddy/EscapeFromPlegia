@@ -34,22 +34,6 @@ def create_char(char: Character, growths: Growths, lvl: int):
     new_char.DEF = char.DEF + int((growths.DEF * increase + offset) / 100)
     return new_char
 
-# Base Sword (15, 13 = 14) (17, 15 = 16) (12, 9 = 10.5)
-# Base Greatsword (16, 20 = 18) (18, 12 = 15) (7, 4 = 5.5)
-# Base Lance (16, 17, 16, 12 = 16) (17, 16, 15, 13 = 15) (3, 2, 12, 7 = 5.5)
-# Base Axe (22, 20 = 21) (10, 8 = 9) (5, 4 = 4.5)
-# Base Dagger (11) (14) (13)
-
-# Sword POW +5, SKL +4, SPD -1
-# Greatsword POW +8, SKL +2, SPD -5
-# Lance POW +6, SKL +2, SPD -3, BRV -1
-# Axe POW +9, SKL +1, SPD -5
-# Dagger POW +2, SKL +1, SPD +0
-
-# Level 1 Myrm 6 POW, 10 SKL, 10 SPD, 9 BRV, 2 DEF
-# Level 1 Fighter 10 POW, 7 SKL, 8 SPD, 5 BRV, 3 DEF
-# Level 1 Knight 9 POW, 11 SKL, 4 SPD, 2 BRV, 9 DEF
-
 myrm = Character('Myrmidon', 5, 21, 13, 17, 12, 11, 3)
 fighter = Character('Fighter', 5, 31, 22, 10, 5, 7, 5)
 knight = Character('Knight', 5, 26, 17, 16, 2, 2, 11)
