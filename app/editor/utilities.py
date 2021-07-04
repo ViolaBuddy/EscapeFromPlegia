@@ -1,10 +1,17 @@
 from PyQt5 import QtGui
 
 from app.constants import COLORKEY
-from app.data.palettes import enemy_colors, other_colors, enemy2_colors
+from app.data.palettes import enemy_colors, other_colors, enemy2_colors, \
+    player_dark_colors, enemy_dark_colors
 
 qCOLORKEY = QtGui.qRgb(*COLORKEY)
 qAlpha = QtGui.qRgba(0, 0, 0, 0)
+
+enemy_colors = {QtGui.qRgb(*k): QtGui.qRgb(*v) for k, v in enemy_colors.items()}
+other_colors = {QtGui.qRgb(*k): QtGui.qRgb(*v) for k, v in other_colors.items()}
+enemy2_colors = {QtGui.qRgb(*k): QtGui.qRgb(*v) for k, v in enemy2_colors.items()}
+player_dark_colors = {QtGui.qRgb(*k): QtGui.qRgb(*v) for k, v in player_dark_colors.items()}
+enemy_dark_colors = {QtGui.qRgb(*k): QtGui.qRgb(*v) for k, v in enemy_dark_colors.items()}
 
 def convert_colorkey_slow(image):
     image.convertTo(QtGui.QImage.Format_ARGB32)
@@ -25,10 +32,6 @@ def convert_colorkey(image):
             break
     image = new_image.convertToFormat(QtGui.QImage.Format_ARGB32)
     return image
-
-enemy_colors = {QtGui.qRgb(*k): QtGui.qRgb(*v) for k, v in enemy_colors.items()}
-other_colors = {QtGui.qRgb(*k): QtGui.qRgb(*v) for k, v in other_colors.items()}
-enemy2_colors = {QtGui.qRgb(*k): QtGui.qRgb(*v) for k, v in enemy2_colors.items()}
 
 def color_convert_slow(image, conversion_dict):
     image.convertTo(QtGui.QImage.Format_ARGB32)
@@ -116,4 +119,4 @@ def get_bbox(image):
                 if y > max_y:
                     max_y = y
     # Returns x, y, width, height rect
-    return (min_x, min_y, max_x - min_x, max_y - min_y)
+    return (min_x, min_y, max_x - min_x + 1, max_y - min_y + 1)

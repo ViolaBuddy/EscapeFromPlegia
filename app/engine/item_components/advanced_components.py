@@ -67,3 +67,5 @@ class UnloadUnit(ItemComponent):
             rescuee = game.get_unit(self.item.data['stored_unit'])
             if rescuee:
                 actions.append(action.Warp(rescuee, target_pos))
+                # Move camera over position
+                game.cursor.set_pos(target_pos)

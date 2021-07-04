@@ -89,6 +89,7 @@ class EquationBlastAOE(BlastAOE, ItemComponent):
     tag = 'aoe'
 
     expose = Type.Equation  # Radius
+    value = None
 
     def _get_power(self, unit) -> int:
         from app.engine import equations

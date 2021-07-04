@@ -4173,7 +4173,12 @@
             "LEAD": 60,
             "New Stat": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Live to Serve"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
                 false,

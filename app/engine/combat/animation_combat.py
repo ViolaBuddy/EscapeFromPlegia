@@ -160,9 +160,9 @@ class AnimationCombat(BaseCombat, MockCombat):
             if self.left_battle_anim.done() and self.right_battle_anim.done():
                 # These would have happened from pre_combat and start_combat
                 if self.get_from_full_playback('attack_pre_proc'):
-                    self.set_up_proc_animation('attack_pre_proc')
+                    self.set_up_pre_proc_animation('attack_pre_proc')
                 elif self.get_from_full_playback('defense_pre_proc'):
-                    self.set_up_proc_animation('defense_pre_proc')
+                    self.set_up_pre_proc_animation('defense_pre_proc')
                 else:
                     self.state = 'init_effects'
 
@@ -464,12 +464,21 @@ class AnimationCombat(BaseCombat, MockCombat):
             self.left_stats = a_stats
             self.right_stats = d_stats
 
+    def set_up_pre_proc_animation(self, mark_type):
+        marks = self.get_from_full_playback(mark_type)
+        mark = marks.pop()
+        self.full_playback.remove(mark)
+        self.mark_proc(mark)
+
     def set_up_proc_animation(self, mark_type):
         self.state = mark_type
         marks = self.get_from_playback(mark_type)
         mark = marks.pop()
         # Remove the mark since we no longer want to consider it
         self.playback.remove(mark)
+        self.mark_proc(mark)
+
+    def mark_proc(self, mark):
         skill = mark[2]
         unit = mark[1]
         if unit == self.right:

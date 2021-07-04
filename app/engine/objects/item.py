@@ -64,6 +64,8 @@ class ItemObject():
         serial_dict = {}
         serial_dict['uid'] = self.uid
         serial_dict['nid'] = self.nid
+        serial_dict['name'] = self.name
+        serial_dict['desc'] = self.desc
         serial_dict['owner_nid'] = self.owner_nid
         serial_dict['droppable'] = self.droppable
         serial_dict['data'] = self.data
@@ -75,6 +77,8 @@ class ItemObject():
         prefab = DB.items.get(dat['nid'])
         if prefab:
             self = cls.from_prefab(prefab)
+            self.name = dat.get('name', prefab.name)
+            self.desc = dat.get('desc', prefab.desc)
         else:
             desc = 'This is a placeholder for %s generated when the database cannot locate an item' % dat['nid']
             self = cls(dat['nid'], 'Placeholder', desc)

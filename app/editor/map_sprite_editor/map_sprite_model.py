@@ -24,9 +24,15 @@ def get_basic_icon(pixmap, num, active=False, team='player'):
     # pixmap = pixmap.copy(16, 16, 32, 32)
     one_frame = one_frame.toImage()
     if team == 'player':
-        pass
+        if DB.constants.value('dark_sprites'):
+            one_frame = editor_utilities.color_convert(one_frame, editor_utilities.player_dark_colors)
+        else:
+            pass
     elif team == 'enemy':
-        one_frame = editor_utilities.color_convert(one_frame, editor_utilities.enemy_colors)
+        if DB.constants.value('dark_sprites'):
+            one_frame = editor_utilities.color_convert(one_frame, editor_utilities.enemy_dark_colors)
+        else:
+            one_frame = editor_utilities.color_convert(one_frame, editor_utilities.enemy_colors)
     elif team == 'other':
         one_frame = editor_utilities.color_convert(one_frame, editor_utilities.other_colors)
     elif team == 'enemy2':

@@ -66,7 +66,7 @@ class ExpState(State):
         self.stat_changes = None
         self.new_wexp = None
 
-        if self.unit.level >= self.unit_klass.max_level and not self.auto_promote:
+        if self.unit.level >= self.unit_klass.max_level and not (self.auto_promote or self.starting_state == 'promote'):
             # We're done here
             game.state.back()
             return 'repeat'
@@ -273,22 +273,16 @@ class ExpState(State):
                     game.state.back()
 
         elif self.state.get_state() in ('promote', 'class_change'):
-            # TODO Combat Anims for Promotion
-            old_anim = self.unit.battle_anim
-
             if self.state.get_state() == 'promote':
                 promote_action = action.Promote(self.unit, game.memory['next_class'])
             else:
                 promote_action = action.ClassChange(self.unit, game.memory['next_class'])
             self.stat_changes, self.new_wexp = promote_action.get_data()
-            print(self.new_wexp)
             action.do(promote_action)
             action.do(action.UpdateRecords('level_gain', (self.unit.nid, self.unit.level, self.unit.klass)))
 
             if self.combat_object:
                 self.combat_object.darken_ui()
-                if old_anim:
-                    self.combat_object.update_battle_anim(old_anim)
 
             self.state.clear()
             self.state.change('level_screen')

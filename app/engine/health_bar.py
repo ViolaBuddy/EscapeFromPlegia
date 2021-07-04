@@ -57,7 +57,8 @@ class CombatHealthBar(HealthBar):
 
     def __init__(self, unit):
         super().__init__(unit) 
-        self.color_tick = 0   
+        self.color_tick = 0
+        self.heal_sound_update = 0   
 
     def update(self, skip=False):
         if self.displayed_hp < self.unit.get_hp():
@@ -68,7 +69,10 @@ class CombatHealthBar(HealthBar):
         self.color_tick = int(engine.get_time() / 16.67) % len(self.colors)
 
     def set_hp(self, val):
-        if self.displayed_hp < self.unit.get_hp():
+        current_time = engine.get_time()
+        if self.displayed_hp < self.unit.get_hp() and current_time - self.heal_sound_update > self.speed:
+            self.heal_sound_update = current_time
+            SOUNDTHREAD.stop_sfx('HealBoop')
             SOUNDTHREAD.play_sfx('HealBoop')
         super().set_hp(val)
 

@@ -3533,12 +3533,17 @@
             },
             {
                 "nid": "101",
-                "variant": "Female",
+                "variant": "",
                 "level": 1,
-                "klass": "Mage",
+                "klass": "Bishop",
                 "faction": "Soldier",
-                "starting_items": [],
-                "team": "enemy",
+                "starting_items": [
+                    [
+                        "Lightning",
+                        false
+                    ]
+                ],
+                "team": "player",
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
@@ -3561,7 +3566,7 @@
                         false
                     ]
                 ],
-                "team": "player",
+                "team": "enemy",
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
@@ -3619,29 +3624,6 @@
                 "generic": true
             },
             {
-                "nid": "106",
-                "variant": null,
-                "level": 20,
-                "klass": "Knight",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Javelin",
-                        false
-                    ]
-                ],
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    0,
-                    4
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
                 "nid": "107",
                 "variant": null,
                 "level": 1,
@@ -3649,7 +3631,7 @@
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Sleep",
+                        "Heal",
                         false
                     ]
                 ],
@@ -3659,6 +3641,40 @@
                 "starting_position": [
                     3,
                     6
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "Gilliam",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    1,
+                    3
+                ],
+                "generic": false
+            },
+            {
+                "nid": "106",
+                "variant": null,
+                "level": 20,
+                "klass": "Pegasus_Knight",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    5,
+                    3
                 ],
                 "name": null,
                 "desc": null,

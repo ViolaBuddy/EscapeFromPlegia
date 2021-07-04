@@ -204,6 +204,16 @@ class PrfTag(ItemComponent):
     def available(self, unit, item) -> bool:
         return any(tag in self.value for tag in unit.tags)
 
+class PrfAffinity(ItemComponent):
+    nid = 'prf_affinity'
+    desc = 'Item can only be wielded by units with certain affinity'
+    tag = 'uses'
+
+    expose = (Type.List, Type.Affinity)
+
+    def available(self, unit, item) -> bool:
+        return unit.affinity in self.value
+
 class Locked(ItemComponent):
     nid = 'locked'
     desc = 'Item cannot be discarded, traded, or stolen'

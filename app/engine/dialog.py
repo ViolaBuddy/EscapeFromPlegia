@@ -52,7 +52,7 @@ class Dialog():
         if width:
             self.width = width
             self.width -= self.width%8
-            self.text_width = self.width - 24
+            self.text_width = max(8, self.width - 24)
             self.determine_height()
         elif self.portrait:
             self.determine_size()
@@ -440,8 +440,8 @@ class Dialog():
         if self.background:
             if self.state == 'transition':
                 # bg = image_mods.resize(self.background, (1, .5 + self.transition_progress/2.))
-                new_width = self.background.get_width() - 10 + int(10*self.transition_progress)
-                new_height = self.background.get_height() - 10 + int(10*self.transition_progress)
+                new_width = max(1, self.background.get_width() - 10 + int(10*self.transition_progress))
+                new_height = max(1, self.background.get_height() - 10 + int(10*self.transition_progress))
                 bg = engine.transform_scale(self.background, (new_width, new_height))
                 bg = image_mods.make_translucent(bg, .05 + .7 * (1 - self.transition_progress))
                 surf.blit(bg, (self.position[0], self.position[1] + self.height - bg.get_height()))

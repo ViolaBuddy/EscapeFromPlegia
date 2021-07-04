@@ -319,6 +319,10 @@ def combine_identical_commands(pose):
                 last_command = command
             else:
                 last_command = command
+        elif last_command:
+            new_timeline.append(last_command)
+            last_command = None
+            new_timeline.append(command)
         else:
             new_timeline.append(command)
     if last_command:
@@ -366,7 +370,7 @@ def import_from_gba(current, fn):
     # Remove main sheet if it exists
     images = list(sorted([path for path in images if 'Sheet' not in os.path.split(path)[-1]]))
     if not images:
-        QMessageBox.critical(None, "Error", "Cannot find valid images in %s!" % image_paths)
+        QMessageBox.critical(None, "Error", "Cannot find valid images in %s!" % head)
         return
     # Convert to pixmaps
     pixmaps = {os.path.split(path)[-1][:-4]: QPixmap(path) for path in images}
@@ -484,6 +488,12 @@ def import_from_gba(current, fn):
         melee_weapon_anim.nid = "Unarmed"
         unarmed_pose_setup(melee_weapon_anim)
         add_weapon(melee_weapon_anim)
+
+    # Need to save the full image somewhere
+    settings = MainSettingsController()
+    if os.path.basename(settings.get_current_project()) != 'default.ltproj':
+        path = os.path.join(settings.get_current_project(), 'resources', 'combat_anims')
+        RESOURCES.combat_anims.save_image(path, current)
     print("Done!!! %s" % fn)
 
 def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
@@ -561,9 +571,9 @@ def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
         current_pose.timeline.append(command)
 
     def copy_frame(frame_command, num_frames: int = 1):
-        # combat_commands.CombatAnimationCommand.copy()
         new_command = frame_command.__class__.copy(frame_command)
         new_command.set_frame_count(num_frames)
+        print("Copy", new_command)
         current_pose.timeline.append(new_command)
 
     def wait_for_hit(frame_command):
@@ -647,7 +657,7 @@ def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
                     copy_frame(current_command, 4)
                     parse_text('end_loop')
                     copy_frame(current_command, 4)
-                elif 'Dodge' in current_pose.nid:
+                elif current_pose.nid and 'Dodge' in current_pose.nid:
                     # There are always 31 frames in a dodge
                     counter = 0
                     for command in current_pose.timeline:

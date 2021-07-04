@@ -1073,5 +1073,25 @@
                 5
             ]
         ]
+    },
+    {
+        "nid": "Live to Serve",
+        "name": "Live to Serve",
+        "desc": "",
+        "icon_nid": "Skills",
+        "icon_index": [
+            4,
+            8
+        ],
+        "components": [
+            [
+                "class_skill",
+                null
+            ],
+            [
+                "live_to_serve",
+                1.0
+            ]
+        ]
     }
 ]

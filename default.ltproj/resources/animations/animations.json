@@ -175,6 +175,48 @@
         "speed": "24"
     },
     {
+        "nid": "MissBlue",
+        "frame_x": 5,
+        "frame_y": 4,
+        "num_frames": 20,
+        "speed": "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,23"
+    },
+    {
+        "nid": "MissRed",
+        "frame_x": 5,
+        "frame_y": 4,
+        "num_frames": 20,
+        "speed": "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,23"
+    },
+    {
+        "nid": "MissGreen",
+        "frame_x": 5,
+        "frame_y": 4,
+        "num_frames": 20,
+        "speed": "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,23"
+    },
+    {
+        "nid": "NoDamageBlue",
+        "frame_x": 5,
+        "frame_y": 5,
+        "num_frames": 25,
+        "speed": "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,48"
+    },
+    {
+        "nid": "NoDamageRed",
+        "frame_x": 5,
+        "frame_y": 5,
+        "num_frames": 25,
+        "speed": "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,48"
+    },
+    {
+        "nid": "NoDamageGreen",
+        "frame_x": 5,
+        "frame_y": 5,
+        "num_frames": 25,
+        "speed": "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,48"
+    },
+    {
         "nid": "StatUpSpark",
         "frame_x": 11,
         "frame_y": 1,

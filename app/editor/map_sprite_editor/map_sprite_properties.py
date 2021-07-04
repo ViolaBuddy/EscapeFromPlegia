@@ -172,9 +172,15 @@ class MapSpriteProperties(QWidget):
             frame = self.current.standing_pixmap.copy(num*64, 0, 64, 48)
         frame = frame.toImage()
         if self.current_color == 0:
-            pass
+            if DB.constants.value('dark_sprites'):
+                frame = editor_utilities.color_convert(frame, editor_utilities.player_dark_colors)
+            else:
+                pass
         elif self.current_color == 1:
-            frame = editor_utilities.color_convert(frame, editor_utilities.enemy_colors)
+            if DB.constants.value('dark_sprites'):
+                frame = editor_utilities.color_convert(frame, editor_utilities.enemy_dark_colors)
+            else:
+                frame = editor_utilities.color_convert(frame, editor_utilities.enemy_colors)
         elif self.current_color == 2:
             frame = editor_utilities.color_convert(frame, editor_utilities.enemy2_colors)
         elif self.current_color == 3:

@@ -87,6 +87,7 @@ class MapEditorView(QGraphicsView):
         self.right_selection = {}  # Dictionary of tile_sprites
 
         self.draw_autotiles = True
+        self.draw_gridlines = True
 
         timer.get_timer().tick_elapsed.connect(self.tick)
 
@@ -119,11 +120,12 @@ class MapEditorView(QGraphicsView):
         painter = QPainter()
         painter.begin(image)
         # Draw grid lines
-        painter.setPen(QPen(QColor(0, 0, 0, 128), 1, Qt.DotLine))
-        for x in range(self.tilemap.width):
-            painter.drawLine(x * TILEWIDTH, 0, x * TILEWIDTH, self.tilemap.height * TILEHEIGHT)
-        for y in range(self.tilemap.height):
-            painter.drawLine(0, y * TILEHEIGHT, self.tilemap.width * TILEWIDTH, y * TILEHEIGHT)
+        if self.draw_gridlines:
+            painter.setPen(QPen(QColor(0, 0, 0, 128), 1, Qt.DotLine))
+            for x in range(self.tilemap.width):
+                painter.drawLine(x * TILEWIDTH, 0, x * TILEWIDTH, self.tilemap.height * TILEHEIGHT)
+            for y in range(self.tilemap.height):
+                painter.drawLine(0, y * TILEHEIGHT, self.tilemap.width * TILEWIDTH, y * TILEHEIGHT)
 
         # Draw cursor...
         if not self.window.terrain_mode:
@@ -576,6 +578,10 @@ class MapEditor(QDialog):
         self.show_autotiles_action.setCheckable(True)
         self.show_autotiles_action.setChecked(True)
 
+        self.show_gridlines_action = QAction(QIcon(f"{icon_folder}/gridlines.png"), "Show GridLines", self, triggered=self.gridline_toggle)
+        self.show_gridlines_action.setCheckable(True)
+        self.show_gridlines_action.setChecked(True)
+
     def void_right_selection(self):
         self.view.right_selection.clear()
 
@@ -604,6 +610,7 @@ class MapEditor(QDialog):
         self.toolbar.addAction(self.resize_action)
         self.toolbar.addAction(self.terrain_action)
         self.toolbar.addAction(self.export_as_png_action)
+        self.toolbar.addAction(self.show_gridlines_action)
         self.toolbar.addAction(self.show_autotiles_action)
 
     def set_current(self, current):  # Current is a TileMapPrefab
@@ -623,6 +630,9 @@ class MapEditor(QDialog):
             self.terrain_painter_menu.show()
         else:
             self.terrain_painter_menu.hide()
+
+    def gridline_toggle(self, val):
+        self.view.draw_gridlines = val
 
     def autotile_toggle(self, val):
         self.view.draw_autotiles = val

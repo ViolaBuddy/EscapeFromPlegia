@@ -504,6 +504,8 @@ class BattleAnimation():
                 effect = values[0]
             elif isinstance(self.item, str):
                 effect = self.item
+            elif self.unit and item_system.effect_animation(self.unit, self.item):
+                effect = item_system.effect_animation(self.unit, self.item)
             else:
                 effect = self.item.nid
             child_effect = self.get_effect(effect)
@@ -839,6 +841,8 @@ def get_battle_anim(unit, item, distance=1, klass=None) -> BattleAnimation:
             if command.nid == 'spell':
                 if command.value[0]:
                     effect = command.value[0]
+                elif unit and item_system.effect_animation(unit, item):
+                    effect = item_system.effect_animation(unit, item)
                 else:
                     effect = item.nid
                 if effect not in RESOURCES.combat_effects.keys():

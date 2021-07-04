@@ -351,7 +351,7 @@ class ConstantDatabase(DatabaseTab):
         self.left_frame.setLayout(self.layout)
 
         bool_section = QGroupBox(self)
-        bool_constants = Data([d for d in self._data if d.attr == bool])
+        bool_constants = Data([d for d in self._data if d.attr == bool and not d.tag == 'hidden'])
         self.bool_model = BoolConstantsModel(bool_constants, self)
         bool_view = QTreeView()
         bool_view.setModel(self.bool_model)

@@ -15,6 +15,7 @@ class Tags(Enum):
     REGION = 'Region'
     ADD_REMOVE_INTERACT_WITH_UNITS = 'Add/Remove/Interact with Units'
     MODIFY_UNIT_PROPERTIES = 'Modify Unit Properties'
+    MODIFY_ITEM_PROPERTIES = 'Modify Item Properties'
     UNIT_GROUPS = 'Unit Groups'
     MISCELLANEOUS = 'Miscellaneous'
     HIDDEN = 'Hidden'
@@ -552,6 +553,30 @@ class RemoveItem(EventCommand):
 
     keywords = ["GlobalUnit", "Item"]
     flags = ['no_banner']
+
+class ChangeItemName(EventCommand):
+    nid = 'change_item_name'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    keywords = ["GlobalUnit", "Item", "String"]
+
+class ChangeItemDesc(EventCommand):
+    nid = 'change_item_desc'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    keywords = ["GlobalUnit", "Item", "String"]
+
+class AddItemToMultiItem(EventCommand):
+    nid = 'add_item_to_multiitem'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    keywords = ["GlobalUnit", "Item", "Item"]
+
+class RemoveItemFromMultiItem(EventCommand):
+    nid = 'remove_item_from_multiitem'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    keywords = ["GlobalUnit", "Item", "Item"]
 
 class GiveMoney(EventCommand):
     nid = 'give_money'

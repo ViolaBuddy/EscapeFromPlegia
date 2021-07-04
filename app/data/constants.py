@@ -31,7 +31,7 @@ class ConstantCatalog(Data):
     def total_items(self):
         return self.value('num_items') + self.value('num_accessories')
 
-tags = ['title', 'features', 'inventory', 'line_of_sight', 'leveling', 'ai', 'wexp', 'other']
+tags = ['title', 'features', 'inventory', 'line_of_sight', 'leveling', 'ai', 'wexp', 'other', 'hidden']
 
 constants = ConstantCatalog([
     Constant('num_items', "Max number of Items in inventory", int, 5, 'inventory'),
@@ -56,6 +56,8 @@ constants = ConstantCatalog([
     Constant('def_double', "Defender can double counterattack", bool, True, 'features'),
     Constant('enemy_leveling', "Method for autoleveling generic units", ("Random", "Fixed", "Dynamic", "Match"), "Match", 'leveling'),
     Constant('auto_promote', "Units will promote automatically upon reaching max level", bool, False, 'leveling'),
+    Constant('promote_level_reset', "Promotion resets level back to 1", bool, True, 'leveling'),
+    Constant('class_change_level_reset', "Class Change resets level back to 1", bool, False, 'leveling'),
     Constant('generic_feats', "Generic units will be given random feats when appropriate", bool, False, 'leveling'),
     # Constant('rng', "Method for resolving accuracy rolls", ("Classic", "True Hit", "True Hit+", "Grandmaster"), "True Hit", 'leveling'),
     Constant('min_damage', "Min damage dealt by an attack", int, 0),
@@ -87,4 +89,6 @@ constants = ConstantCatalog([
     Constant('heal_curve', "How much to multiply the amount healed by to determine experience gain", float, 0, 'exp'),
     Constant('heal_magnitude', "Added to total exp for healing", int, 0, 'exp'),
     Constant('heal_offset', "Modifies expected healing", int, 11, 'exp'),
-    Constant('heal_min', "Min exp gained for healing", int, 11, 'exp')])
+    Constant('heal_min', "Min exp gained for healing", int, 11, 'exp'),
+    # Hidden constants below
+    Constant('dark_sprites', "Use darker map sprites", bool, False, 'hidden')])

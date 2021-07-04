@@ -37,7 +37,8 @@ class TimelineList(WidgetList):
     def duplicate(self, index):
         idx = index.row()
         command = self.index_list[idx]
-        self.window.insert_command(idx + 1, command)
+        new_command = command.__class__.copy(command)
+        self.window.insert_command(idx + 1, new_command)
 
     def delete(self, index):
         idx = index.row()
@@ -168,7 +169,10 @@ class TimelineMenu(QWidget):
         if start == end:
             return
         obj = self.current_pose.timeline.pop(start)
-        self.current_pose.timeline.insert(end, obj)
+        if start > end:
+            self.current_pose.timeline.insert(end, obj)
+        else:
+            self.current_pose.timeline.insert(end - 1, obj)
 
     def add_text(self):
         try:

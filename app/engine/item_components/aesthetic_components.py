@@ -61,6 +61,16 @@ class MapCastAnim(ItemComponent):
     def on_miss(self, actions, playback, unit, item, target, target_pos, mode):
         playback.append(('cast_anim', self.value))
 
+class BattleCastAnim(ItemComponent):
+    nid = 'battle_cast_anim'
+    desc = "Set a specific effect animation to the item in battle"
+    tag = 'aesthetic'
+
+    expose = Type.EffectAnimation
+
+    def effect_animation(self, unit, item):
+        return self.value
+
 class BattleAnimationMusic(ItemComponent):
     nid = 'battle_animation_music'
     desc = "Uses custom battle music"

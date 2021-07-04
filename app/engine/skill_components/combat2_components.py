@@ -34,7 +34,7 @@ class IgnoreDamage(SkillComponent):
 
 class LiveToServe(SkillComponent):
     nid = 'live_to_serve'
-    desc = "Unit will be healed X%% of amount healed"
+    desc = r"Unit will be healed X% of amount healed"
     tag = 'combat2'
 
     expose = Type.Float
@@ -42,12 +42,14 @@ class LiveToServe(SkillComponent):
 
     def after_hit(self, actions, playback, unit, item, target, mode):
         total_amount_healed = 0
-        playbacks = [p for p in playback if p[0] == 'heal_hit' and p[1] == self]
+        playbacks = [p for p in playback if p[0] == 'heal_hit' and p[1] is unit and p[3] is not unit]
         for p in playbacks:
             total_amount_healed += p[4]
 
         amount = int(total_amount_healed * self.value)
         if amount > 0:
+            true_heal = min(amount, unit.get_max_hp() - unit.get_hp())
+            playback.append(('heal_hit', unit, item, unit, true_heal, true_heal))
             actions.append(action.ChangeHP(unit, amount))
             actions.append(action.TriggerCharge(unit, self.skill))
 

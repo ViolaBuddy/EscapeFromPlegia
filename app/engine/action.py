@@ -954,6 +954,65 @@ class RepairItem(Action):
         if self.old_c_uses is not None and self.item.c_uses:
             self.item.data['c_uses'] = self.old_c_uses
 
+class ChangeItemName(Action):
+    def __init__(self, item, name):
+        self.item = item
+        self.old_name = item.name
+        self.new_name = name
+
+    def do(self):
+        self.item.name = self.new_name
+
+    def reverse(self):
+        self.item.name = self.old_name
+
+class ChangeItemDesc(Action):
+    def __init__(self, item, desc):
+        self.item = item
+        self.old_desc = item.desc
+        self.new_desc = desc
+
+    def do(self):
+        self.item.desc = self.new_desc
+
+    def reverse(self):
+        self.item.desc = self.old_desc
+
+class AddItemToMultiItem(Action):
+    def __init__(self, unit, item, subitem):
+        self.unit = unit
+        self.item = item
+        self.subitem = subitem
+
+    def do(self):
+        self.subitem.owner_nid = self.unit.nid
+        self.item.subitem_uids.append(self.subitem.uid)
+        self.item.subitems.append(self.subitem)
+        self.subitem.parent_item = self.item
+
+    def reverse(self):
+        self.subitem.owner_nid = None
+        self.item.subitem_uids.remove(self.subitem.uid)
+        self.item.subitems.remove(self.subitem)
+        self.subitem.parent_item = None
+
+class RemoveItemFromMultiItem(Action):
+    def __init__(self, unit, item, subitem):
+        self.unit = unit
+        self.item = item
+        self.subitem = subitem
+
+    def do(self):
+        self.subitem.owner_nid = None
+        self.item.subitem_uids.remove(self.subitem.uid)
+        self.item.subitems.remove(self.subitem)
+        self.subitem.parent_item = None
+
+    def reverse(self):
+        self.subitem.owner_nid = self.unit.nid
+        self.item.subitem_uids.append(self.subitem.uid)
+        self.item.subitems.append(self.subitem)
+        self.subitem.parent_item = self.item
 
 class SetObjData(Action):
     def __init__(self, obj, keyword, value):
@@ -1044,6 +1103,7 @@ class AutoLevel(Action):
         self.old_stats = self.unit.stats
         self.old_growth_points = self.unit.growth_points
         self.old_hp = self.unit.get_hp()
+        self.old_mana = self.unit.get_mana()
 
     def do(self):
         unit_funcs.auto_level(self.unit, self.diff, self.unit.get_internal_level())
@@ -1052,6 +1112,7 @@ class AutoLevel(Action):
         self.unit.stats = self.old_stats
         self.unit.growth_points = self.old_growth_points
         self.unit.set_hp(self.old_hp)
+        self.unit.set_mana(self.old_mana)
 
 
 class GrowthPointChange(Action):
@@ -1120,7 +1181,9 @@ class Promote(Action):
         wexp_gain = DB.classes.get(self.new_klass).wexp_gain
         self.new_wexp = {nid: 0 for nid in DB.weapons.keys()}
         for weapon in DB.weapons:
-            self.new_wexp[weapon.nid] = wexp_gain[weapon.nid].wexp_gain
+            gain = wexp_gain.get(weapon.nid)
+            if gain:
+                self.new_wexp[weapon.nid] = gain.wexp_gain
 
         self.subactions = []
 
@@ -1134,8 +1197,9 @@ class Promote(Action):
 
         self.unit.reset_sprite()
         self.unit.klass = self.new_klass
-        self.unit.set_exp(0)
-        self.unit.level = 1
+        if DB.constants.value('promote_level_reset'):
+            self.unit.set_exp(0)
+            self.unit.level = 1
 
         unit_funcs.apply_stat_changes(self.unit, self.stat_changes)
 
@@ -1189,12 +1253,17 @@ class ClassChange(Action):
 
         self.unit.reset_sprite()
         self.unit.klass = self.new_klass
+        if DB.constants.value('class_change_level_reset'):
+            self.unit.set_exp(0)
+            self.unit.level = 1
 
         unit_funcs.apply_stat_changes(self.unit, self.stat_changes)
 
     def reverse(self):
         self.unit.reset_sprite()
         self.unit.klass = self.old_klass
+        self.unit.set_exp(self.old_exp)
+        self.unit.level = self.old_level
 
         reverse_stat_changes = {k: -v for k, v in self.stat_changes.items()}
         unit_funcs.apply_stat_changes(self.unit, reverse_stat_changes)
@@ -1202,7 +1271,6 @@ class ClassChange(Action):
         for act in self.subactions:
             act.reverse()
         self.subactions.clear()
-
 
 class GainWexp(Action):
     def __init__(self, unit, item, wexp_gain):
