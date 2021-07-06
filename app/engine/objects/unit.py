@@ -252,8 +252,9 @@ class UnitObject(Prefab):
         return unit_funcs.can_unlock(self, region)
 
     def get_weapon(self):
+        _weapon = None
         if self.equipped_weapon:
-            return self.equipped_weapon
+            _weapon = self.equipped_weapon
         else:
             for item in self.items:
                 weapon = item_system.is_weapon(self, item)
@@ -264,8 +265,11 @@ class UnitObject(Prefab):
                     # Since it's more of an attribute that will be
                     # rediscovered each time if necessary
                     self.equip(item)
-                    return item
-        return None
+                    _weapon = item
+        # Handle memento_staff mechanic
+        if _weapon.memento_staff:
+            _weapon = _weapon.memento_staff.get_ward(_weapon)
+        return _weapon
 
     def get_spell(self):
         for item in self.items:
