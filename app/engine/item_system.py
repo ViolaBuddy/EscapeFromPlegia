@@ -437,7 +437,7 @@ def on_glancing_hit(actions, playback, unit, item, target, target_pos, mode, fir
         if component.defines('on_glancing_hit'):
             component.on_glancing_hit(actions, playback, unit, item, target, target_pos, mode)
         elif component.defines('on_hit'):
-            component.on_hit(actions, playback, unit, item.parent_item, target, target_pos, mode)
+            component.on_hit(actions, playback, unit, item, target, target_pos, mode)
     if item.parent_item and first_item:
         for component in item.parent_item.components:
             if component.defines('on_glancing_hit'):

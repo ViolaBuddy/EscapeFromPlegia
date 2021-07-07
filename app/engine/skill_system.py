@@ -382,6 +382,16 @@ def re_add(unit, skill):
         if component.defines('re_add'):
             component.re_add(unit, skill)
 
+def on_true_remove(unit, skill):
+    """
+    This one does not intrinsically interact with the turnwheel
+    It only fires when the skill is actually removed for the first time
+    Not on execute or reverse
+    """
+    for component in skill.components:
+        if component.defines('on_true_remove'):
+            component.on_true_remove(unit, skill)
+
 def get_text(skill) -> str:
     for component in skill.components:
         if component.defines('text'):

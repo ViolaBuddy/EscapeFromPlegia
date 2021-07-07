@@ -120,7 +120,8 @@ class MapHealthBar(HealthBar):
     health_bar = SPRITES.get('map_health_bar')
 
     def draw(self, surf, left, top):
-        fraction_hp = utils.clamp(self.displayed_hp / self.total_hp, 0, 1)
+        total = max(1, self.total_hp)
+        fraction_hp = utils.clamp(self.displayed_hp / total, 0, 1)
         index_pixel = int(12 * fraction_hp) + 1
 
         surf.blit(self.health_outline, (left, top + 13))
@@ -135,7 +136,8 @@ class MapCombatHealthBar(HealthBar):
     health_bar = SPRITES.get('health_bar')
 
     def draw(self, surf):
-        fraction_hp = utils.clamp(self.displayed_hp / self.total_hp, 0, 1)
+        total = max(1, self.total_hp)
+        fraction_hp = utils.clamp(self.displayed_hp / total, 0, 1)
         index_pixel = int(50 * fraction_hp)
         position = 25, 22
         surf.blit(engine.subsurface(self.health_bar, (0, 0, index_pixel, 2)), position)

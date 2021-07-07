@@ -175,7 +175,8 @@ class FrameSelector(Dialog):
             # Now determine palette to use for ingestion
             all_palette_colors = editor_utilities.find_palette_from_multiple([pix.toImage() for pix in pixmaps])
             my_palette = None
-            for palette in self.combat_anim.palettes:
+            for palette_name, palette_nid in self.combat_anim.palettes:
+                palette = RESOURCES.combat_palettes.get(palette_nid)
                 if palette.is_similar(all_palette_colors):
                     my_palette = palette
                     break

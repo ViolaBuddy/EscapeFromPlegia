@@ -2041,6 +2041,7 @@ class RemoveSkill(Action):
                 if skill.nid == self.skill:
                     self.unit.skills.remove(skill)
                     skill_system.on_remove(self.unit, skill)
+                    skill_system.on_true_remove(self.unit, skill)
                     skill.owner_nid = None
                     self.removed_skills.append(skill)
                     if skill.aura and self.unit.position:
@@ -2049,6 +2050,7 @@ class RemoveSkill(Action):
             if self.skill in self.unit.skills:
                 self.unit.skills.remove(self.skill)
                 skill_system.on_remove(self.unit, self.skill)
+                skill_system.on_true_remove(self.unit, self.skill)
                 self.skill.owner_nid = None
                 self.removed_skills.append(self.skill)
                 if self.skill.aura and self.unit.position:
