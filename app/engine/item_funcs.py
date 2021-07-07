@@ -90,6 +90,10 @@ def create_item(unit, item_nid, droppable=False):
         for subitem_nid in item.sequence_item.value:
             create_subitem(subitem_nid)
 
+    elif item.memento_staff:
+        for subitem_nid in item.memento_staff.value:
+            create_subitem(subitem_nid)
+
     return item
 
 def create_items(unit, item_nid_list: list) -> list:

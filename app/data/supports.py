@@ -66,6 +66,8 @@ class SupportRankBonusList(list):
 
     def add_new_default(self, db):
         new_support_rank_bonus = SupportRankBonus.default()
+        if not db.support_ranks:
+            db.support_ranks.append(SupportRank('default'))
         new_support_rank_bonus.support_rank = db.support_ranks[0].nid
         self.append(new_support_rank_bonus)
         return new_support_rank_bonus

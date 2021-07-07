@@ -2,8 +2,27 @@ from app.data.skill_components import SkillComponent
 from app.data.components import Type
 
 from app.utilities import utils
-from app.engine import equations, action, item_funcs, static_random, skill_system, combat_calcs
+from app.engine import equations, action, item_funcs, static_random, skill_system, combat_calcs, target_system
 from app.engine.game_state import game
+
+class MementoHitBonus(SkillComponent):
+    nid = 'memento_hit_bonus'
+    desc = "Gives out bonus to hit when another character can attack the same unit"
+    tag = 'memento'
+
+    expose = Type.Int
+    value = 10
+
+    def dynamic_accuracy(self, unit, item, target, mode):
+        if mode == 'attack' and target and target.position:
+            for other_unit in game.get_all_units():
+                if other_unit is unit:
+                    continue
+                if skill_system.check_ally(unit, other_unit):
+                    # Unit and other unit can both attack target
+                    if target.position in target_system.get_attacks(other_unit, force=True):
+                        return self.value
+        return 0
 
 class MementoShove(SkillComponent):
     nid = 'memento_shove'

@@ -194,14 +194,21 @@ class UnitObject(Prefab):
     def set_exp(self, val):
         self.exp = int(utils.clamp(val, 0, 100))
 
-    def stat_bonus(self, stat_nid):
-        return skill_system.stat_change(self, stat_nid)
+    def stat_bonus(self, stat_nid: str) -> int:
+        bonus = skill_system.stat_change(self, stat_nid)
+        weapon = self.equipped_weapon
+        if weapon:
+            bonus += item_system.stat_change(self, weapon, stat_nid)
+        return bonus
+
+    def get_stat(self, stat_nid):
+        return self.stats.get(stat_nid, 0) + self.stat_bonus(stat_nid)
 
     def growth_bonus(self, stat_nid):
         return skill_system.growth_change(self, stat_nid)
 
-    def get_stat(self, stat_nid):
-        return self.stats.get(stat_nid, 0) + skill_system.stat_change(self, stat_nid)
+    def get_growth(self, stat_nid):
+        return self.growths.get(stat_nid, 0) + self.growth_bonus(stat_nid)
 
     @property
     def sprite(self):
@@ -267,7 +274,7 @@ class UnitObject(Prefab):
                     self.equip(item)
                     _weapon = item
         # Handle memento_staff mechanic
-        if _weapon.memento_staff:
+        if _weapon and _weapon.memento_staff:
             _weapon = _weapon.memento_staff.get_ward(_weapon)
         return _weapon
 

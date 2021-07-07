@@ -5,6 +5,40 @@ from app.utilities import utils
 from app.engine import target_system, skill_system
 from app.engine.game_state import game 
 
+class MementoStaff(ItemComponent):
+    nid = 'memento_staff'
+    desc = "Item contains a ward of the weapon types you want to use"
+    tag = 'memento'
+
+    expose = (Type.List, Type.Item)
+
+    def get_ward(self, spell):
+        for subitem in spell.subitems:
+            if subitem.memento_rune_type.value == spell.memento_rune_type.value:
+                return subitem
+        return None
+
+class MementoWard(ItemComponent):
+    nid = 'memento_ward'
+    desc = "Item is a ward"
+    tag = 'memento'
+
+    def get_spell(self, unit, selection):
+        spells = target_system.get_all_spells(self.cur_unit)
+        spells_that_share_memento_type = \
+            [spell for spell in spells if spell.memento_rune_type.value == selection.memento_rune_type.value]
+        return spells_that_share_memento_type[0]
+
+class MementoRuneType(ItemComponent):
+    nid = 'memento_rune_type'
+    desc = "Item has a rune type and can only be used by those with the right affinity"
+    tag = 'memento'
+
+    expose = Type.Affinity  # Nid
+
+    def available(self, unit, item) -> bool:
+        return self.value in unit.affinity
+
 class MementoEnemyCleaveAOE(ItemComponent):
     nid = 'memento_enemy_cleave_aoe'
     desc = "Gives Enemy Memento Cleave AOE"

@@ -154,3 +154,14 @@ class Unwieldy(ItemComponent):
 
     def modify_defense(self, unit, item):
         return -1 * self.value
+
+class StatChange(ItemComponent):
+    nid = 'stat_change'
+    desc = "Gives stat bonuses"
+    tag = 'weapon'
+
+    expose = (Type.Dict, Type.Stat)
+    value = []
+
+    def stat_change(self, unit):
+        return {stat[0]: stat[1] for stat in self.value}
