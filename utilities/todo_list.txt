@@ -41,31 +41,13 @@ Tutorial:
         Fight quote events
         Region events
     How to set up basic region events (like Village, Shop, Chest, Escape)
-    Common tasks with conditions/conditionals
-        and, or, not
-        alive, dead, turncount, 
-        check_pair (fight quote), check_default
-        check_terrain
-        for units, nid, team, klass, position, generic, tags
-        game.get_units_in_party()
-        region stuff (region.nid == 'house')
-        game.level_vars.get('X', 0) / game.level_vars['X']
-        game.game_vars.get('X', 0)
-        line crossing
-        game.mode
-        game.units has all units in current level + all non-generic units ever loaded into the game
-        list comprehensions
-        game.get_enemy_units()
-        game.get_player_units()
-        len, sum, any, all
-        game.get_unit()
-        game.level.regions.get().contains()
     Setting up Leadership stars
     Battle Save
     Breakable Walls
     Supports
     Title Screen
     Summoning
+    Choices
 
     Writing your own components
     Item System Hooks

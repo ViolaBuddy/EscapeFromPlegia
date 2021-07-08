@@ -633,6 +633,12 @@ class ChangeAI(EventCommand):
 
     keywords = ["GlobalUnit", "AI"]
 
+class ChangeParty(EventCommand):
+    nid = 'change_party'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    keywords = ["GlobalUnit", "Party"]
+
 class ChangeTeam(EventCommand):
     nid = 'change_team'
     tag = Tags.MODIFY_UNIT_PROPERTIES
@@ -837,6 +843,16 @@ class MapAnim(EventCommand):
 
     keywords = ["MapAnim", "Position"]
     flags = ["no_block"]
+
+class MergeParties(EventCommand):
+    nid = 'merge_parties'
+    tag = Tags.MISCELLANEOUS
+    # Merges the second party onto the first party
+    # The second will still exist, but will have no money, bexp, 
+    # items in convoy, or units associated with it
+    # The first will gain all of those properties
+
+    keywords = ["Party", "Party"]
 
 class ArrangeFormation(EventCommand):
     nid = 'arrange_formation'

@@ -576,13 +576,16 @@ class PaletteProperties(QWidget):
     def select_frame(self):
         combat_anim_nid, weapon_anim_nid = WeaponAnimSelection.get(self)
         combat_anim = RESOURCES.combat_anims.get(combat_anim_nid)
+        if not combat_anim:
+            return
         weapon_anim = combat_anim.weapon_anims.get(weapon_anim_nid)
-        if combat_anim and weapon_anim:
-            frame, ok = FrameSelector.get(combat_anim, weapon_anim, self)
-            if frame and ok:
-                self.current_frame = frame
-                self.color_selector_widget.set_current(self.current_palette, self.current_frame)
-                self.draw_frame()
+        if not weapon_anim:
+            return        
+        frame, ok = FrameSelector.get(combat_anim, weapon_anim, self)
+        if frame and ok:
+            self.current_frame = frame
+            self.color_selector_widget.set_current(self.current_palette, self.current_frame)
+            self.draw_frame()
 
     def selection_changed(self, selection):
         current = self.color_selector_widget.get_current_color()

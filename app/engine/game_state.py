@@ -126,7 +126,6 @@ class GameState():
         from app.engine.initiative import InitiativeTracker
         from app.engine.objects.level import LevelObject
         from app.engine.objects.tilemap import TileMapObject
-        from app.engine.objects.party import PartyObject
 
         level_nid = str(level_nid)
         level_prefab = DB.levels.get(level_nid)
@@ -141,11 +140,7 @@ class GameState():
 
         # Build party object for new parties
         if self.current_party not in self.parties:
-            party_prefab = DB.parties.get(self.current_party)
-            if not party_prefab:
-                party_prefab = DB.parties[0]
-            nid, name, leader = party_prefab.nid, party_prefab.name, party_prefab.leader
-            self.parties[self.current_party] = PartyObject(nid, name, leader)
+            self.build_party(self.current_party)
 
         # Assign every unit the levels party if they don't already have one
         for unit in self.current_level.units:
@@ -422,6 +417,21 @@ class GameState():
     @property
     def party(self):
         return self.parties[self.current_party]
+
+    def get_party(self, party_nid: str = None):
+        if not party_nid:
+            party_nid = self.current_party
+        if party_nid not in self.parties:
+            self.build_party(party_nid)
+        return self.parties[party_nid]
+
+    def build_party(self, party_nid):
+        from app.engine.objects.party import PartyObject
+        party_prefab = DB.parties.get(party_nid)
+        if not party_prefab:
+            party_prefab = DB.parties[0]
+        nid, name, leader = party_prefab.nid, party_prefab.name, party_prefab.leader
+        self.parties[self.current_party] = PartyObject(nid, name, leader)
 
     @property
     def units(self):

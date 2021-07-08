@@ -658,6 +658,18 @@ class Event():
                 logging.error("Couldn't find AI %s" % values[1])
                 return
 
+        elif command.nid == 'change_party':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                logging.error("Couldn't find unit %s" % values[0])
+                return
+            if values[1] in DB.parties.keys():
+                action.do(action.ChangeParty(unit, values[1]))
+            else:
+                logging.error("Couldn't find Party %s" % values[1])
+                return
+
         elif command.nid == 'change_team':
             values, flags = event_commands.parse(command)
             unit = self.get_unit(values[0])
@@ -956,6 +968,9 @@ class Event():
             else:
                 self.wait_time = engine.get_time() + anim.get_wait()
                 self.state = 'waiting'
+
+        elif command.nid == 'merge_parties':
+            self.merge_parties(command)
 
         elif command.nid == 'arrange_formation':
             self.arrange_formation()
@@ -2310,6 +2325,35 @@ class Event():
             new_region.only_once = True
 
         action.do(action.AddRegion(new_region))
+
+    def merge_parties(self, command):
+        values, flags = event_commands.parse(command)
+        host, guest = values[0], values[1]
+        if host not in DB.parties.keys():
+            logging.error("Could not locate party %s" % host)
+            return
+        if guest not in DB.parties.keys():
+            logging.error("Could not locate party %s" % guest)
+            return
+        guest_party = game.get_party(guest)
+        # Merge units
+        for unit in game.units:
+            if unit.party == guest:
+                action.do(action.ChangeParty(unit, host))
+        # Merge items
+        for item in guest_party.convoy:
+            action.do(action.RemoveItemFromConvoy(item, guest))
+            action.do(action.PutItemInConvoy(item, host))
+        # Merge money
+        # host.money += guest.money
+        action.do(action.GainMoney(host, guest_party.money))
+        # guest.money -= guest.money
+        action.do(action.GainMoney(guest, -guest_party.money))
+        # Merge bexp
+        # host.bexp += guest.bexp
+        action.do(action.GiveBexp(host, guest_party.bexp))
+        # guest.bexp -= guest.bexp
+        action.do(action.GiveBexp(guest, -guest_party.bexp))
 
     def arrange_formation(self):
         """

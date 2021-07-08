@@ -786,7 +786,7 @@ def get_battle_anim(unit, item, distance=1, klass=None) -> BattleAnimation:
     else:
         class_obj = DB.classes.get(unit.klass)
     combat_anim_nid = class_obj.combat_anim_nid
-    if unit.variant:
+    if combat_anim_nid and unit.variant:
         combat_anim_nid += unit.variant
     res = RESOURCES.combat_anims.get(combat_anim_nid)
     if not res:  # Try without unit variant

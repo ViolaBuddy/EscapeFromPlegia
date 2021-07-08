@@ -52,11 +52,11 @@ class PreferencesDialog(Dialog):
         self.theme.edit.currentIndexChanged.connect(self.theme_changed)
 
         self.autocomplete = PropertyCheckBox('Event Autocomplete', QCheckBox, self)
-        self.autocomplete.edit.setChecked(self.saved_preferences['event_autocomplete'])
+        self.autocomplete.edit.setChecked(bool(self.saved_preferences['event_autocomplete']))
 
         self.autosave = PropertyBox('Autosave Time (minutes)', QDoubleSpinBox, self)
         self.autosave.edit.setRange(0.5, 99)
-        self.autosave.edit.setValue(bool(self.saved_preferences['autosave_time']))
+        self.autosave.edit.setValue(self.saved_preferences['autosave_time'])
         self.autosave.edit.valueChanged.connect(self.autosave_time_changed)
 
         self.layout.addWidget(label)
@@ -88,7 +88,6 @@ class PreferencesDialog(Dialog):
         self.window.set_icons(idx)  # Change icons of main editor
 
     def autosave_time_changed(self, val):
-        print(val)
         t = timer.get_timer()
         t.autosave_timer.stop()
         t.autosave_timer.setInterval(val * 60 * 1000)
@@ -102,7 +101,8 @@ class PreferencesDialog(Dialog):
         # resorting to int
         autocomplete = 1 if self.autocomplete.edit.isChecked() else 0
         self.settings.set_event_autocomplete(autocomplete)
-        self.settings.set_autosave_time(float(self.autosave.edit.value()))
+        autosave = float(self.autosave.edit.value())
+        self.settings.set_autosave_time(autosave)
         super().accept()
 
     def reject(self):
