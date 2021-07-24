@@ -112,6 +112,14 @@ def available(unit, item) -> bool:
                     return False
     return True
 
+def stat_change(unit, item, stat_nid) -> int:
+    bonus = 0
+    for component in item.components:
+        if component.defines('stat_change'):
+            d = component.stat_change(unit)
+            bonus += d.get(stat_nid, 0)
+    return bonus
+
 def is_broken(unit, item) -> bool:
     """
     If any hook reports true, then it is true
