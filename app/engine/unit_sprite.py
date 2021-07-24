@@ -1,3 +1,4 @@
+from app.engine.game_counters import ANIMATION_COUNTERS
 import math
 
 from app.constants import TILEWIDTH, TILEHEIGHT, COLORKEY
@@ -123,7 +124,7 @@ class UnitSprite():
 
     def reset(self):
         self.offset = [0, 0]
-        game.map_view.attack_movement_counter.reset()
+        ANIMATION_COUNTERS.attack_movement_counter.reset()
 
     def add_animation(self, animation_nid):
         anim = RESOURCES.animations.get(animation_nid)
@@ -295,8 +296,8 @@ class UnitSprite():
             else:
                 self.image_state = 'passive'
         elif self.state == 'combat_anim':
-            self.offset[0] = utils.clamp(self.net_position[0], -1, 1) * game.map_view.attack_movement_counter.value()
-            self.offset[1] = utils.clamp(self.net_position[1], -1, 1) * game.map_view.attack_movement_counter.value()
+            self.offset[0] = utils.clamp(self.net_position[0], -1, 1) * ANIMATION_COUNTERS.attack_movement_counter.value()
+            self.offset[1] = utils.clamp(self.net_position[1], -1, 1) * ANIMATION_COUNTERS.attack_movement_counter.value()
         elif self.state == 'chosen':
             self.net_position = game.cursor.position[0] - self.unit.position[0], game.cursor.position[1] - self.unit.position[1]
             self.handle_net_position(self.net_position)
@@ -356,13 +357,13 @@ class UnitSprite():
         if self.unit.is_dying:
             return image[0].copy()
         elif state == 'passive' or state == 'gray':
-            return image[game.map_view.passive_sprite_counter.count].copy()
+            return image[ANIMATION_COUNTERS.passive_sprite_counter.count].copy()
         elif state == 'active':
-            return image[game.map_view.active_sprite_counter.count].copy()
+            return image[ANIMATION_COUNTERS.active_sprite_counter.count].copy()
         elif state == 'combat_anim':
-            return image[game.map_view.fast_move_sprite_counter.count].copy()
+            return image[ANIMATION_COUNTERS.fast_move_sprite_counter.count].copy()
         else:
-            return image[game.map_view.move_sprite_counter.count].copy()
+            return image[ANIMATION_COUNTERS.move_sprite_counter.count].copy()
 
     def create_image(self, state):
         if not self.map_sprite:  # This shouldn't happen, but if it does...

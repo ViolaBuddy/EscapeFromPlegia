@@ -1,9 +1,8 @@
-from app.utilities import utils
 from app.data.database import DB
-
-from app.engine import static_random, item_funcs
-
+from app.data.difficulty_modes import GrowthOption
+from app.engine import item_funcs, static_random
 from app.engine.game_state import game
+from app.utilities import utils
 
 import logging
 
@@ -24,7 +23,6 @@ def get_next_level_up(unit, custom_method=None) -> dict:
     stat_changes = {nid: 0 for nid in DB.stats.keys()}
     klass = DB.classes.get(unit.klass)
     difficulty_growth_bonus = game.mode.get_growth_bonus(unit)
-
     if method == 'BEXP':
         _rd_bexp_levelup(unit, unit.get_internal_level(), klass, stat_changes)
     else:
@@ -33,7 +31,7 @@ def get_next_level_up(unit, custom_method=None) -> dict:
         for nid in DB.stats.keys():
             growth = unit.growths[nid] + unit.growth_bonus(nid) + klass.growth_bonus.get(nid, 0) + difficulty_growth_bonus.get(nid, 0)
 
-            if method == 'Fixed':
+            if method == GrowthOption.FIXED:
                 if growth > 0:
                     stat_changes[nid] = (unit.growth_points[nid] + growth) // 100
                     unit.growth_points[nid] = (unit.growth_points[nid] + growth) % 100
@@ -41,9 +39,9 @@ def get_next_level_up(unit, custom_method=None) -> dict:
                     stat_changes[nid] = (-unit.growth_points[nid] + growth) // 100
                     unit.growth_points[nid] = (unit.growth_points[nid] - growth) % 100
 
-            elif method == 'Random':
+            elif method == GrowthOption.RANDOM:
                 stat_changes[nid] += _random_levelup(rng, unit, level, growth)
-            elif method == 'Dynamic':
+            elif method == GrowthOption.DYNAMIC:
                 _dynamic_levelup(rng, unit, level, stat_changes, unit.growth_points, nid, growth)
 
             stat_changes[nid] = utils.clamp(stat_changes[nid], -unit.stats[nid], klass.max_stats.get(nid, 30) - unit.stats[nid])
@@ -127,7 +125,7 @@ def auto_level(unit, num_levels, starting_level=1, difficulty_growths=False):
     method = get_leveling_method(unit)
     difficulty_growth_bonus = game.mode.get_growth_bonus(unit)
 
-    if method == 'Fixed':
+    if method == GrowthOption.FIXED:
         for growth_nid, growth_value in unit.growths.items():
             if difficulty_growths:
                 growth_sum = difficulty_growth_bonus.get(growth_nid, 0) * num_levels
@@ -140,7 +138,7 @@ def auto_level(unit, num_levels, starting_level=1, difficulty_growths=False):
                 unit.stats[growth_nid] += (growth_sum + unit.growth_points[growth_nid]) // 100
                 unit.growth_points[growth_nid] = (growth_sum + unit.growth_points[growth_nid]) % 100
 
-    elif method == 'Random':
+    elif method == GrowthOption.RANDOM:
         for n in range(num_levels):
             level = starting_level + n
             rng = static_random.get_levelup(unit.nid, level)
@@ -151,7 +149,7 @@ def auto_level(unit, num_levels, starting_level=1, difficulty_growths=False):
                     growth_rate = growth_value + unit.growth_bonus(growth_nid) + difficulty_growth_bonus.get(growth_nid, 0)
                 unit.stats[growth_nid] += _random_levelup(rng, unit, level, growth_rate)
 
-    elif method == 'Dynamic':
+    elif method == GrowthOption.DYNAMIC:
         for n in range(num_levels):
             level = starting_level + n
             rng = static_random.get_levelup(unit.nid, level)
@@ -243,7 +241,7 @@ def get_global_skills(unit):
     return global_skills
 
 def can_unlock(unit, region) -> bool:
-    from app.engine import skill_system, item_system
+    from app.engine import item_system, skill_system
     if skill_system.can_unlock(unit, region):
         return True
     for item in item_funcs.get_all_items(unit):

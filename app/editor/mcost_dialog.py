@@ -95,7 +95,7 @@ class ColumnHeaderView(QHeaderView):
         self._metrics = QFontMetrics(self.font())
         self._descent = self._metrics.descent()
         self._margin = 10
-        
+
         custom_style = VerticalTextHeaderStyle(self.font().pixelSize() + 1)
         self.setStyle(custom_style)
 
@@ -245,7 +245,7 @@ class RowHeaderView(QHeaderView):
         menu.addAction(rename_action)
 
         menu.popup(self.viewport().mapToGlobal(pos))
-        
+
 class McostDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
         editor = QLineEdit(parent)
@@ -292,7 +292,7 @@ class GridModel(QAbstractTableModel):
     def insert_row(self, idx):
         new_row_name = str_utils.get_next_name('New', self._data.row_headers)
         self._data.insert_row(new_row_name, idx)
-        self.layoutChanged.emit()        
+        self.layoutChanged.emit()
 
     def delete_col(self, idx):
         self._data.delete_column(idx)
@@ -395,7 +395,7 @@ class MovementCostModel(CollectionModel):
 class MovementClassModel(CollectionModel):
     def rowCount(self, parent=None):
         return len(self._data.unit_types)
-        
+
     def data(self, index, role):
         if not index.isValid():
             return None

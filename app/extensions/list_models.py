@@ -96,8 +96,8 @@ class DoubleListModel(VirtualListModel):
     """
     Handles a simple list of 2-tuples/lists
     Where the second column is a number
-    Used for Type.Dict in item_component editor and 
-    skill_component editor. 
+    Used for Type.Dict in item_component editor and
+    skill_component editor.
     """
     def __init__(self, data, headers, parent=None):
         super().__init__(parent)

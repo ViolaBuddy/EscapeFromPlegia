@@ -20,8 +20,8 @@ class PartyObject(Prefab):
         self.bexp = bexp
 
     def save(self):
-        return {'nid': self.nid, 
-                'name': self.name, 
+        return {'nid': self.nid,
+                'name': self.name,
                 'leader_nid': self.leader_nid,
                 'units': self.units,
                 'money': self.money,

@@ -36,7 +36,7 @@ class TileSetModel(ResourceCollectionModel):
             pixmap = tileset.pixmap
             return QIcon(pixmap)
         return None
-        
+
     def create_new(self):
         settings = MainSettingsController()
         starting_path = settings.get_last_open_path()
@@ -49,16 +49,16 @@ class TileSetModel(ResourceCollectionModel):
                     pix = QPixmap(fn)
                     nid = str_utils.get_next_name(nid, RESOURCES.tilesets.keys())
                     if pix.width() % TILEWIDTH != 0:
-                        QMessageBox.critical(self, 'Error', "Image width must be exactly divisible by %d pixels!" % TILEWIDTH)
+                        QMessageBox.critical(self.window, 'Error', "Image width must be exactly divisible by %d pixels!" % TILEWIDTH)
                         continue
                     elif pix.height() % TILEHEIGHT != 0:
-                        QMessageBox.critical(self, 'Error', "Image height must be exactly divisible by %d pixels!" % TILEHEIGHT)
+                        QMessageBox.critical(self.window, 'Error', "Image height must be exactly divisible by %d pixels!" % TILEHEIGHT)
                         continue
                     new_tileset = TileSet(nid, fn)
                     new_tileset.set_pixmap(pix)
                     RESOURCES.tilesets.append(new_tileset)
                 else:
-                    QMessageBox.critical(self.window, "File Type Error!", "Tileset must be PNG format!") 
+                    QMessageBox.critical(self.window, "File Type Error!", "Tileset must be PNG format!")
             parent_dir = os.path.split(fns[-1])[0]
             settings.set_last_open_path(parent_dir)
         return new_tileset
@@ -155,7 +155,7 @@ class TileMapModel(ResourceCollectionModel):
         create_tilemap_pixmap(new_tilemap)
         RESOURCES.tilemaps.append(new_tilemap)
         self.layoutChanged.emit()
-        
+
     def delete(self, idx):
         # Check to see what is using me?
         res = self._data[idx]

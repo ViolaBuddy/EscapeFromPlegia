@@ -577,7 +577,7 @@ class MainEditor(QMainWindow):
                           "<p>Check out <a href='https://gitlab.com/rainlash/lex-talionis/wikis/home'>https://gitlab.com/rainlash/lex-talionis/wikis/home</a> "
                           "for more information and helpful tutorials.</p>"
                           "<p>This program has been freely distributed under the MIT License.</p>"
-                          "<p>Copyright 2014-2020 rainlash.</p>")
+                          "<p>Copyright 2014-2021 rainlash.</p>")
 
     def check_for_updates(self):
         # Only check for updates in frozen version
@@ -587,7 +587,7 @@ class MainEditor(QMainWindow):
                                               "Do you want to download and install now?",
                                               QMessageBox.Yes | QMessageBox.No)
                 if ret == QMessageBox.Yes:
-                    if self.maybe_save():
+                    if self.project_save_load_handler.maybe_save():
                         updating = autoupdate.update()
                         if updating:
                             # Force quit!!!

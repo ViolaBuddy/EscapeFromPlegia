@@ -214,10 +214,10 @@ class ExpState(State):
         elif self.state.get_state() == 'level_screen':
             if not self.level_up_screen:
                 self.level_up_screen = LevelUpScreen(
-                    self.unit, self.stat_changes, self.old_level, self.unit.level)
+                    self, self.unit, self.stat_changes, self.old_level, self.unit.level)
             if self.level_up_screen.update(current_time):
                 game.state.back()
-                game.events.trigger('unit_level_up', self.unit)
+                game.events.trigger('unit_level_up', self.unit, unit2=self.stat_changes)
                 if self.combat_object:
                     self.combat_object.lighten_ui()
 
@@ -229,18 +229,8 @@ class ExpState(State):
                 # check for skill gain unless the unit is using a booster to
                 # get to this screen
                 if self.starting_state != "stat_booster":
-                    unit_klass = DB.classes.get(self.unit.klass)
-                    for level_needed, class_skill in unit_klass.learned_skills:
-                        if self.unit.level == level_needed:
-                            if class_skill == 'Feat':
-                                game.memory['current_unit'] = self.unit
-                                game.state.change('feat_choice')
-                            else:
-                                act = action.AddSkill(self.unit, class_skill)
-                                action.do(act)
-                                if act.skill_obj:
-                                    game.alerts.append(banner.GiveSkill(self.unit, act.skill_obj))
-                                    game.state.change('alert')
+                    ExpState.give_new_personal_skills(self.unit)
+                    ExpState.give_new_class_skills(self.unit)
 
         # Wait 100 ms before transferring to the promotion state
         elif self.state.get_state() == 'prepare_promote':
@@ -321,6 +311,38 @@ class ExpState(State):
 
         return surf
 
+    @staticmethod
+    def give_new_class_skills(unit):
+        unit_klass = DB.classes.get(unit.klass)
+        for level_needed, class_skill in unit_klass.learned_skills:
+            if unit.level == level_needed:
+                if class_skill == 'Feat':
+                    game.memory['current_unit'] = unit
+                    game.state.change('feat_choice')
+                else:
+                    act = action.AddSkill(unit, class_skill)
+                    action.do(act)
+                    if act.skill_obj:
+                        game.alerts.append(banner.GiveSkill(unit, act.skill_obj))
+                        game.state.change('alert')
+
+    @staticmethod
+    def give_new_personal_skills(unit):
+        unit_prefab = DB.units.get(unit.nid)
+        if not unit_prefab:
+            return
+        for level_needed, personal_skill in unit_prefab.learned_skills:
+            if unit.level == level_needed:
+                if personal_skill == 'Feat':
+                    game.memory['current_unit'] = unit
+                    game.state.change('feat_choice')
+                else:
+                    act = action.AddSkill(unit, personal_skill)
+                    action.do(act)
+                    if act.skill_obj:
+                        game.alerts.append(banner.GiveSkill(unit, act.skill_obj))
+                        game.state.change('alert')
+
 class LevelUpScreen():
     bg = SPRITES.get('level_screen')
     bg = bg.convert_alpha()
@@ -332,7 +354,8 @@ class LevelUpScreen():
 
     underline = SPRITES.get('stat_underline')
 
-    def __init__(self, unit, stat_changes, old_level, new_level):
+    def __init__(self, parent, unit, stat_changes, old_level, new_level):
+        self.parent = parent
         self.unit = unit
         self.stat_list = [stat_changes.get(nid, 0) for nid in DB.stats.keys()]
         self.stat_list = self.stat_list[:8]  # Can only show first 8 stats on level up
@@ -410,6 +433,7 @@ class LevelUpScreen():
         elif self.state == 'get_next_spark':
             done = self.inc_spark()
             if done:
+                game.events.trigger('during_unit_level_up', self.unit, unit2=self.parent.stat_changes)
                 self.state = 'level_up_wait'
                 self.start_time = current_time
             else:

@@ -46,6 +46,9 @@ class TurnChangeState(MapState):
                 action.do(action.IncrementTurn())
                 game.events.trigger('turn_change')
                 if game.turncount - 1 <= 0:  # Beginning of the level
+                    for unit in game.get_all_units_in_party():
+                        # Give out fatigue statuses if necessary at the beginning of the level
+                        action.do(action.ChangeFatigue(unit, 0))
                     game.events.trigger('level_start')
         else:
             game.phase.next()  # Go to next phase
@@ -59,6 +62,9 @@ class TurnChangeState(MapState):
                 # EVENTS TRIGGER HERE
                 game.events.trigger('turn_change')
                 if game.turncount - 1 <= 0:  # Beginning of the level
+                    for unit in game.get_all_units_in_party():
+                        # Give out fatigue statuses if necessary at the beginning of the level
+                        action.do(action.ChangeFatigue(unit, 0))
                     game.events.trigger('level_start')
             else:
                 game.state.change('ai')
@@ -97,6 +103,11 @@ class InitiativeUpkeep(MapState):
 class PhaseChangeState(MapState):
     name = 'phase_change'
 
+    def refresh_fatigue(self):
+        refresh_these = [unit for unit in game.get_all_units_in_party() if not unit.position]
+        for unit in refresh_these:
+            action.do(action.ChangeFatigue(unit, -unit.get_fatigue()))
+
     def begin(self):
         self.save_state()
         logging.info("Phase Change Start")
@@ -107,6 +118,8 @@ class PhaseChangeState(MapState):
         # units reset, etc.
         phase.fade_out_phase_music()
         action.do(action.LockTurnwheel(game.phase.get_current() != 'player'))
+        if DB.constants.value('fatigue') and game.turncount == 1 and game.phase.get_current() == 'player':
+            self.refresh_fatigue()
         action.do(action.ResetAll([unit for unit in game.units if not unit.dead]))
         game.cursor.hide()
         game.phase.slide_in()
@@ -245,7 +258,7 @@ class OptionMenuState(MapState):
         game.cursor.hide()
         options = ['Unit', 'Objective', 'Options']
         info_desc = ['Unit_desc', 'Objective_desc', 'Options_desc']
-        ignore = [True, False, False]
+        ignore = [False, False, False]
         if game.current_mode.permadeath:
             options.append('Suspend')
             info_desc.append('Suspend_desc')
@@ -303,6 +316,7 @@ class OptionMenuState(MapState):
                     game.state.change('turn_change')
                     game.state.change('status_endstep')
                     game.state.change('ai')
+                    game.ui_view.remove_unit_display()
                     return 'repeat'
             elif selection == 'Suspend' or selection == 'Save':
                 if cf.SETTINGS['confirm_end']:
@@ -314,6 +328,9 @@ class OptionMenuState(MapState):
                         suspend()
                     elif selection == 'Save':
                         battle_save()
+            elif selection == 'Unit':
+                game.memory['next_state'] = 'unit_menu'
+                game.state.change('transition_to')
             elif selection == 'Objective':
                 game.memory['next_state'] = 'objective_menu'
                 game.state.change('transition_to')
@@ -323,10 +340,6 @@ class OptionMenuState(MapState):
             elif selection == 'Options':
                 game.memory['next_state'] = 'settings_menu'
                 game.state.change('transition_to')
-            elif selection == 'Unit':
-                pass
-                # game.state.change('unit_menu')
-                # game.state.change('transition_out')
             elif selection == 'Turnwheel':
                 if cf.SETTINGS['debug'] or game.game_vars.get('_current_turnwheel_uses', 1) > 0:
                     game.state.change('turnwheel')
@@ -387,6 +400,7 @@ class OptionChildState(State):
                     game.state.change('turn_change')
                     game.state.change('status_endstep')
                     game.state.change('ai')
+                    game.ui_view.remove_unit_display()
                     return 'repeat'
                 elif self.menu.owner == 'Suspend':
                     game.state.back()
@@ -1096,6 +1110,10 @@ class TargetingState(MapState):
 
         self.pennant = banner.Pennant(self.ability.name + '_desc')
 
+        # Only used for Trade ability, to enable trading
+        # with rescued units
+        self.traveler_mode = False  # Should we be targeting the traveler?
+
     def begin(self):
         game.cursor.combat_show()
         self.cur_unit.sprite.change_state('chosen')
@@ -1106,18 +1124,30 @@ class TargetingState(MapState):
 
         if 'DOWN' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
+            self.traveler_mode = False
+            if self.ability.name == 'Trade':
+                current_target = game.cursor.get_hover()
+                traveler = current_target.traveler
+                if traveler and game.get_unit(traveler).team == self.cur_unit.team:
+                    self.traveler_mode = True
+                else:
+                    new_position = self.selection.get_down(game.cursor.position)
+                    game.cursor.set_pos(new_position)
             new_position = self.selection.get_down(game.cursor.position)
             game.cursor.set_pos(new_position)
         elif 'UP' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
+            self.traveler_mode = False
             new_position = self.selection.get_up(game.cursor.position)
             game.cursor.set_pos(new_position)
         if 'LEFT' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
+            self.traveler_mode = False
             new_position = self.selection.get_left(game.cursor.position)
             game.cursor.set_pos(new_position)
         elif 'RIGHT' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
+            self.traveler_mode = False
             new_position = self.selection.get_right(game.cursor.position)
             game.cursor.set_pos(new_position)
 
@@ -1131,10 +1161,16 @@ class TargetingState(MapState):
 
         elif event == 'SELECT':
             SOUNDTHREAD.play_sfx('Select 1')
+            unit = game.cursor.get_hover()
+            if self.traveler_mode:
+                game.memory['trade_partner'] = game.get_unit(unit.traveler)
+            else:
+                game.memory['trade_partner'] = unit
             self.ability.do(self.cur_unit)
 
         elif event == 'AUX':
             SOUNDTHREAD.play_sfx('Select 6')
+            self.traveler_mode = False
             new_position = self.selection.get_next(game.cursor.position)
             game.cursor.set_pos(new_position)
 
@@ -1202,7 +1238,10 @@ class TargetingState(MapState):
                     self.draw_give_preview(traveler, give_to, surf)
         elif self.ability.name == 'Trade':
             unit = game.cursor.get_hover()
-            game.ui_view.draw_trade_preview(unit, surf)
+            if self.traveler_mode:
+                game.ui_view.draw_trade_preview(game.get_unit(unit.traveler), surf)
+            else:
+                game.ui_view.draw_trade_preview(unit, surf)
         elif self.ability.name == 'Steal':
             unit = game.cursor.get_hover()
             game.ui_view.draw_trade_preview(unit, surf)
@@ -1629,6 +1668,13 @@ class AIState(MapState):
         valid_units.reverse()
         return valid_units.pop()
 
+    def take_input(self, event):
+        # Skip combats while START is held down
+        if not game.ai.do_skip and INPUT.is_pressed('START'):
+            game.ai.skip()
+        elif game.ai.do_skip and not INPUT.is_pressed('START'):
+            game.ai.end_skip()
+
     def update(self):
         super().update()
 
@@ -1663,7 +1709,7 @@ class AIState(MapState):
                     game.camera.set_center2(self.cur_unit.position, game.ai.goal_position)
                 else:
                     game.camera.set_center(*self.cur_unit.position)  # Actually center the camera
-                if has_already_moved:
+                if has_already_moved and not game.ai.do_skip:
                     # Only do this for non-move actions
                     game.state.change('move_camera')
 
@@ -1676,6 +1722,7 @@ class AIState(MapState):
                 self.cur_unit = None
         else:
             logging.info("AI Phase complete")
+            game.ai.end_skip()
             game.ai.reset()
             self.cur_unit = None
             self.cur_group = None

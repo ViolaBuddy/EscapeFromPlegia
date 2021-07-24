@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+from typing import Dict, TYPE_CHECKING, List
+
+if TYPE_CHECKING:
+    from app.engine.objects.overworld import OverworldEntityObject, OverworldObject
+
 from functools import lru_cache
 from typing import List, Tuple
 
@@ -10,10 +17,10 @@ from app.utilities.typing import NID
 
 class Validator():
     desc = ""
-    
+
     def validate(self, text, level):
         return text
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         """Return a list of all known valid options for this validator
@@ -35,7 +42,7 @@ class OptionValidator(Validator):
         if text.lower() in self.valid:
             return text
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(None, option) for option in self.valid]
@@ -43,13 +50,13 @@ class OptionValidator(Validator):
 
 class EventFunction(Validator):
     desc = "must be a valid event function"
-    
+
     def validate(self, text, level):
         command_nids = [command.nid for command in event_commands.get_commands()]
         if text in command_nids:
             return text
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(None, command.nid) for command in event_commands.get_commands()]
@@ -69,6 +76,13 @@ class Integer(Validator):
     def validate(self, text, level):
         if str_utils.is_int(text):
             return int(text)
+        return None
+
+class Float(Validator):
+    desc = "Any number with a decimal"
+    def validate(self, text, level):
+        if str_utils.is_float(text):
+            return float(text)
         return None
 
 class PositiveInteger(Validator):
@@ -98,12 +112,12 @@ class Music(Validator):
         elif text == 'None':
             return text
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(None, music.nid) for music in RESOURCES.music.values()]
         return valids
-    
+
 class Sound(Validator):
     def validate(self, text, level):
         if text in RESOURCES.sfx.keys():
@@ -118,6 +132,14 @@ class Sound(Validator):
 class PhaseMusic(OptionValidator):
     valid = ['player_phase', 'enemy_phase', 'other_phase', 'enemy2_phase',
              'player_battle', 'enemy_battle', 'other_battle', 'enemy2_battle']
+
+class Volume(Validator):
+    desc = "A number between 0 and 1 (0 is muted, 1 is highest volume)"
+
+    def validate(self, text, level):
+        if str_utils.is_float(text) and float(text) >= 0:
+            return float(text)
+        return None
 
 class PortraitNid(Validator):
     def validate(self, text, level):
@@ -141,7 +163,7 @@ class Portrait(Validator):
         elif text in ('{unit}', '{unit1}', '{unit2}'):
             return text
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(None, portrait.nid) for portrait in RESOURCES.portraits.values()]
@@ -162,7 +184,7 @@ class Team(Validator):
         if text in DB.teams:
             return text
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(None, team_nid) for team_nid in DB.teams]
@@ -180,9 +202,15 @@ class Tag(Validator):
         return valids
 
 class ScreenPosition(Validator):
-    valid_positions = ["OffscreenLeft", "FarLeft", "Left", "MidLeft", "CenterLeft", "CenterRight", "MidRight", "Right", "FarRight", "OffscreenRight"]
+    valid_positions = ["OffscreenLeft", "FarLeft", "Left", "MidLeft", "CenterLeft", "CenterRight", "MidRight", "LevelUpRight", "Right", "FarRight", "OffscreenRight"]
 
-    desc = "determines where to add the portrait to the screen. Available options are (`OffscreenLeft`, `FarLeft`, `Left`, `MidLeft`, `MidRight`, `Right`, `FarRight`, `OffscreenRight`). Alternatively, specify a position in pixels (`x,y`) for the topleft of the portrait. If the portrait is placed on the left side of the screen to start, it will be facing right, and vice versa."
+    desc = ("determines where to add the portrait to the screen."
+            "Available options are (`OffscreenLeft`, `FarLeft`, "
+            "`Left`, `MidLeft`, `MidRight`, `Right`, `FarRight`, "
+            "`OffscreenRight`). Alternatively, specify a position in "
+            "pixels (`x,y`) for the topleft of the portrait. If the portrait"
+            "is placed on the left side of the screen to start, it will be facing "
+            "right, and vice versa.")
 
     def validate(self, text, level):
         if text in self.valid_positions:
@@ -192,11 +220,29 @@ class ScreenPosition(Validator):
         elif ',' in text and len(text.split(',')) == 2 and all(str_utils.is_int(t) for t in text.split(',')):
             return text
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(None, option) for option in self.valid_positions]
         return valids
+
+class VerticalScreenPosition(Validator):
+    valid_positions = ["Bottom", "Middle", "Top"]
+
+    desc = ("determines what height to add the portrait to the screen."
+            "Available options are (`Bottom`, `Middle`, `Top`). By default,"
+            "dialog portraits are displayed along the bottom.")
+
+    def validate(self, text, level):
+        if text in self.valid_positions:
+            return text
+        return None
+
+    @lru_cache()
+    def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
+        valids = [(None, option) for option in self.valid_positions]
+        return valids
+
 
 class Slide(OptionValidator):
     valid = ["normal", "left", "right"]
@@ -217,7 +263,7 @@ class ExpressionList(Validator):
             if t not in self.valid_expressions:
                 return None
         return text
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(None, option) for option in self.valid_expressions]
@@ -246,7 +292,7 @@ class Panorama(Validator):
         if text in RESOURCES.panoramas.keys():
             return text
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(None, pan.nid) for pan in RESOURCES.panoramas.values()]
@@ -298,6 +344,8 @@ class Position(Validator):
                 return text
             elif text in ('{unit}', '{unit1}', '{unit2}', '{position}'):
                 return text
+            elif text in self.valid_overworld_nids().values():
+                return text
             return None
         if len(text) > 2:
             return None
@@ -314,7 +362,7 @@ class Position(Validator):
         else:
             return text
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         level_prefab = DB.levels.get(level)
@@ -324,9 +372,24 @@ class Position(Validator):
             valids.append((None, "{unit1}"))
             valids.append((None, "{unit2}"))
             valids.append((None, "{position}"))
+            for pair in self.valid_overworld_nids().items():
+                valids.append(pair)
             return valids
         else:
-            return []
+            valids = []
+            for pair in self.valid_overworld_nids().items():
+                valids.append(pair)
+            return valids
+
+    def valid_overworld_nids(self) -> Dict[str, NID]:
+        # list of all valid nids in overworld
+        nids = {}
+        for overworld in DB.overworlds.values():
+            node_nids = {node.name: node.nid for node in overworld.overworld_nodes.values()}
+            nids.update(node_nids)
+        party_nids = {party.name: party.nid for party in DB.parties.values()}
+        nids.update(party_nids)
+        return nids
 
 class PositionOffset(Validator):
     desc = "accepts a valid `(x, y)` position offset."
@@ -352,7 +415,7 @@ class Size(Validator):
 
 class Unit(Validator):
     desc = "accepts a unit's nid. Alternatively, you can use one of (`{unit}`, `{unit1}`, `{unit2}`)."
-    
+
     def validate(self, text, level):
         if not level:
             return text
@@ -362,7 +425,7 @@ class Unit(Validator):
         elif text in ('{unit}', '{unit1}', '{unit2}'):
             return True
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(unit.name, unit.nid) for unit in DB.units.values()]
@@ -380,7 +443,7 @@ class Group(Validator):
         if text in nids:
             return text
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         level_prefab = DB.levels.get(level)
@@ -423,7 +486,7 @@ class UniqueUnit(Validator):
         if text in DB.units.keys():
             return text
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(unit.name, unit.nid) for unit in DB.units.values()]
@@ -444,7 +507,7 @@ class GlobalUnit(Validator):
         elif text in ('{unit}', '{unit1}', '{unit2}'):
             return True
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(unit.name, unit.nid) for unit in DB.units.values()]
@@ -456,7 +519,7 @@ class GlobalUnit(Validator):
 
 class CardinalDirection(OptionValidator):
     valid = ['north', 'east', 'west', 'south']
-    
+
 class EntryType(OptionValidator):
     valid = ['fade', 'immediate', 'warp', 'swoosh']
 
@@ -484,7 +547,7 @@ class CombatScript(Validator):
         if all(command.lower() in self.valid_commands for command in commands):
             return text
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(None, option) for option in self.valid_commands]
@@ -497,7 +560,7 @@ class Ability(Validator):
         elif text in DB.skills.keys():
             return text
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(item.name, item.nid) for item in DB.items.values()]
@@ -523,7 +586,7 @@ class ItemList(Validator):
         if all(item in DB.items.keys() for item in items):
             return text
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(item.name, item.nid) for item in DB.items.values()]
@@ -544,7 +607,7 @@ class StatList(Validator):
             elif not str_utils.is_int(stat_value):
                 return None
         return text
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(stat.name, stat.nid) for stat in DB.stats.values()]
@@ -555,18 +618,20 @@ class Skill(Validator):
         if text in DB.skills.keys():
             return text
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         svalids = [(skill.name, skill.nid) for skill in DB.skills.values()]
         return svalids
 
 class Party(Validator):
+    desc = "accepts the nid of an existing Party"
+
     def validate(self, text, level):
         if text in DB.parties.keys():
             return text
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(party.name, party.nid) for party in DB.parties.values()]
@@ -582,13 +647,13 @@ class Faction(Validator):
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(fac.name, fac.nid) for fac in DB.factions.values()]
         return valids
-    
+
 class Klass(Validator):
     def validate(self, text, level):
         if text in DB.classes.keys():
             return text
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(klass.name, klass.nid) for klass in DB.classes.values()]
@@ -599,7 +664,7 @@ class Lore(Validator):
         if text in DB.lore.keys():
             return text
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(lore.name, lore.nid) for lore in DB.lore.values()]
@@ -610,7 +675,7 @@ class WeaponType(Validator):
         if text in DB.weapons.keys():
             return text
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(weapon.name, weapon.nid) for weapon in DB.weapons.values()]
@@ -642,7 +707,7 @@ class MapAnim(Validator):
         if text in RESOURCES.animations.keys():
             return text
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(None, anim.nid) for anim in RESOURCES.animations.values()]
@@ -653,7 +718,7 @@ class Tilemap(Validator):
         if text in RESOURCES.tilemaps.keys():
             return text
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(None, tilemap.nid) for tilemap in RESOURCES.tilemaps.values()]
@@ -667,10 +732,40 @@ class Event(Validator):
             if event.name == text and (not event.level_nid or not level or event.level_nid == level.nid):
                 return text
         return None
-    
+
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(event.name, event.nid) for event in DB.events.values() if (level is None or event.level_nid == level or event.level_nid is None)]
+        return valids
+
+class OverworldNID(Validator):
+    desc = "accepts the nid of a valid overworld"
+
+    def validate(self, text, level):
+        if DB.overworlds.get(text) is not None:
+            return text
+        return None
+
+    @lru_cache()
+    def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
+        valids = [(overworld.name, overworld.nid) for overworld in DB.overworlds.values()]
+        return valids
+
+class OverworldLocation(Validator):
+    desc = "accepts the nid of an overworld location/node."
+
+    def validate(self, text, level):
+        for overworld in DB.overworlds.values():
+            for node in overworld.overworld_nodes:
+                if node.nid == text:
+                    return text
+        return None
+
+    @lru_cache()
+    def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
+        valids = []
+        for overworld in DB.overworlds.values():
+            valids = valids + [(node.name, node.nid) for node in overworld.overworld_nodes.values()]
         return valids
 
 validators = {validator.__name__: validator for validator in Validator.__subclasses__()}

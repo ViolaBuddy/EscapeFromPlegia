@@ -1,90 +1,118 @@
-from app.counters import generic3counter
-from app.utilities import utils
-from app.constants import TILEWIDTH, TILEHEIGHT
-
-from app.utilities.utils import frames2ms
-from app.engine.sprites import SPRITES
-from app.engine.sound import SOUNDTHREAD
-from app.engine import engine, target_system
-from app.engine import config as cf
-from app.engine.game_state import game
-from app.engine.input_manager import INPUT
-from app.engine.fluid_scroll import FluidScroll
-
 import logging
+from typing import Any, Tuple
 
-class Cursor():
-    def __init__(self):
-        self.cursor_counter = generic3counter(frames2ms(20), frames2ms(2), frames2ms(8))
-        self.position = (0, 0)
-        self.cur_unit = None
-        self.path = []
-        self.draw_state = 0
-        self.speed_state = False
+from app.constants import TILEHEIGHT, TILEWIDTH, TILEX, TILEY
+from app.engine import engine
+from app.engine.camera import Camera
+from app.engine.fluid_scroll import FluidScroll
+from app.engine.input_manager import INPUT
+from app.engine.objects.tilemap import TileMapObject
+from app.engine.sound import SOUNDTHREAD
+from app.engine.sprites import SPRITES
+from app.utilities.enums import Direction
+from app.utilities.utils import frames2ms, tclamp, tmult
+from app.engine.engine import Surface
 
-        self.sprite = SPRITES.get('cursor')
-        self.format_sprite(self.sprite)
-        self.offset_x, self.offset_y = 0, 0
+class BaseCursor():
+    """Basic Cursor Class, contains universal cursor functionality.
 
-        # self.fluid = FluidScroll(cf.SETTINGS['cursor_speed'])
-        # slow at 13 frames -- 216, fast at 4 frames -- 66
-        self.fluid = FluidScroll(frames2ms(4), 3.25)
+    Camera and Tilemap are optional, but unlock some additional functionality
+    such as automatic camera manipulation, and cursor movement boundaries.
+    """
+    def __init__(self, camera: Camera = None, tilemap: TileMapObject = None):
+        # internal scroll controller
+        self.fluid: FluidScroll = FluidScroll(frames2ms(4), 3.25)
 
-        self._display_arrows: bool = False
-        self.arrows = []
-        self._last_valid_position = None  # Last position within movement borders
-        self.stopped_at_move_border = False
+        # fellow controllers
+        self.camera = camera
+        self.tilemap = tilemap
 
+        # some state information
         self.mouse_mode: bool = False
+        self.position: Tuple[int, int] = (0, 0)
+        self._bounds: Tuple[int, int, int, int] = None
+        self.visible: bool = False
 
-    def get_hover(self):
-        unit = game.board.get_unit(self.position)
-        if unit and 'Tile' not in unit.tags and game.board.in_vision(unit.position):
-            return unit
-        return None
+        # default settings
+        self._sprite: Surface = SPRITES.get('cursor')
+        self._sprite_dim: Tuple[int, int] = (32, 32)
+
+        # used for animating between squares
+        self.offset_x, self.offset_y = 0, 0
+        self._transition_duration = frames2ms(4)
+        self._transition_speed = 1
+        self._transition_remaining: Tuple[int, int] = (0, 0)
+        self._transition_direction: Tuple[Direction, Direction] = (Direction.LEFT, Direction.UP)
+        self._transition_start: Tuple[int, int] = (0, 0)
 
     def hide(self):
-        self.draw_state = 0
+        self.visible = False
 
     def show(self):
-        self.draw_state = 1
+        self.visible = True
 
-    def combat_show(self):
-        self.draw_state = 2
+    def get_bounds(self) -> Tuple[int, int, int, int]:
+        """Boundaries of the cursor traversal. Useful if you don't want
+        the cursor to hover over the edges of the map. Format is
+        min left, min top, max right, max bottom, i.e. the furthest you can go
+        left, top, right, and bottom. Defaults to (0, 0, game.tilemap,width - 1, game.tilemap.height - 1)
 
-    def set_turnwheel_sprite(self):
-        self.draw_state = 3
+        Returns:
+            Tuple[int, int, int, int]: boundary for cursor
+        """
+        if self._bounds:
+            return self._bounds
+        elif self.tilemap:
+            return (0, 0, self.tilemap.width - 1, self.tilemap.height - 1)
+        else:
+            return (0, 0, TILEX - 1, TILEY - 1)
 
-    def formation_show(self):
-        self.draw_state = 4
+    @property
+    def transition_duration(self):
+        return self._transition_duration / self._transition_speed
 
-    def set_speed_state(self, val: bool):
-        self.speed_state = val
+    @property
+    def transition_progress(self):
+        remaining_transition = tmult(self._transition_remaining, 1 / self.transition_duration)
+        return tclamp(remaining_transition, (0, 0), (1, 1))
+
+    def get_image(self) -> Surface:
+        """Returns the current image of the cursor.
+        Use this to change/animate the cursor sprite.
+
+        Returns:
+            Surface: Sprite to be blitted
+        """
+        sprite = engine.subsurface(self._sprite, (0, 0, self._sprite_dim[0], self._sprite_dim[1]))
+        return sprite
+
+    def get_hover(self) -> Any:
+        """Gets the object beneath the cursor.
+
+        Returns:
+            Any: any arbitrary object. Not defined for BaseCursor.
+        """
+        raise NotImplementedError('Tried to get_hover without implementing!')
+
+    def autocursor(self, immediate=False):
+        """Automatically moves the cursor to a point of interest.
+
+        Args:
+            immediate (bool): whether to ease the camera over
+                to the point of interest or not.
+        """
+        if self.camera:
+            if immediate:
+                self.camera.force_center(0, 0)
+            else:
+                self.camera.set_center(0, 0)
 
     def set_pos(self, pos):
         logging.debug("New position %s", pos)
         self.position = pos
         self.offset_x, self.offset_y = 0, 0
-        game.camera.set_xy(*self.position)
-        game.ui_view.remove_unit_display()
-
-    def _get_path(self) -> list:
-        if not self._last_valid_position:
-            self.path.clear()
-            return self.path
-
-        if self.path:
-            if self._last_valid_position in self.path:
-                idx = self.path.index(self._last_valid_position)
-                self.path = self.path[idx:]
-                return self.path
-            elif self._last_valid_position in target_system.get_adjacent_positions(self.path[0]):
-                self.path.insert(0, self._last_valid_position)
-                if target_system.check_path(self.cur_unit, self.path):
-                    return self.path
-
-        self.path = target_system.get_path(self.cur_unit, self._last_valid_position)
-        return self.path
+        if self.camera:
+            self.camera.set_xy(*self.position)
 
     def move(self, dx, dy, mouse=False, sound=True):
         x, y = self.position
@@ -93,169 +121,45 @@ class Cursor():
         # Cursor Sound
         if mouse:
             pass  # No cursor sound in mouse mode, cause it's annoying
-            """
-            if dx == 0 and dy == 0:
-                pass
-            else:
-                SOUNDTHREAD.stop_sfx('Select 5')
-                if sound:
-                    SOUNDTHREAD.play_sfx('Select 5')
-            """
         else:
             SOUNDTHREAD.stop_sfx('Select 5')
             if sound:
                 SOUNDTHREAD.play_sfx('Select 5')
 
-        if game.highlight.check_in_move(self.position):
-            self._last_valid_position = self.position
-
-        if self._display_arrows:
-            self.path = self._get_path()
-            self.construct_arrows(self.path[::-1])
-
-        # Remove unit info display
-        if dx != 0 or dy != 0:
-            game.ui_view.remove_unit_display()
-
+        # queue transition
+        transition_start = engine.get_time()
         if mouse:
-            self.offset_x += utils.clamp(8*dx, -8, 8)
-            self.offset_y += utils.clamp(8*dy, -8, 8)
-            self.offset_x = min(self.offset_x, 8)
-            self.offset_y = min(self.offset_y, 8)
-        # If we are slow
-        # elif cf.SETTINGS['cursor_speed'] >= 40:
+            duration = self.transition_duration / 2
         else:
-            if self.speed_state:
-                self.offset_x += 8*dx
-                self.offset_y += 8*dy
-            else:
-                self.offset_x += 12*dx
-                self.offset_y += 12*dy
-
-            self.offset_x = min(self.offset_x, 12)
-            self.offset_y = min(self.offset_y, 12)
-
-    def autocursor(self, immediate=False):
-        player_units = [unit for unit in game.units if unit.team == 'player' and unit.position]
-        lord_units = [unit for unit in player_units if 'Lord' in unit.tags]
-        if lord_units:
-            self.set_pos(lord_units[0].position)
-            if immediate:
-                game.camera.force_center(*self.position)
-            else:
-                game.camera.set_center(*self.position)
-        elif player_units:
-            self.set_pos(player_units[0].position)
-            if immediate:
-                game.camera.force_center(*self.position)
-            else:
-                game.camera.set_center(*self.position)
-
-    def show_arrows(self):
-        self._display_arrows = True
-
-    def place_arrows(self):
-        self.path.clear()
-        self._display_arrows = True
-
-    def construct_arrows(self, path):
-        self.arrows.clear()
-        if len(path) <= 1:
-            return
-        for idx in range(len(path)):
-            if idx == 0:  # Start of path
-                direction = (path[idx + 1][0] - path[idx][0], path[idx + 1][1] - path[idx][1])
-                if direction == (1, 0):  # Right
-                    self.arrows.append(Arrow(0, 0, path[idx]))
-                elif direction == (-1, 0):  # Left
-                    self.arrows.append(Arrow(1, 1, path[idx]))
-                elif direction == (0, -1):  # Up
-                    self.arrows.append(Arrow(0, 1, path[idx]))
-                elif direction == (0, 1):  # Down
-                    self.arrows.append(Arrow(1, 0, path[idx]))
-            elif idx == len(path) - 1:  # End of path
-                direction = (path[idx][0] - path[idx - 1][0], path[idx][1] - path[idx - 1][1])
-                if direction == (1, 0):  # Right
-                    self.arrows.append(Arrow(6, 0, path[idx]))
-                elif direction == (-1, 0):  # Left
-                    self.arrows.append(Arrow(7, 1, path[idx]))
-                elif direction == (0, -1):  # Up
-                    self.arrows.append(Arrow(6, 1, path[idx]))
-                elif direction == (0, 1):  # Down
-                    self.arrows.append(Arrow(7, 0, path[idx]))
-            else:  # Neither beginning nor end of path
-                next_p = path[idx + 1]
-                current_p = path[idx]
-                prev_p = path[idx - 1]
-                direction = (next_p[0] - prev_p[0], next_p[1] - prev_p[1])
-                modifier = (current_p[0] - prev_p[0], current_p[1] - prev_p[1])
-                if direction == (2, 0) or direction == (-2, 0):  # Right or Left
-                    self.arrows.append(Arrow(3, 0, path[idx]))
-                elif direction == (0, 2) or direction == (0, -2):  # Up or Down
-                    self.arrows.append(Arrow(2, 0, path[idx]))
-                elif direction == (1, -1) or direction == (-1, 1):  # Topleft or Bottomright
-                    if modifier == (0, -1) or modifier == (-1, 0):
-                        self.arrows.append(Arrow(4, 0, path[idx]))
-                    elif modifier == (1, 0) or modifier == (0, 1):
-                        self.arrows.append(Arrow(5, 1, path[idx]))
-                elif direction == (1, 1) or direction == (-1, -1):  # Topright or Bottomleft
-                    if modifier == (0, -1) or modifier == (1, 0):
-                        self.arrows.append(Arrow(5, 0, path[idx]))
-                    else:
-                        self.arrows.append(Arrow(4, 1, path[idx]))
-
-    def remove_arrows(self):
-        self._last_valid_position = None
-        self._display_arrows = False
-        self.arrows.clear()
+            duration = self.transition_duration
+        if dx != 0:
+            self._transition_direction = (Direction.parse_map_direction(dx, 0), self._transition_direction[1])
+            self._transition_remaining = (duration, self._transition_remaining[1])
+            self._transition_start = (transition_start, self._transition_start[1])
+        if dy != 0:
+            self._transition_direction = (self._transition_direction[0], Direction.parse_map_direction(0, dy))
+            self._transition_remaining = (self._transition_remaining[0], duration)
+            self._transition_start = (self._transition_start[0], transition_start)
 
     def take_input(self):
         self.fluid.update()
-        if self.stopped_at_move_border:
-            directions = self.fluid.get_directions(double_speed=self.speed_state, slow_speed=True)
-        else:
-            directions = self.fluid.get_directions(double_speed=self.speed_state)
+        is_speed_state = self._transition_speed > 1
+        directions = self.fluid.get_directions(double_speed=is_speed_state)
 
-        if game.highlight.check_in_move(self.position):
-            if directions:
-                # If we would move off the current move
-                if ('LEFT' in directions and not INPUT.just_pressed('LEFT') and
-                        not game.highlight.check_in_move((self.position[0] - 1, self.position[1]))) or \
-                        ('RIGHT' in directions and not INPUT.just_pressed('RIGHT') and
-                         not game.highlight.check_in_move((self.position[0] + 1, self.position[1]))) or \
-                        ('UP' in directions and not INPUT.just_pressed('UP') and
-                         not game.highlight.check_in_move((self.position[0], self.position[1] - 1))) or \
-                        ('DOWN' in directions and not INPUT.just_pressed('DOWN') and
-                         not game.highlight.check_in_move((self.position[0], self.position[1] + 1))):
-                    # Then we can just keep going
-                    if self.stopped_at_move_border:
-                        self.stopped_at_move_border = False
-                    else:  # Ooh, we gotta stop the cursor movement
-                        directions.clear()
-                        self.fluid.reset()
-                        self.stopped_at_move_border = True
-                else:
-                    self.stopped_at_move_border = False
-        else:
-            self.stopped_at_move_border = False
+        # handle the move
+        dx, dy = 0, 0
+        from_mouse = False
 
         # Handle keyboard first
-        if 'LEFT' in directions and self.position[0] > 0:
-            self.move(-1, 0)
-            game.camera.cursor_x(self.position[0])
-            self.mouse_mode = False
-        elif 'RIGHT' in directions and self.position[0] < game.tilemap.width - 1:
-            self.move(1, 0)
-            game.camera.cursor_x(self.position[0])
-            self.mouse_mode = False
-
-        if 'UP' in directions and self.position[1] > 0:
-            self.move(0, -1)
-            game.camera.cursor_y(self.position[1])
-            self.mouse_mode = False
-        elif 'DOWN' in directions and self.position[1] < game.tilemap.height - 1:
-            self.move(0, 1)
-            game.camera.cursor_y(self.position[1])
+        if directions:
+            if 'LEFT' in directions and self.position[0] > self.get_bounds()[0]:
+                dx = -1
+            elif 'RIGHT' in directions and self.position[0] < self.get_bounds()[2]:
+                dx = 1
+            if 'UP' in directions and self.position[1] > self.get_bounds()[1]:
+                dy = -1
+            elif 'DOWN' in directions and self.position[1] < self.get_bounds()[3]:
+                dy = 1
             self.mouse_mode = False
 
         # Handle mouse
@@ -266,73 +170,47 @@ class Cursor():
             # Get the actual mouse position, irrespective if actually used recently
             mouse_pos = INPUT.get_real_mouse_position()
             if mouse_pos:
+                from_mouse = True
                 new_pos = mouse_pos[0] // TILEWIDTH, mouse_pos[1] // TILEHEIGHT
-                new_pos = int(new_pos[0] + game.camera.get_x()), int(new_pos[1] + game.camera.get_y())
+                new_pos = int(new_pos[0] + self.camera.get_x()), int(new_pos[1] + self.camera.get_y())
                 dpos = new_pos[0] - self.position[0], new_pos[1] - self.position[1]
-                self.move(dpos[0], dpos[1], mouse=True, sound=bool(mouse_position))
-                game.camera.mouse_x(self.position[0])
-                game.camera.mouse_y(self.position[1])
+                dx = dpos[0]
+                dy = dpos[1]
 
-    def update(self):
-        self.cursor_counter.update(engine.get_time())
-        left = self.cursor_counter.count * TILEWIDTH * 2
-        hovered_unit = self.get_hover()
-        if self.draw_state == 4:
-            if game.check_for_region(self.position, 'formation'):
-                self.image = engine.subsurface(self.formation_sprite, (0, 0, 32, 32))
-            else:
-                self.image = engine.subsurface(self.formation_sprite, (32, 0, 32, 32))
-        elif self.draw_state == 2:
-            self.image = engine.subsurface(self.red_sprite, (left, 0, 32, 32))
-        elif self.draw_state == 3:  # Green for turnwheel
-            self.image = engine.subsurface(self.green_sprite, (left, 0, 32, 32))
-        elif hovered_unit and hovered_unit.team == 'player' and not hovered_unit.finished:
-            self.image = self.active_sprite
+        if dx != 0 or dy != 0:
+            # adjust camera accordingly
+            self.move(dx, dy, mouse=from_mouse, sound=True)
+            if self.camera:
+                if from_mouse:
+                    self.camera.mouse_x(self.position[0])
+                    self.camera.mouse_y(self.position[1])
+                else:
+                    self.camera.cursor_x(self.position[0])
+                    self.camera.cursor_y(self.position[1])
+
+    def update_offset(self):
+        # update offset for movement
+        if self._transition_remaining != (0, 0):
+            # update transition time
+            current_time = engine.get_time()
+            xdt = current_time - self._transition_start[0]
+            ydt = current_time - self._transition_start[1]
+            self._transition_remaining = (
+                max(0, self._transition_remaining[0] - xdt),
+                max(0, self._transition_remaining[1] - ydt))
+            # update offset based on progress
+            ox = TILEWIDTH * self.transition_progress[0] * Direction.which_horizontal_dir(self._transition_direction[0])
+            oy = TILEHEIGHT * -1 * self.transition_progress[1] * Direction.which_vertical_dir(self._transition_direction[1])
+            self.offset_x, self.offset_y = ox * 0.75, oy * 0.75
         else:
-            self.image = engine.subsurface(self.passive_sprite, (left, 0, 32, 32))
+            self.offset_x, self.offset_y = 0, 0
 
-    def format_sprite(self, sprite):
-        self.passive_sprite = engine.subsurface(sprite, (0, 0, 128, 32))
-        self.red_sprite = engine.subsurface(sprite, (0, 32, 128, 32))
-        self.active_sprite = engine.subsurface(sprite, (0, 64, 32, 32))
-        self.formation_sprite = engine.subsurface(sprite, (64, 64, 64, 32))
-        self.green_sprite = engine.subsurface(sprite, (0, 96, 128, 32))
-
-    def draw(self, surf, cull_rect):
-        if self.draw_state:
+    def draw(self, surf: Surface, cull_rect: Tuple[int, int, int, int]):
+        self.update_offset()
+        if self.visible:
+            image = self.get_image()
             x, y = self.position
-            left = x * TILEWIDTH - max(0, (self.image.get_width() - 16)//2) - self.offset_x
-            top = y * TILEHEIGHT - max(0, (self.image.get_height() - 16)//2) - self.offset_y
-            surf.blit(self.image, (left - cull_rect[0], top - cull_rect[1]))
-
-            # Now reset offset
-            num = 8 if self.speed_state else 4
-            if self.offset_x > 0:
-                self.offset_x = max(0, self.offset_x - num)
-            elif self.offset_x < 0:
-                self.offset_x = min(0, self.offset_x + num)
-            if self.offset_y > 0:
-                self.offset_y = max(0, self.offset_y - num)
-            elif self.offset_y < 0:
-                self.offset_y = min(0, self.offset_y + num)
-
-        return surf
-
-    def draw_arrows(self, surf, cull_rect):
-        if self._display_arrows:
-            for arrow in self.arrows:
-                surf = arrow.draw(surf, cull_rect)
-        return surf
-
-class Arrow(object):
-    sprite = SPRITES.get('movement_arrows')
-
-    def __init__(self, x, y, position):
-        self.image = engine.subsurface(self.sprite, (x * TILEWIDTH, y * TILEHEIGHT, TILEWIDTH, TILEHEIGHT))
-        self.position = position
-
-    def draw(self, surf, cull_rect):
-        x, y = self.position
-        topleft = x * TILEWIDTH - cull_rect[0], y * TILEHEIGHT - cull_rect[1]
-        surf.blit(self.image, topleft)
+            left = x * TILEWIDTH - max(0, (image.get_width() - 16)//2) - self.offset_x
+            top = y * TILEHEIGHT - max(0, (image.get_height() - 16)//2) - self.offset_y
+            surf.blit(image, (left - cull_rect[0], top - cull_rect[1]))
         return surf

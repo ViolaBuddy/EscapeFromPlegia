@@ -33,31 +33,35 @@ class UnitSpecification(QWidget):
         self.box1 = ComboBox(self)
         for spec in ai.unit_spec:
             self.box1.addItem(spec)
-        self.box1.currentIndexChanged.connect(self.unit_spec_changed)
+        self.box1.activated.connect(self.unit_spec_changed)
 
         self.box2 = QStackedWidget(self)
         all_box = ComboBox(self)
         all_box.setEnabled(False)
         self.box2.addWidget(all_box)
         class_box = ClassBox(self)
-        class_box.edit.currentIndexChanged.connect(self.sub_spec_changed)
+        class_box.edit.activated.connect(self.sub_spec_changed)
         self.box2.addWidget(class_box)
         tag_box = ComboBox(self)
         tag_box.addItems([tag.nid for tag in DB.tags])
-        tag_box.currentIndexChanged.connect(self.sub_spec_changed)
+        tag_box.activated.connect(self.sub_spec_changed)
         self.box2.addWidget(tag_box)
         name_box = ComboBox(self)
         name_box.addItems([unit.name for unit in DB.units])
-        name_box.currentIndexChanged.connect(self.sub_spec_changed)
+        name_box.activated.connect(self.sub_spec_changed)
         self.box2.addWidget(name_box)
+        team_box = ComboBox(self)
+        team_box.addItems(['player', 'enemy', 'enemy2', 'other'])
+        team_box.activated.connect(self.sub_spec_changed)
+        self.box2.addWidget(team_box)
         faction_box = FactionBox(self)
-        faction_box.edit.currentIndexChanged.connect(self.sub_spec_changed)
+        faction_box.edit.activated.connect(self.sub_spec_changed)
         self.box2.addWidget(faction_box)
         party_box = PartyBox(self)
-        party_box.edit.currentIndexChanged.connect(self.sub_spec_changed)
+        party_box.edit.activated.connect(self.sub_spec_changed)
         self.box2.addWidget(party_box)
         unit_box = UnitBox(self)
-        unit_box.edit.currentIndexChanged.connect(self.sub_spec_changed)
+        unit_box.edit.activated.connect(self.sub_spec_changed)
         self.box2.addWidget(unit_box)
 
         self.except_check_box = QCheckBox(self)
@@ -71,30 +75,47 @@ class UnitSpecification(QWidget):
 
         self.setLayout(self.layout)
 
-    def unit_spec_changed(self, index):
+    def unit_spec_changed(self, recurse=True):
         unit_spec = self.box1.currentText()
         self.box2.setEnabled(True)
         self.except_check_box.setEnabled(True)
         if unit_spec == "Class":
             self.box2.setCurrentIndex(1)
+            if recurse:
+                self.sub_spec_changed()
         elif unit_spec == "Tag":
             self.box2.setCurrentIndex(2)
+            if recurse:
+                self.sub_spec_changed()
         elif unit_spec == "Name":
             self.box2.setCurrentIndex(3)
-        elif unit_spec == "Faction":
+            if recurse:
+                self.sub_spec_changed()
+        elif unit_spec == "Team":
             self.box2.setCurrentIndex(4)
-        elif unit_spec == "Party":
+            if recurse:
+                self.sub_spec_changed()
+        elif unit_spec == "Faction":
             self.box2.setCurrentIndex(5)
-        elif unit_spec == "ID":
+            if recurse:
+                self.sub_spec_changed()
+        elif unit_spec == "Party":
             self.box2.setCurrentIndex(6)
+            if recurse:
+                self.sub_spec_changed()
+        elif unit_spec == "ID":
+            self.box2.setCurrentIndex(7)
+            if recurse:
+                self.sub_spec_changed()
         else:
             self.box2.setCurrentIndex(0)
             self.box2.setEnabled(False)
             self.except_check_box.setEnabled(False)
+            self.window.current.target_spec = None
 
-    def sub_spec_changed(self, index):
+    def sub_spec_changed(self):
         unit_spec = self.box1.currentText()
-        if self.box2.currentIndex() in (0, 2, 3):
+        if self.box2.currentIndex() in (0, 2, 3, 4):
             sub_spec = self.box2.currentWidget().currentText()
         else:
             sub_spec = self.box2.currentWidget().edit.currentText()
@@ -107,10 +128,11 @@ class UnitSpecification(QWidget):
         self.except_check_box.setChecked(bool(self.window.current.invert_targeting))
         if target_spec:
             self.box1.setValue(target_spec[0])
+            self.unit_spec_changed(recurse=False)
             self.box2.currentWidget().setValue(target_spec[1])
         else:
             self.box1.setValue("All")
-            self.box2.setEnabled(False)
+            self.unit_spec_changed(recurse=False)
             self.except_check_box.setEnabled(False)
 
 class EventSpecification(QWidget):

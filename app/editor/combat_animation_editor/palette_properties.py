@@ -511,8 +511,8 @@ class PaletteProperties(QWidget):
 
         left_frame = self.window.left_frame
         grid = left_frame.layout()
-        grid.addWidget(self.import_box, 2, 0, 1, 2)
-        grid.addWidget(self.nid_box, 3, 0, 1, 2)
+        grid.addWidget(self.import_box, 3, 0, 1, 2)
+        grid.addWidget(self.nid_box, 4, 0, 1, 2)
         
         self.raw_view = AnimView(self)
         self.raw_view.static_size = True

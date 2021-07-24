@@ -44,13 +44,17 @@ class MapCombat(SimpleCombat):
 
     def update(self) -> bool:
         current_time = engine.get_time() - self.last_update
+        current_state = self.state
 
         # Only for the very first phase
         if self.state == 'init':
+            self.start_combat()
+            self.state = 'init_pause'
+
+        elif self.state == 'init_pause':
             if self._skip or current_time > 200:
                 self.start_combat()
                 self.state = 'begin_phase'
-                self.last_update = engine.get_time()
 
         # print("Map Combat %s" % self.state)
         elif self.state == 'begin_phase':
@@ -101,7 +105,6 @@ class MapCombat(SimpleCombat):
             self.set_up_proc_animation('defense_proc')
 
             self.state = 'start_anim'
-            self.last_update = engine.get_time()
 
         elif self.state == 'start_anim':
             if self._skip or current_time > 400:
@@ -115,7 +118,6 @@ class MapCombat(SimpleCombat):
                         anim = MapAnimation(anim, pos)
                         self.animations.append(anim)
                 self.state = 'sound'
-                self.last_update = engine.get_time()
 
         elif self.state == 'sound':
             if self._skip or current_time > 250:
@@ -128,7 +130,6 @@ class MapCombat(SimpleCombat):
                     SOUNDTHREAD.play_sfx(brush[1])
 
                 self.state = 'anim'
-                self.last_update = engine.get_time()
 
         elif self.state == 'anim':
             if self._skip or current_time > 83:
@@ -143,12 +144,10 @@ class MapCombat(SimpleCombat):
                 else:
                     self.hp_bar_time = 0
                 self.state = 'hp_bar_wait'
-                self.last_update = engine.get_time()
 
         elif self.state == 'hp_bar_wait':
             if self._skip or current_time > self.hp_bar_time:
                 self.state = 'end_phase'
-                self.last_update = engine.get_time()
 
         elif self.state == 'end_phase':
             if self._skip or current_time > 550:
@@ -159,6 +158,9 @@ class MapCombat(SimpleCombat):
                 self._end_phase()
                 self.state_machine.setup_next_state()
                 self.state = 'begin_phase'
+
+        if self.state != current_state:
+            self.last_update = engine.get_time()
 
         if self.state not in ('begin_phase', 'red_cursor'):
             for hp_bar in self.health_bars.values():

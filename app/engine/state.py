@@ -1,3 +1,4 @@
+from app.constants import TILEHEIGHT, TILEWIDTH, WINHEIGHT, WINWIDTH
 from app.engine.fluid_scroll import FluidScroll
 from app.engine.game_state import game
 
@@ -50,10 +51,9 @@ class MapState(State):
         pass
 
     def draw(self, surf, culled_rect=None):
-        game.cursor.update()
         game.camera.update()
         game.highlight.update()
-        game.map_view.update()
-        
-        surf = game.map_view.draw(culled_rect)
+
+        camera_cull = int(game.camera.get_x() * TILEWIDTH), int(game.camera.get_y() * TILEHEIGHT), WINWIDTH, WINHEIGHT
+        surf = game.map_view.draw(camera_cull, culled_rect)
         return surf

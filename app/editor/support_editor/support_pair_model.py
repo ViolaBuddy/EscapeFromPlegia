@@ -46,7 +46,7 @@ class SupportPairModel(DragDropCollectionModel):
 
     def delete(self, idx):
         # Delete watchers
-        # None needed -- Nothing else in editor/data uses support pairs 
+        # None needed -- Nothing else in editor/data uses support pairs
         super().delete(idx)
 
     def on_nid_changed(self, old_value, new_value):

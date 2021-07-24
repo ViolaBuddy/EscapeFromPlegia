@@ -20,10 +20,6 @@
         1
     ],
     [
-        "title_background",
-        33
-    ],
-    [
         "Forest",
         1
     ],
@@ -85,6 +81,10 @@
     ],
     [
         "BlackBackground",
+        1
+    ],
+    [
+        "title_background",
         1
     ]
 ]

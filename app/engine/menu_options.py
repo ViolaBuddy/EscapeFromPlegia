@@ -1,5 +1,7 @@
 import math
 
+from app.data.database import DB
+
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine import engine, image_mods, icons, help_menu, text_funcs, item_system, item_funcs
@@ -379,7 +381,12 @@ class UnitOption(BasicOption):
         elif self.color:
             font = self.color
         elif self.mode == 'position':
-            if not self.unit.position:
+            if 'Blacklist' in self.unit.tags:
+                font = 'text-red'
+            elif DB.constants.value('fatigue') and game.game_vars.get('_fatigue') and \
+                    self.unit.get_fatigue() >= self.unit.get_max_fatigue():
+                font = 'text-red'
+            elif not self.unit.position:
                 font = 'text-grey'
             elif self.unit.position and not game.check_for_region(self.unit.position, 'formation'):
                 font = 'text-green'

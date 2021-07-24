@@ -54,7 +54,7 @@ class ComponentModel(QAbstractItemModel):
         self._data = data
         self.already_present = already_present
         self.checked = set(self.already_present.keys())
-    
+
     def headerData(self, idx, orientation, role=Qt.DisplayRole):
         return None
 
@@ -75,6 +75,8 @@ class ComponentModel(QAbstractItemModel):
     def data(self, index, role):
         if not index.isValid():
             return None
+        if role == Qt.EditRole:
+            return self._data[index.row()]
         data = self._data[index.row()]
         if role == Qt.DisplayRole:
             return data.class_name()

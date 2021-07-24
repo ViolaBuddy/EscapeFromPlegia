@@ -1,11 +1,20 @@
+from __future__ import annotations
+from app.utilities.algorithms.interpolation import tcubic_easing
+
 import math
+from typing import TYPE_CHECKING, Callable, Tuple
 
 from app.constants import TILEX, TILEY
+from app.engine import engine
 from app.utilities import utils
-from app.engine.game_state import game
+
+if TYPE_CHECKING:
+    from app.engine.game_state import GameState
 
 class Camera():
-    def __init__(self):
+    def __init__(self, game: GameState):
+        self.game = game
+
         # Where the camera is going
         self.target_x = 0
         self.target_y = 0
@@ -18,8 +27,38 @@ class Camera():
 
         # Whether the camera should be panning at a constant speed
         self.pan_mode = False
-        self.pan_speed = 0.125  
+        self.pan_speed = 0.125
         self.pan_targets = []
+
+        # if we want to set a custom algorithm for the camera movement
+        # custom algorithms should take in original_position, new_position, and current_time
+        self.pan_algorithm: Callable[[float, float, int], Tuple[float, float]] = None
+
+        self.last_at_rest_time: int = engine.get_time()
+        self.last_at_rest_position: Tuple[float, float] = (self.current_x, self.current_y)
+
+    def get_next_position(self) -> Tuple[float, float]:
+        diff_x = self.target_x - self.current_x
+        diff_y = self.target_y - self.current_y
+
+        diff_time = engine.get_time() - self.last_at_rest_time
+        if self.pan_algorithm:
+            return self.pan_algorithm(self.last_at_rest_position, (self.target_x, self.target_y), diff_time)
+        elif self.pan_mode:
+            new_x = self.pan_speed * utils.sign(diff_x) + self.current_x
+            new_y = self.pan_speed * utils.sign(diff_y) + self.current_y
+            return (new_x, new_y)
+        elif diff_x or diff_y:
+            dist = utils.distance((self.current_x, self.current_y), (self.target_x, self.target_y))
+            total_speed = utils.clamp(dist / self.speed, min(dist, 0.25), 1.0)  # max of 0.5 is faithful to GBA, but I like the snappyness of 1.0
+            angle = math.atan2(abs(diff_y), abs(diff_x))
+            x_push = math.cos(angle)
+            y_push = math.sin(angle)
+            new_x = total_speed * x_push * utils.sign(diff_x) + self.current_x
+            new_y = total_speed * y_push * utils.sign(diff_y) + self.current_y
+            return (new_x, new_y)
+        else:
+            return (self.current_x, self.current_y)
 
     def _shift_x(self, x):
         if x <= self.target_x + 2:
@@ -71,10 +110,10 @@ class Camera():
         return new_y
 
     def _center_x(self, x):
-        return utils.clamp(x - TILEX//2, 0, game.tilemap.width - TILEX)
+        return utils.clamp(x - TILEX//2, 0, self.game.tilemap.width - TILEX)
 
     def _center_y(self, y):
-        return utils.clamp(y - TILEY//2, 0, game.tilemap.height - TILEY)
+        return utils.clamp(y - TILEY//2, 0, self.game.tilemap.height - TILEY)
 
     def set_xy(self, x, y):
         x = self._change_x(x)
@@ -139,34 +178,36 @@ class Camera():
         elif self.current_y > tilemap.height - TILEY:
             self.current_y = tilemap.height - TILEY
 
+    def do_slow_pan(self, duration):
+        # queues up a slower algorithm for the next pan
+        self.pan_algorithm = lambda a, b, t: tcubic_easing(a, b, t/duration)
+
     def update(self):
         # Make sure target is within bounds
-        self.set_target_limits(game.tilemap)
+        self.set_target_limits(self.game.tilemap)
 
         # Move camera around
-        diff_x = self.target_x - self.current_x
-        diff_y = self.target_y - self.current_y
-        if self.pan_mode:
-            self.current_x += self.pan_speed * utils.sign(diff_x)
-            self.current_y += self.pan_speed * utils.sign(diff_y)
-        elif diff_x or diff_y:
-            dist = utils.distance((self.current_x, self.current_y), (self.target_x, self.target_y))
-            total_speed = utils.clamp(dist / self.speed, min(dist, 0.25), 1.0)  # max of 0.5 is faithful to GBA, but I like the snappyness of 1.0
-            angle = math.atan2(abs(diff_y), abs(diff_x))
-            x_push = math.cos(angle)
-            y_push = math.sin(angle)
-            self.current_x += total_speed * x_push * utils.sign(diff_x)
-            self.current_y += total_speed * y_push * utils.sign(diff_y)
+        (new_x, new_y) = self.get_next_position()
+        self.current_x = new_x
+        self.current_y = new_y
 
         # If close enough to target, just make it so
+        diff_x = self.target_x - self.current_x
+        diff_y = self.target_y - self.current_y
         if abs(diff_x) <= 0.125:
             self.current_x = self.target_x
         if abs(diff_y) <= 0.125:
             self.current_y = self.target_y
+
+        if self.at_rest():
+            # all custom algorithms should only last one pan
+            self.pan_algorithm = None
+            self.last_at_rest_time = engine.get_time()
+            self.last_at_rest_position = (self.current_x, self.current_y)
 
         if self.pan_targets and self.at_rest():
             self.target_x, self.target_y = self.pan_targets.pop()
 
         # Make sure we do not go offscreen -- maybe shouldn't happen?
         # Could happen when map size changes?
-        self.set_current_limits(game.tilemap)
+        self.set_current_limits(self.game.tilemap)

@@ -1,3 +1,4 @@
+from app.engine.game_counters import ANIMATION_COUNTERS
 from app import sprites
 from app.constants import WINWIDTH, WINHEIGHT
 from app.utilities import utils
@@ -46,8 +47,10 @@ class BaseMainState(State):
             self.bg.scroll_speed = 50
         game.memory['base_bg'] = self.bg
 
+        self.is_from_overworld = game.is_displaying_overworld()
+
         options = ['Manage', 'Convos', 'Codex', 'Options', 'Save', 'Continue']
-        ignore = [False, True, False, False, False, False]
+        ignore = [False, True, False, False, False, self.is_from_overworld]
         if game.base_convos:
             ignore[1] = False
         if game.game_vars.get('_supports') and DB.support_constants.value('base_convos'):
@@ -85,6 +88,10 @@ class BaseMainState(State):
             SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_up(first_push)
 
+        elif event == 'BACK':
+            if self.is_from_overworld:
+                game.state.back()
+
         elif event == 'SELECT':
             SOUNDTHREAD.play_sfx('Select 1')
             selection = self.menu.get_current()
@@ -112,7 +119,10 @@ class BaseMainState(State):
                 game.state.change('transition_to')
             elif selection == 'Save':
                 game.memory['save_kind'] = 'base'
-                game.memory['next_state'] = 'in_chapter_save'
+                if self.is_from_overworld:
+                    game.memory['next_state'] = 'title_save'
+                else:
+                    game.memory['next_state'] = 'in_chapter_save'
                 game.state.change('transition_to')
             elif selection == 'Continue':
                 game.state.change('transition_pop')
@@ -382,7 +392,7 @@ class SupportDisplay():
                 elif DB.units.get(other_unit_nid):  # Not loaded into game yet
                     other_unit_prefab = DB.units.get(other_unit_nid)
                     map_sprite = unit_sprite.load_map_sprite(other_unit_prefab, 'black')
-                    image = map_sprite.passive[game.map_view.passive_sprite_counter.count].copy()
+                    image = map_sprite.passive[ANIMATION_COUNTERS.passive_sprite_counter.count].copy()
                     # name = other_unit_prefab.name
                     name = '---'
                     affinity = DB.affinities.get(other_unit_prefab.affinity)
@@ -532,7 +542,6 @@ class BaseSupportsState(State):
             game.state.change('transition_to')
 
     def update(self):
-        game.map_view.update()
         if self.menu and not self.display.draw_cursor:
             self.menu.update()
 

@@ -74,6 +74,7 @@ def engage(attacker: UnitObject, positions: list, main_item: ItemObject, skip: b
     elif skip:
         # If we are skipping
         combat = SimpleCombat(attacker, main_item, items, target_positions, main_targets, splashes, script)
+        game.highlight.remove_highlights()
     # If more than one target position or more than one item being used, cannot use animation combat
     elif len(positions) > 1 or len(items) > 1:
         combat = MapCombat(attacker, main_item, items, target_positions, main_targets, splashes, script)
@@ -88,7 +89,7 @@ def engage(attacker: UnitObject, positions: list, main_item: ItemObject, skip: b
         combat = MapCombat(attacker, main_item, items, target_positions, main_targets, splashes, script)
     return combat
 
-def start_combat(unit: UnitObject, target: tuple, item: ItemObject, 
+def start_combat(unit: UnitObject, target: tuple, item: ItemObject, skip: bool = False,
                  ai_combat: bool = False, event_combat: bool = False, script: list = None):
     """
     Target is a position tuple
@@ -109,7 +110,7 @@ def start_combat(unit: UnitObject, target: tuple, item: ItemObject,
         else:
             targets = [target]
 
-    combat = engage(unit, targets, item, script=script)
+    combat = engage(unit, targets, item, skip=skip, script=script)
     combat.ai_combat = ai_combat # Must mark this so we can come back!
     combat.event_combat = event_combat # Must mark this so we can come back!
     game.combat_instance.append(combat)

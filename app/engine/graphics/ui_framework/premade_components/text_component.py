@@ -11,7 +11,7 @@ from app.engine.graphics.ui_framework.ui_framework_styling import UIMetric
 from app.utilities.utils import clamp
 
 if TYPE_CHECKING:
-    from pygame import Surface
+    from app.engine.engine import Surface
 
 from ..ui_framework import ComponentProperties, ResizeMode, UIComponent
 
@@ -19,32 +19,46 @@ from ..ui_framework import ComponentProperties, ResizeMode, UIComponent
 class TextProperties(ComponentProperties):
     """Properties that are particular to text-based components.
     """
-    def __init__(self):
-        super().__init__()
-        self.font: BmpFont = FONT['text-white']         # self-explanatory: the font
-        self.line_break_size: str = '0px'               # if the text component is multiline, how much space
-                                                        # is between the two lines. Can be percentage or pixel value.
-        
-        self.max_lines: int = 2                         # maximum number of lines to split the text over, if max_width is set.
-                                                        # if 0, then it will
+    def __init__(self, parent: TextComponent):
+        super().__init__(parent)
+        self.overflow = (0, 0, 0, 0)
+        # self-explanatory: the font (BmpFont)
+        # font_name (str of the font name) is more encouraged to be used, but either works
+        self.font: BmpFont = FONT['text-white']
+        self.font_name: str = None
+        # if the text component is multiline, how much space
+        # is between the two lines. Can be percentage or pixel value.
+        self.line_break_size: str = '0px'
+        # maximum number of lines in a multiline component the text over, if max_width is set.
+        # if 0, then it will split as many as necessary.
+        self.max_lines: int = 0
+
+    def __getattribute__(self, name: str):
+        if name == 'font':
+            if super().__getattribute__('font_name'):
+                return FONT[super().__getattribute__('font_name')]
+            else:
+                pass
+        return super().__getattribute__(name)
 
 class TextComponent(UIComponent):
     """A component consisting purely of text
     """
     def __init__(self, name: str = "", text: str = "", parent: UIComponent = None):
         super().__init__(name=name, parent=parent)
-        self.props: TextProperties = TextProperties()
-        self.text = text
-        self.num_visible_chars = len(text)
+        self.props: TextProperties = TextProperties(self)
+        self.props.resize_mode = ResizeMode.AUTO
+        self.text = str(text)
+        self.num_visible_chars = len(self.text)
         self._final_formatted_text = []
         self.scrolled_line: float = 1
         self._reset('__init__')
-        
+
     @property
     def wrapped_text(self) -> str:
         if not self._final_formatted_text:
             self._add_line_breaks_to_text()
-        return str.join("", self._final_formatted_text)       
+        return str.join("", self._final_formatted_text)
 
     @property
     def font_height(self) -> int:
@@ -52,23 +66,23 @@ class TextComponent(UIComponent):
 
     @property
     def max_text_area_width(self) -> int:
-        return UIMetric.parse(self.props.max_width).to_pixels(self.parent.width) - self.padding[0] - self.padding[1]
-    
+        return self.props.max_width.to_pixels(self.parent.width) - self.parent.padding[0] - self.parent.padding[1]
+
     @property
     def max_text_area_height(self) -> int:
         if self.props.max_lines:
             return self.props.max_lines * self.font_height + (self.props.max_lines - 1) * self.line_break_size
         else:
             return self.height
-    
+
     @property
     def line_break_size(self) -> int:
         return UIMetric.parse(self.props.line_break_size).to_pixels(self.parent.height)
-        
+
     @property
     def scrollable_height(self):
         return self.height - self.max_text_area_height
-        
+
     @property
     def lines_displayed(self) -> int:
         """How many lines are we currently displaying?
@@ -83,20 +97,23 @@ class TextComponent(UIComponent):
                 break
             total_displayed_lines = line_num + 1
             remaining_chars -= len(line)
-            
+
         if not self.props.max_lines: # if there's no max line limit, we're displaying all of them
             return total_displayed_lines
         else: # calculate with scroll
             scrolled_lines = max(total_displayed_lines - self.scrolled_line + 1, 0)
             return min(scrolled_lines, self.props.max_lines)
-    
-    def set_font(self, font: BmpFont):
+
+    def set_font(self, font: BmpFont | str):
         """Sets the font of this component and recalculates the component size.
 
         Args:
             font (BmpFont): font to use to draw the text
         """
-        self.props.font = font
+        if isinstance(font, str):
+            self.props.font_name = font
+        else:
+            self.props.font = font
         self._reset("font")
 
     def set_line_break_size(self, line_break_size: str):
@@ -108,7 +125,7 @@ class TextComponent(UIComponent):
         """
         self.props.line_break_size = line_break_size
         self._reset("set_line_break_size")
-        
+
     def set_num_lines(self, num_lines: int):
         """Sets the max lines of this component and recalculates the component size.
 
@@ -116,7 +133,7 @@ class TextComponent(UIComponent):
             num_lines (int): max number of lines
         """
         self.props.max_lines = num_lines
-        self._reset("set_num_lines")        
+        self._reset("set_num_lines")
 
     # @overrides UIComponent._reset
     def _reset(self, _=None):
@@ -126,7 +143,7 @@ class TextComponent(UIComponent):
         self.scrolled_line = 1
         self._add_line_breaks_to_text()
         self._recalculate_size()
-        
+
     def _recalculate_size(self):
         """Given our formatted text and our font, we can easily determine
         the size of the text component. This resets all state values,
@@ -135,7 +152,11 @@ class TextComponent(UIComponent):
         # calculate size
         if self.props.resize_mode == ResizeMode.AUTO:
             num_lines = len(self._final_formatted_text)
-            if num_lines == 1:
+            if num_lines == 0:
+                # no text, no size
+                self.size = (0, 0)
+                return
+            elif num_lines == 1:
                 # all text is on one line anyway, just go by text
                 text_size = self.props.font.size(self.text)
             else:
@@ -153,9 +174,13 @@ class TextComponent(UIComponent):
             text (str): Text to display
         """
         self.text = text
-        self.num_visible_chars = len(text)
-        self._reset('text')
-        
+        if text:
+            self.num_visible_chars = len(text)
+            self._reset('text')
+        else:
+            self.num_visible_chars = 0
+            self._reset('text')
+
     def set_visible(self, num_chars_visible: int):
         """If you do not wish to display all the text at once,
         you can specify how many characters you want to display
@@ -181,7 +206,7 @@ class TextComponent(UIComponent):
         return self.cached_background
 
     def _add_line_breaks_to_text(self):
-        """Generates correctly line-broken text based on 
+        """Generates correctly line-broken text based on
         our max width. This is stored in the internal list `_final_formatted_text`
         """
         # determine the max length of the string we can fit on the first line
@@ -191,16 +216,16 @@ class TextComponent(UIComponent):
             self._final_formatted_text = lines
         else:
             self._final_formatted_text = [self.text]
-    
+
     def _pixel_height_to_line(self, pixels):
         return clamp(pixels / self.scrollable_height * len(self._final_formatted_text) + 1, 1, len(self._final_formatted_text))
-        
+
     def scroll_to_nearest_line(self):
         self.scrolled_line = round(self.scrolled_line)
 
     def set_scroll_height(self, scroll_to: Union[int, float, str, UIMetric]):
         """crops the text component to the place you want to scroll to. This supports
-        calculating the y-coord of a specific line or space between two lines (int, float), 
+        calculating the y-coord of a specific line or space between two lines (int, float),
         or a specific pixel or percentage (str, UIMetric)
 
         Args:
@@ -215,7 +240,7 @@ class TextComponent(UIComponent):
             self.scrolled_line =  self._pixel_height_to_line(scroll_to.to_pixels(self.scrollable_height))
         else:
             self.scrolled_line = 1
-            
+
     def is_index_at_end_of_line(self, idx: int) -> bool:
         """Is the index at the end of a line?
         Useful for determining if `self.num_visible_chars` has reached a stopping point
@@ -233,7 +258,7 @@ class TextComponent(UIComponent):
             if idx < 0:
                 return False
         return False
-    
+
     def is_index_at_sequence(self, idx: int, seq: str) -> bool:
         """Is the index at a specific substring?
         Useful for determining if `self.num_visible_chars` has reached a specific word or,
@@ -252,9 +277,9 @@ class TextComponent(UIComponent):
         except:
             pass
         return False
-    
+
     # @overrides UIComponent.to_surf
-    def to_surf(self) -> Surface:
+    def to_surf(self, no_cull=False) -> Surface:
         if not self.enabled:
             return engine.create_surface(self.tsize, True)
         # draw the background.
@@ -267,13 +292,12 @@ class TextComponent(UIComponent):
             visible_line = line[:remaining_chars]
             remaining_chars -= len(visible_line)
             self.props.font.blit(visible_line, base_surf, pos=(self.padding[0], self.padding[2] + line_num * (self.line_break_size + self.font_height)))
-        
         if self.props.max_lines > 0:
             # crop the text to the max number of lines, to avoid overflow
             scrolled_down_height = (self.scrolled_line - 1) * (self.font_height + self.line_break_size)
-            ret_surf = engine.subsurface(base_surf, (0, 
-                                                     scrolled_down_height, 
-                                                     self.width, 
+            ret_surf = engine.subsurface(base_surf, (0,
+                                                     scrolled_down_height,
+                                                     self.width,
                                                      min(self.max_text_area_height, self.height - scrolled_down_height)))
         else:
             ret_surf = base_surf
@@ -285,13 +309,24 @@ class DialogTextComponent(TextComponent):
         self.cursor = SPRITES.get('waiting_cursor')
         self.cursor_y_offset = [0]*20 + [1]*2 + [2]*8 + [1]*2
         self.cursor_y_offset_index = 0
-        
+        self.should_display_waiting_cursor = True
+
+    def set_text(self, text: str):
+        if not text.endswith('{w}'):
+            text += ' {w}'
+        super().set_text(text)
+
+    def is_completely_visible(self) -> bool:
+        if len(self.text) == 0:
+            return True
+        return self.num_visible_chars == max(len(self.wrapped_text) - 3, 0)
+
     def wiggle_cursor_height(self):
         self.cursor_y_offset_index = (self.cursor_y_offset_index + 1) % len(self.cursor_y_offset)
         return self.cursor_y_offset[self.cursor_y_offset_index] + self.font_height / 3
-        
+
     # @overrides TextComponent.to_surf
-    def to_surf(self) -> Surface:
+    def to_surf(self, no_cull=False) -> Surface:
         if not self.enabled:
             return engine.create_surface(self.tsize, True)
         # draw the background.
@@ -307,12 +342,12 @@ class DialogTextComponent(TextComponent):
             remaining_chars -= len(visible_line)
             self.props.font.blit(processed_line, base_surf, pos=(self.padding[0], self.padding[2] + line_num * (self.line_break_size + self.font_height)))
             # if we're at a wait point, and this is the last line, blit the waiting cursor sprite
-            if remaining_chars <= 0 and self.is_index_at_sequence(self.num_visible_chars, '{w}'):
+            if remaining_chars <= 0 and self.is_index_at_sequence(self.num_visible_chars, '{w}') and self.should_display_waiting_cursor:
                 cursor_pos = (self.padding[0] + self.props.font.width(processed_line) + self.props.font.width(' '),
                               self.padding[2] + line_num * (self.line_break_size + self.font_height) + self.wiggle_cursor_height())
                 base_surf.blit(self.cursor, cursor_pos)
                 pass
-        
+
         if self.props.max_lines > 0:
             # crop the text to the max number of lines, to avoid overflow
             scrolled_down_height = (self.scrolled_line - 1) * (self.font_height + self.line_break_size)

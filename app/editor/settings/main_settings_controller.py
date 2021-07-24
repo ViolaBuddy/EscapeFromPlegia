@@ -65,3 +65,9 @@ class MainSettingsController():
     
     def get_select_button(self, fallback=None):
         return self.state.value('select_button', fallback)
+
+    def set_autocomplete_button(self, value):
+        self.state.setValue('autocomplete_button', value)
+    
+    def get_autocomplete_button(self, fallback=None):
+        return self.state.value('autocomplete_button', fallback)

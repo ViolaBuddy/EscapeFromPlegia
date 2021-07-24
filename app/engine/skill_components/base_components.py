@@ -154,3 +154,11 @@ class DecreasingSightRangeBonus(SkillComponent):
     def on_upkeep(self, actions, playback, unit):
         val = self.skill.data['torch_counter'] - 1
         action.do(action.SetObjData(self.skill, 'torch_counter', val))
+
+class IgnoreFatigue(SkillComponent):
+    nid = 'ignore_fatigue'
+    desc = "Unit cannot gain fatigue"
+    tag = 'base'
+
+    def ignore_fatigue(self, unit):
+        return True

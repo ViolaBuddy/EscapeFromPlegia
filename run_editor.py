@@ -1,6 +1,7 @@
 import sys
 
 from app.editor.settings import MainSettingsController
+from app.engine.component_system_compiler import source_generator
 
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QLockFile, QDir
@@ -14,6 +15,10 @@ if __name__ == '__main__':
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     except:
         print("Maybe not Windows? But that's OK")
+
+    # compile necessary files
+    if not hasattr(sys, 'frozen'):
+        source_generator.generate_component_system_source()
 
     from app import lt_log
     success = lt_log.create_logger()

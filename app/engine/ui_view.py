@@ -1,13 +1,16 @@
-from app.utilities import utils
-from app.constants import WINWIDTH, WINHEIGHT, TILEX, TILEY
-from app.data.database import DB
-
-from app.engine.sprites import SPRITES
-from app.engine.fonts import FONT
-from app.engine import engine, base_surf, image_mods, text_funcs, icons, evaluate, \
-    combat_calcs, skill_system, equations, item_system, item_funcs, menu_options
 import app.engine.config as cf
+from app.constants import TILEX, TILEY, WINHEIGHT, WINWIDTH
+from app.data.database import DB
+from app.data.difficulty_modes import RNGOption
+from app.engine import (base_surf, combat_calcs, engine, equations, evaluate,
+                        icons, image_mods, item_funcs, item_system,
+                        menu_options, skill_system, text_funcs)
+from app.engine.fonts import FONT
+from app.engine.game_counters import ANIMATION_COUNTERS
 from app.engine.game_state import game
+from app.engine.sprites import SPRITES
+from app.utilities import utils
+
 
 class UIView():
     legal_states = ('free', 'prep_formation', 'prep_formation_select')
@@ -176,7 +179,7 @@ class UIView():
         y_offset = 0
         surf = engine.subsurface(SPRITES.get('bg_black').copy(), (0, 0, WINWIDTH, 40))
         surf = image_mods.make_translucent(surf, .75)
-        
+
         current_unit = game.initiative.get_current_unit()
         unit_list = game.initiative.unit_line[:]
         current_idx = game.initiative.current_idx
@@ -319,7 +322,7 @@ class UIView():
             else:
                 FONT['text-blue'].blit_right(str(num), surf, (x_pos, y_pos))
 
-        grandmaster = game.mode.rng_choice == 'Grandmaster'
+        grandmaster = game.mode.rng_choice == RNGOption.GRANDMASTER
         crit_flag = DB.constants.value('crit')
 
         # Choose attack info background
@@ -404,9 +407,9 @@ class UIView():
     def draw_adv_arrows(self, surf, attacker, defender, weapon, def_weapon, topleft):
         adv = combat_calcs.compute_advantage(attacker, defender, weapon, def_weapon)
         disadv = combat_calcs.compute_advantage(attacker, defender, weapon, def_weapon, False)
-        
-        up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 0, 7, 10))
-        down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 10, 7, 10))
+
+        up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (ANIMATION_COUNTERS.arrow_counter.count * 7, 0, 7, 10))
+        down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (ANIMATION_COUNTERS.arrow_counter.count * 7, 10, 7, 10))
 
         if adv and adv.modification > 0:
             surf.blit(up_arrow, topleft)
@@ -420,11 +423,12 @@ class UIView():
     def draw_attack_info(self, surf, attacker, weapon, defender):
         # Turns on appropriate combat conditionals to get an accurate read
         skill_system.test_on([], attacker, weapon, defender, 'attack')
+        skill_system.test_on([], defender, defender.get_weapon(), attacker, 'defense')
 
         if not self.attack_info_disp:
             self.attack_info_disp = self.create_attack_info(attacker, weapon, defender)
 
-        grandmaster = game.mode.rng_choice == 'Grandmaster'
+        grandmaster = game.mode.rng_choice == RNGOption.GRANDMASTER
         crit = DB.constants.get('crit').value
 
         if game.cursor.position[0] > TILEX // 2 + game.camera.get_x() - 1:
@@ -468,7 +472,7 @@ class UIView():
             self.draw_adv_arrows(surf, defender, attacker, defender.get_weapon(), weapon, (topleft[0] + 61, y_pos))
 
         # Doubling
-        count = game.map_view.x2_counter.count
+        count = ANIMATION_COUNTERS.x2_counter.count
         x2_pos_player = (topleft[0] + 59 + self.x_positions[count], topleft[1] + 38 + self.y_positions[count])
         x2_pos_enemy = (topleft[0] + 20 + self.x_positions[count], topleft[1] + 38 + self.y_positions[count])
 
@@ -501,6 +505,7 @@ class UIView():
                 surf.blit(SPRITES.get('x4'), x2_pos_enemy)
 
         # Turns off combat conditionals
+        skill_system.test_off([], defender, defender.get_weapon(), attacker, 'defense')
         skill_system.test_off([], attacker, weapon, defender, 'attack')
 
         return surf

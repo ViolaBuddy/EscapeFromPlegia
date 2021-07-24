@@ -3,6 +3,7 @@ from typing import Tuple
 
 import pygame
 import pygame.image
+import pygame.time
 
 from app.constants import WINWIDTH, WINHEIGHT, FPS
 from app.engine import config as cf
@@ -62,7 +63,7 @@ def update_time():
     constants['current_time'] = pygame.time.get_ticks()
     constants['delta_t'] = constants['current_time'] - constants['last_time']
 
-def get_time():
+def get_time() -> int:
     return constants['current_time']
 
 def get_last_time():
@@ -81,6 +82,8 @@ BLEND_RGB_MULT = pygame.BLEND_RGB_MULT
 BLEND_RGBA_ADD = pygame.BLEND_RGBA_ADD
 BLEND_RGBA_SUB = pygame.BLEND_RGBA_SUB
 BLEND_RGBA_MULT = pygame.BLEND_RGBA_MULT
+
+Surface = pygame.Surface
 
 def blit(dest, source, pos=(0, 0), mask=None, blend=0):
     dest.blit(source, pos, mask, blend)
@@ -235,7 +238,10 @@ def get_mouse_focus():
 # === loop functions ===
 DISPLAYSURF = None
 SCREENSIZE = (WINWIDTH * cf.SETTINGS['screen_size'], WINHEIGHT * cf.SETTINGS['screen_size'])
-FPSCLOCK = pygame.time.Clock()
 
-def tick():
-    return FPSCLOCK.tick(FPS)
+class Clock():
+    def __init__(self) -> None:
+        self.clock = pygame.time.Clock()
+
+    def tick(self) -> int:
+        return self.clock.tick(FPS)

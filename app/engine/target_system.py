@@ -1,8 +1,9 @@
-from app.utilities import utils
 from app.data.database import DB
-from app.engine import pathfinding, skill_system, equations, \
-    item_funcs, item_system, line_of_sight
+from app.engine import (equations, item_funcs, item_system, line_of_sight,
+                        pathfinding, skill_system)
 from app.engine.game_state import game
+from app.utilities import utils
+
 
 # Consider making these sections faster
 def get_shell(valid_moves: set, potential_range: set, width: int, height: int) -> set:
@@ -134,8 +135,8 @@ def get_valid_moves(unit, force=False) -> set:
     # Assumes unit is on the map
     if not force and unit.finished:
         return set()
-
-    mtype = game.movement.get_movement_group(unit)
+    from app.engine.movement import MovementManager
+    mtype = MovementManager.get_movement_group(unit)
     grid = game.board.get_grid(mtype)
     width, height = game.tilemap.width, game.tilemap.height
     pass_through = skill_system.pass_through(unit)
@@ -149,7 +150,8 @@ def get_valid_moves(unit, force=False) -> set:
     return valid_moves
 
 def get_path(unit, position, ally_block=False) -> list:
-    mtype = game.movement.get_movement_group(unit)
+    from app.engine.movement import MovementManager
+    mtype = MovementManager.get_movement_group(unit)
     grid = game.board.get_grid(mtype)
 
     width, height = game.tilemap.width, game.tilemap.height

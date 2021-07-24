@@ -1,19 +1,17 @@
 from functools import partial
 
-from PyQt5.QtWidgets import QVBoxLayout, QLineEdit, \
-    QWidget, QPushButton, QMessageBox, QLabel, QCheckBox
-from PyQt5.QtCore import Qt
-
 from app.data.database import DB
-
-from app.extensions.custom_gui import SimpleDialog, PropertyBox, QHLine, PropertyCheckBox
-from app.editor.custom_widgets import UnitBox, PartyBox
-from app.utilities import str_utils
-from app.editor.unit_editor import unit_tab
+from app.editor import timer
+from app.editor.custom_widgets import PartyBox, UnitBox
 from app.editor.sound_editor import sound_tab
 from app.editor.tile_editor import tile_tab
-
-from app.editor import timer
+from app.editor.unit_editor import unit_tab
+from app.extensions.custom_gui import (PropertyBox, PropertyCheckBox, QHLine,
+                                       SimpleDialog)
+from app.utilities import str_utils
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import (QCheckBox, QLabel, QLineEdit, QMessageBox,
+                             QPushButton, QVBoxLayout, QWidget)
 
 
 class MusicDialog(SimpleDialog):
@@ -110,6 +108,12 @@ class PropertiesMenu(QWidget):
         self.map_box.clicked.connect(self.select_tilemap)
         form.addWidget(self.map_box)
 
+        # overworld stuff
+        self.overworld_box = PropertyCheckBox("Go to overworld after?", QCheckBox, self)
+        self.overworld_box.edit.stateChanged.connect(self.overworld_box_changed)
+        form.addWidget(self.overworld_box)
+        self.overworld_box.hide()
+
         # Free roam stuff
         self.free_roam_box = PropertyCheckBox("Free Roam?", QCheckBox, self)
         self.free_roam_box.edit.stateChanged.connect(self.free_roam_changed)
@@ -127,6 +131,10 @@ class PropertiesMenu(QWidget):
         timer.get_timer().tick_elapsed.connect(self.tick)
 
     def tick(self):
+        if DB.constants.get('overworld').value:
+            self.overworld_box.show()
+        else:
+            self.overworld_box.hide()
         self.party_box.model.layoutChanged.emit()
 
     def set_current(self, level_nid):
@@ -158,10 +166,11 @@ class PropertiesMenu(QWidget):
             self.unit_box.show()
         else:
             self.unit_box.hide()
-        
+
         self.quick_display.edit.setText(current.objective['simple'])
         self.win_condition.edit.setText(current.objective['win'])
         self.loss_condition.edit.setText(current.objective['loss'])
+        self.overworld_box.edit.setChecked(bool(current.go_to_overworld))
 
     def nid_changed(self, text):
         self.current.nid = text
@@ -212,6 +221,14 @@ class PropertiesMenu(QWidget):
         if ok and res:
             nid = res.nid
             self.current.tilemap = nid
+            # Reset the positions of units who are now off the side of the map
+            for unit in self.current.units:
+                if unit.starting_position:
+                    if unit.starting_position[0] >= res.width or unit.starting_position[1] >= res.height:
+                        unit.starting_position = None
+            # Reset any illegal positions for groups
+            for group in self.current.unit_groups:
+                group.positions = {k: v for k, v in group.positions.items() if v[0] < res.width and v[1] < res.height}
             self.state_manager.change_and_broadcast('ui_refresh_signal', None)
 
     def access_units(self):
@@ -226,6 +243,9 @@ class PropertiesMenu(QWidget):
             self.unit_box.show()
         else:
             self.unit_box.hide()
+
+    def overworld_box_changed(self, state):
+        self.current.go_to_overworld = bool(state)
 
     def unit_changed(self, idx):
         self.current.roam_unit = DB.units[idx].nid

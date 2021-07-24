@@ -2,11 +2,7 @@ import math
 from collections import Counter
 import colorsys, hashlib
 from operator import add, sub
-
-def frames_to_ms(num_frames: int) -> int:
-    """at 60 fps, each frame would happen in 16.67 ms"""
-    return int(16.67 * num_frames)
-frames2ms = frames_to_ms  # Alternate name
+from typing import List
 
 def frames_to_ms(num_frames: int) -> int:
     """at 60 fps, each frame would happen in 16.67 ms"""
@@ -75,7 +71,7 @@ def calculate_distance(pos1: tuple, pos2: tuple) -> int:
     return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
 def process_terms(terms):
-    """ 
+    """
     Processes weighted lists
     """
     weight_sum = sum(term[1] for term in terms)
@@ -91,10 +87,13 @@ def dot_product(a: tuple, b: tuple) -> float:
 def tuple_sub(a: tuple, b: tuple) -> tuple:
     return tuple(map(sub, a, b))
 
-def tuple_add(a: tuple, b: tuple) -> tuple:
-    return tuple(map(add, a, b))
+def tuple_add(a: tuple, *b: tuple) -> tuple:
+    accum = a
+    for next_tup in b:
+        accum = tuple(map(add, accum, next_tup))
+    return accum
 
-def magnitude(a: tuple) -> tuple:
+def magnitude(a: tuple) -> float:
     return math.sqrt(a[0] * a[0] + a[1] * a[1])
 
 def normalize(a: tuple) -> tuple:
@@ -102,7 +101,7 @@ def normalize(a: tuple) -> tuple:
     return (a[0] / mag, a[1] / mag)
 
 def tmult(a: tuple, b: float) -> tuple:
-    return (a[0] * b, a[1] * b)
+    return tuple([a_i * b for a_i in a])
 
 def tmax(a: tuple, b: tuple) -> tuple:
     return tuple(map(max, a, b))
@@ -169,7 +168,7 @@ def smart_farthest_away_pos(position, valid_moves: set, enemy_pos: set):
         avg_y /= len(enemy_pos)
         # Now have vector pointing away from average enemy position
         # I want the dot product between that vector and the vector of each possible move
-        # The highest dot product is the best 
+        # The highest dot product is the best
         return sorted(valid_moves, key=lambda move: dot_product((move[0] - position[0], move[1] - position[1]), (avg_x, avg_y)))[-1]
     else:
         return None

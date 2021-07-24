@@ -58,11 +58,11 @@ class Parser():
         else:
             return 0
 
-    def get_fatigue(self, unit):
-        if hasattr(self, 'fatigue'):
-            return self.fatigue(unit)
+    def max_fatigue(self, unit):
+        if hasattr(self, 'max_fatigue'):
+            return self.max_fatigue(unit)
         else:
-            return 0
+            return 10
 
     def get_initiative(self, unit):
         if hasattr(self, 'initiative'):

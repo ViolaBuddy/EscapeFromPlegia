@@ -125,3 +125,11 @@ class Value(ItemComponent):
             frac = item.data['uses'] / item.data['starting_uses']
             return int(self.value * frac // 2)
         return self.value // 2
+
+class Accessory(ItemComponent):
+    nid = 'accessory'
+    desc = "Item is an accessory"
+    tag = 'base'
+
+    def is_accessory(self, unit, item) -> bool:
+        return True

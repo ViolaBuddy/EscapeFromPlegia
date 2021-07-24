@@ -16,9 +16,9 @@ class WeaponRankMultiModel(MultiAttrListModel):
     def delete(self, idx):
         # Check to make sure nothing else is using this rank
         element = DB.weapon_ranks[idx]
-        affected_weapons = [weapon for weapon in DB.weapons if 
+        affected_weapons = [weapon for weapon in DB.weapons if
                             any(adv.weapon_rank == element.rank for adv in weapon.rank_bonus) or
-                            any(adv.weapon_rank == element.rank for adv in weapon.advantage) or 
+                            any(adv.weapon_rank == element.rank for adv in weapon.advantage) or
                             any(adv.weapon_rank == element.rank for adv in weapon.disadvantage)]
         affected_items = item_components.get_items_using(item_components.Type.WeaponRank, element.rank, DB)
         if affected_weapons or affected_items:
@@ -69,7 +69,7 @@ class RankDialog(MultiAttrListDialog):
         def deletion_func(model, index):
             return model.rowCount() > 1
 
-        return cls(DB.weapon_ranks, "Weapon Rank", 
+        return cls(DB.weapon_ranks, "Weapon Rank",
                    ("rank", "requirement"),
                    WeaponRankMultiModel, (deletion_func, None, None))
 
@@ -124,7 +124,7 @@ class WexpGainMultiAttrModel(DefaultMultiAttrListModel):
             self._data[weapon_key] = DB.weapons.default()
             data = self._data[weapon_key]
         attr = self._headers[index.column()]
-        
+
         current_value = getattr(data, attr)
         if attr == 'wexp_gain':
             if value in DB.weapon_ranks.keys():

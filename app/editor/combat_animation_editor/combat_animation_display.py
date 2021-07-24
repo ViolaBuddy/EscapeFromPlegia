@@ -31,6 +31,8 @@ from app.utilities import str_utils
 # Game interface
 import app.editor.game_actions.game_actions as GAME_ACTIONS
 
+import logging
+
 def populate_anim_pixmaps(combat_anim):
     for weapon_anim in combat_anim.weapon_anims:
         weapon_anim.pixmap = QPixmap(weapon_anim.full_path)
@@ -63,8 +65,8 @@ class CombatAnimProperties(QWidget):
         else:
             icon_folder = 'icons/dark_icons'
 
-        weapon_row = self.weapon_box(icon_folder)
-        pose_row = self.pose_box(icon_folder)
+        weapon_row = self.set_up_weapon_box(icon_folder)
+        pose_row = self.set_up_pose_box(icon_folder)
 
         self.info_form.addRow("Unique ID", self.nid_box)
         self.info_form.addRow("Weapon", weapon_row)
@@ -147,7 +149,7 @@ class CombatAnimProperties(QWidget):
         self.button_section.addWidget(label, Qt.AlignRight)
         self.button_section.addWidget(self.speed_box, Qt.AlignRight)
 
-    def weapon_box(self, icon_folder):
+    def set_up_weapon_box(self, icon_folder):
         weapon_row = QHBoxLayout()
         self.weapon_box = ComboBox()
         self.weapon_box.currentIndexChanged.connect(self.weapon_changed)
@@ -168,7 +170,7 @@ class CombatAnimProperties(QWidget):
         weapon_row.addWidget(self.delete_weapon_button)
         return weapon_row
 
-    def pose_box(self, icon_folder):
+    def set_up_pose_box(self, icon_folder):
         pose_row = QHBoxLayout()
         self.pose_box = ComboBox()
         self.pose_box.currentIndexChanged.connect(self.pose_changed)
@@ -206,8 +208,8 @@ class CombatAnimProperties(QWidget):
         self.export_anim_button = QPushButton("Export...")
         self.export_anim_button.clicked.connect(self.export_anim)
 
-        self.window.left_frame.layout().addWidget(self.import_anim_button, 2, 0)
-        self.window.left_frame.layout().addWidget(self.export_anim_button, 2, 1)
+        self.window.left_frame.layout().addWidget(self.import_anim_button, 3, 0)
+        self.window.left_frame.layout().addWidget(self.export_anim_button, 3, 1)
         frame_layout.addWidget(self.import_from_lt_button)
         frame_layout.addWidget(self.import_from_gba_button)
         frame_layout.addWidget(self.import_png_button)
@@ -401,11 +403,13 @@ class CombatAnimProperties(QWidget):
         if current_weapon.pixmap:
             main_pixmap_backup = current_weapon.pixmap #Could contain references
             current_weapon.pixmap = None
+            current_weapon.image = None
             has_pixmap = True
 
             for index in range(len(current_weapon.frames)):
                 frame = current_weapon.frames[index]
                 frame.pixmap = None
+                frame.image = None
 
         # Pickle (Serialize)
         ser = pickle.dumps(current_weapon)
@@ -558,8 +562,13 @@ class CombatAnimProperties(QWidget):
 
             for fn in fns:
                 if fn.endswith('.txt'):
-                    combat_animation_imports.import_from_gba(self.current, fn)
-
+                    try:
+                        combat_animation_imports.import_from_gba(self.current, fn)
+                    except Exception as e:
+                        logging.exception(e)
+                        logging.error("Error encountered during import from gba of %s" % fn)
+                        QMessageBox.critical(self, "Import Error", "Error encountered during import of %s" % fn)
+                        return
             # Reset
             self.set_current(self.current)
             if self.current.weapon_anims:

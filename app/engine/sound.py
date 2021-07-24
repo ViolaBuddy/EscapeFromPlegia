@@ -508,10 +508,11 @@ class SoundController():
             self.reset_timers()
             self.pause()
 
-    def play_sfx(self, sound, loop=False):
+    def play_sfx(self, sound, loop=False, volume=1):
         sfx = SFX.get(sound)
         if sfx:
-            sfx.set_volume(self.global_sfx_volume)
+            vol = utils.clamp(self.global_sfx_volume * volume, 0, 1)
+            sfx.set_volume(vol)
             if loop:
                 sfx.play(-1)
             else:

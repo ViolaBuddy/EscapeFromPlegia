@@ -254,6 +254,7 @@ class InfoMenuState(State):
         self.reset_surfs()
 
         # For transitions between states
+        self.rescuer = None  # Keeps track of the rescuer if we are looking at the traveler
         self.next_unit = None
         self.next_state = None
         self.scroll_offset_x = 0
@@ -343,8 +344,11 @@ class InfoMenuState(State):
                     else:
                         self.info_graph.set_current_state('personal_data')
             elif event == 'BACK':
-                self.back()
-                return
+                if self.rescuer:
+                    self.move_up()
+                else:
+                    self.back()
+                    return
             elif event == 'SELECT':
                 mouse_position = INPUT.get_mouse_position()
                 if mouse_position:
@@ -357,6 +361,9 @@ class InfoMenuState(State):
                         self.move_up()
                     elif mouse_y >= WINHEIGHT - 16:
                         self.move_down()
+                if not self.transition:  # Some of the above move commands could cause transition
+                    if self.unit.traveler:
+                        self.move_traveler()
 
             if 'RIGHT' in directions:
                 self.move_right()
@@ -394,8 +401,12 @@ class InfoMenuState(State):
     def move_down(self):
         SOUNDTHREAD.play_sfx('Status_Character')
         if self.scroll_units:
-            index = self.scroll_units.index(self.unit)
-            new_index = (index + 1) % len(self.scroll_units)
+            if self.rescuer:
+                new_index = self.scroll_units.index(self.rescuer)
+                self.rescuer = None
+            else:
+                index = self.scroll_units.index(self.unit)
+                new_index = (index + 1) % len(self.scroll_units)
             self.next_unit = self.scroll_units[new_index]
             if self.state == 'notes' and not (DB.constants.value('unit_notes') and self.next_unit.notes):
                 self.state = 'personal_data'
@@ -405,13 +416,26 @@ class InfoMenuState(State):
     def move_up(self):
         SOUNDTHREAD.play_sfx('Status_Character')
         if self.scroll_units:
-            index = self.scroll_units.index(self.unit)
-            new_index = (index - 1) % len(self.scroll_units)
+            if self.rescuer:
+                new_index = self.scroll_units.index(self.rescuer)
+                self.rescuer = None
+            else:
+                index = self.scroll_units.index(self.unit)
+                new_index = (index - 1) % len(self.scroll_units)
             self.next_unit = self.scroll_units[new_index]
             if self.state == 'notes' and not (DB.constants.value('unit_notes') and self.next_unit.notes):
                 self.state = 'personal_data'
                 self.switch_logo('personal_data')
             self.transition = 'UP'
+
+    def move_traveler(self):
+        SOUNDTHREAD.play_sfx('Status_Character')
+        self.rescuer = self.unit
+        self.next_unit = game.get_unit(self.unit.traveler)
+        if self.state == 'notes' and not (DB.constants.value('unit_notes') and self.next_unit.notes):
+            self.state = 'personal_data'
+            self.switch_logo('personal_data')
+        self.transition = 'DOWN'
 
     def handle_mouse(self):
         mouse_position = INPUT.get_mouse_position()
@@ -541,7 +565,6 @@ class InfoMenuState(State):
 
         # Blit the unit's active/focus map sprite
         if not self.transparency:
-            game.map_view.update()  # For active sprite movement
             active_sprite = self.unit.sprite.create_image('active')
             x_pos = 81 - active_sprite.get_width()//2
             y_pos = WINHEIGHT - 61
@@ -822,22 +845,23 @@ class InfoMenuState(State):
 
         # Blit accessories
         for idx, item in enumerate(self.unit.accessories):
-            height = DB.constants.value('num_items') * 16 + idx * 16 + 24
+            aidx = item_funcs.get_num_items(self.unit) + idx
+            y_pos = aidx * 16 + 24
             if item.multi_item and any(subitem is accessory for subitem in item.subitems):
-                surf.blit(SPRITES.get('equipment_highlight'), (8, height + 8))
+                surf.blit(SPRITES.get('equipment_highlight'), (8, y_pos + 8))
                 for subitem in item.subitems:
                     if subitem is accessory:
-                        item_option = menu_options.FullItemOption(idx, subitem)
+                        item_option = menu_options.FullItemOption(aidx, subitem)
                         break
                 else:  # Shouldn't happen
-                    item_option = menu_options.FullItemOption(idx, item)
+                    item_option = menu_options.FullItemOption(aidx, item)
             else:
                 if item is accessory:
-                    surf.blit(SPRITES.get('equipment_highlight'), (8, height + 8))
-                item_option = menu_options.FullItemOption(idx, item)
-            item_option.draw(surf, 8, height)
-            y_pos = item_funcs.get_num_items(self.unit) * 16 + idx * 16 + 24
-            self.info_graph.register((96 + 8, y_pos, 120, 16), item_option.get_help_box(), 'equipment', first=(idx == 0 and not self.unit.nonaccessories))
+                    surf.blit(SPRITES.get('equipment_highlight'), (8, y_pos + 8))
+                item_option = menu_options.FullItemOption(aidx, item)
+            item_option.draw(surf, 8, y_pos)
+            first = (idx == 0 and not self.unit.nonaccessories)
+            self.info_graph.register((96 + 8, y_pos, 120, 16), item_option.get_help_box(), 'equipment', first=first)
 
         # Battle stats
         battle_surf = SPRITES.get('battle_info')
@@ -956,11 +980,17 @@ class InfoMenuState(State):
         surf.blit(self.support_surf, (96, 0))
 
     def create_fatigue_surf(self):
-        surf = engine.create_surface((WINWIDTH - 96, WINHEIGHT))
+        surf = engine.create_surface((WINWIDTH - 96, WINHEIGHT), transparent=True)
         max_fatigue = max(1, equations.parser.max_fatigue(self.unit))
-        build_groove(surf, (27, WINHEIGHT - 9), 88, utils.clamp(self.unit.fatigue / max_fatigue, 0, 1))
-        FONT['text-blue'].blit(str(self.unit.fatigue) + '/' + str(max_fatigue), surf, (56, WINHEIGHT - 17))
-        FONT['text-yellow'].blit('Ftg', surf, (8, WINHEIGHT - 17))
+        fatigue = self.unit.get_fatigue()
+        build_groove(surf, (27, WINHEIGHT - 9), 88, utils.clamp(fatigue / max_fatigue, 0, 1))
+        x_pos = 27 + 88 // 2
+        text = str(fatigue) + '/' + str(max_fatigue)
+        x_pos -= FONT['text-blue'].width(text)//2
+        FONT['text-blue'].blit(text, surf, (x_pos, WINHEIGHT - 17))
+        if fatigue >= max_fatigue:
+            FONT['text-red'].blit(str(fatigue), surf, (x_pos, WINHEIGHT - 17))
+        FONT['text-yellow'].blit(text_funcs.translate('Ftg'), surf, (8, WINHEIGHT - 17))
 
         return surf
 

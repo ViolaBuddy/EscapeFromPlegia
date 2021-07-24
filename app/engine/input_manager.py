@@ -1,5 +1,3 @@
-from app.constants import WINWIDTH, WINHEIGHT
-
 from app.engine import engine
 from app.engine import config as cf
 

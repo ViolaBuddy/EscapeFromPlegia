@@ -7,13 +7,13 @@
         "overworld_nodes": [
             {
                 "nid": "0",
-                "name": "New Location",
+                "name": "Border Mulan",
                 "pos": [
                     9,
                     5
                 ],
                 "icon": "fort",
-                "level": null
+                "level": "0"
             },
             {
                 "nid": "1",
@@ -27,13 +27,13 @@
             },
             {
                 "nid": "2",
-                "name": "New Location",
+                "name": "Frelia Castle",
                 "pos": [
                     5,
                     4
                 ],
                 "icon": "castle",
-                "level": null
+                "level": "1"
             },
             {
                 "nid": "3",
@@ -47,23 +47,23 @@
             },
             {
                 "nid": "4",
-                "name": "New Location",
+                "name": "Borgo Ridge",
                 "pos": [
                     7,
                     9
                 ],
                 "icon": "fort",
-                "level": null
+                "level": "3"
             },
             {
                 "nid": "5",
-                "name": "New Location",
+                "name": "Ide",
                 "pos": [
                     7,
                     7
                 ],
                 "icon": "town",
-                "level": null
+                "level": "2"
             },
             {
                 "nid": "6",
@@ -681,6 +681,7 @@
                     16
                 ]
             ]
-        }
+        },
+        "border_tile_width": 0
     }
 ]

@@ -10,10 +10,14 @@ class EventManager():
         self.all_events = []  # Keeps all events, both in use and not yet used
         self.event_stack = []  # A stack of events that haven't been used yet
 
-    def trigger(self, trigger, unit=None, unit2=None, item=None, position=None, region=None):
+    def trigger(self, trigger, unit=None, unit2=None, item=None, position=None, region=None, level_nid=None):
         unit1 = unit  # noqa: F841
         triggered_events = []
-        for event_prefab in DB.events.get(trigger, game.level.nid):
+        if level_nid:
+            event_source_nid = level_nid
+        else:
+            event_source_nid = game.level.nid
+        for event_prefab in DB.events.get(trigger, event_source_nid):
             try:
                 result = evaluate.evaluate(event_prefab.condition, unit, unit2, item, position, region)
                 logging.debug("%s %s: %s", event_prefab.trigger, event_prefab.condition, result)

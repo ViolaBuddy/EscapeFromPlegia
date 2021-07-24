@@ -1,36 +1,15 @@
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
 
-from app.counters import generic3counter, simplecounter, movement_counter
-
-from app.utilities.utils import frames2ms
 from app.engine import engine
 from app.engine.game_state import game
 
-import time
-
 class MapView():
     def __init__(self):
-        self.passive_sprite_counter = generic3counter(frames2ms(32), frames2ms(4))
-        self.active_sprite_counter = generic3counter(frames2ms(13), frames2ms(6))
-        self.move_sprite_counter = simplecounter((frames2ms(10), frames2ms(5), frames2ms(10), frames2ms(5)))
-        self.fast_move_sprite_counter = simplecounter((frames2ms(6), frames2ms(3), frames2ms(6), frames2ms(3)))
-        self.attack_movement_counter = movement_counter()
-        self.arrow_counter = simplecounter((frames2ms(16), frames2ms(16), frames2ms(16)))
-        self.x2_counter = simplecounter([frames2ms(3)] * 18)
-
-    def update(self):
-        current_time = engine.get_time()
-        self.passive_sprite_counter.update(current_time)
-        self.active_sprite_counter.update(current_time)
-        self.move_sprite_counter.update(current_time)
-        self.fast_move_sprite_counter.update(current_time)
-        self.attack_movement_counter.update(current_time)
-        self.arrow_counter.update(current_time)
-        self.x2_counter.update(current_time)
+        self._unit_surf = engine.create_surface((WINWIDTH, WINHEIGHT), transparent=True)
 
     def draw_units(self, surf, cull_rect, subsurface_rect=None):
         # Surf is always 240x160 WxH
-        unit_surf = engine.create_surface((WINWIDTH, WINHEIGHT), transparent=True)
+        unit_surf = engine.copy_surface(self._unit_surf)
 
         # Update all units except the cur unit
         update_units = [unit for unit in game.units if (unit.position or unit.sprite.fake_position)]
@@ -48,7 +27,7 @@ class MapView():
         draw_units = sorted(culled_units, key=lambda unit: unit.position[1] if unit.position else unit.sprite.fake_position[1])
 
         topleft = cull_rect[0], cull_rect[1]
-        
+
         for unit in draw_units:
             unit.sprite.draw(unit_surf, topleft)
             if 'event' not in game.state.state_names():
@@ -74,11 +53,10 @@ class MapView():
         else:
             surf.blit(unit_surf, (0, 0))
 
-    def draw(self, culled_rect=None):
-        # start = time.time_ns()
+    def draw(self, camera_cull=None, subsurface_cull=None):
         game.tilemap.update()
         # Camera Cull
-        cull_rect = int(game.camera.get_x() * TILEWIDTH), int(game.camera.get_y() * TILEHEIGHT), WINWIDTH, WINHEIGHT
+        cull_rect = camera_cull
         full_size = game.tilemap.width * TILEWIDTH, game.tilemap.height * TILEHEIGHT
 
         map_image = game.tilemap.get_full_image(cull_rect)
@@ -90,22 +68,23 @@ class MapView():
         surf = game.boundary.draw_fog_of_war(surf, full_size, cull_rect)
         surf = game.highlight.draw(surf, cull_rect)
 
-        if culled_rect:  # Forced smaller cull rect from animation combat black background
+        if subsurface_cull:  # Forced smaller cull rect from animation combat black background
             # Make sure it has a width
             # Make the cull rect even smaller
-            if culled_rect[2] > 0:
-                subsurface_rect = cull_rect[0] + culled_rect[0], cull_rect[1] + culled_rect[1], culled_rect[2], culled_rect[3]
+            if subsurface_cull[2] > 0:
+                subsurface_rect = cull_rect[0] + subsurface_cull[0], cull_rect[1] + subsurface_cull[1], subsurface_cull[2], subsurface_cull[3]
                 self.draw_units(surf, cull_rect, subsurface_rect)
             else:
                 pass # Don't draw units
         else:
             self.draw_units(surf, cull_rect)
+
         surf = game.cursor.draw(surf, cull_rect)
+
 
         for weather in game.tilemap.weather:
             weather.update()
             weather.draw(surf, cull_rect[0], cull_rect[1])
 
         surf = game.ui_view.draw(surf)
-        # print((time.time_ns() - start)/1e6)
         return surf

@@ -122,7 +122,7 @@ class ClassModel(DragDropCollectionModel):
         wexp_gain = {weapon_nid: DB.weapons.default() for weapon_nid in DB.weapons.keys()}
         new_class = klass.Klass(
             nid, name, "", 1, movement_group, None, [], [], 20,
-            bases, growths, growth_bonus, promotion, max_stats, 
+            bases, growths, growth_bonus, promotion, max_stats,
             [], wexp_gain)
         DB.classes.append(new_class)
         return new_class

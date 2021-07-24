@@ -1,18 +1,28 @@
+import logging
 import math
 
-from app.utilities import utils
 from app.data.database import DB
-
-from app.engine import engine, action, combat_calcs, pathfinding, target_system, \
-    equations, item_system, item_funcs, skill_system, line_of_sight, evaluate
+from app.engine import (action, combat_calcs, engine, equations, evaluate,
+                        item_funcs, item_system, line_of_sight, pathfinding,
+                        skill_system, target_system)
 from app.engine.combat import interaction
 from app.engine.game_state import game
+from app.engine.movement import MovementManager
+from app.utilities import utils
 
-import logging
 
 class AIController():
     def __init__(self):
+        # Controls whether we should be skipping through the AI's turns
+        self.do_skip: bool = False
+
         self.reset()
+
+    def skip(self):
+        self.do_skip = True
+
+    def end_skip(self):
+        self.do_skip = False
 
     def reset(self):
         self.unit = None
@@ -109,7 +119,7 @@ class AIController():
                 self.goal_item.data['target_item'] = items[-1]
 
             # Combat
-            interaction.start_combat(self.unit, self.goal_target, self.goal_item, ai_combat=True)
+            interaction.start_combat(self.unit, self.goal_target, self.goal_item, ai_combat=True, skip=self.do_skip)
             return True
         # Interacting with regions
         elif self.goal_position and self.behaviour and self.behaviour.action == 'Interact':
@@ -285,13 +295,13 @@ class PrimaryAI():
         self.behaviour = behaviour
 
         if self.behaviour.action == "Attack":
-            self.items = [item for item in item_funcs.get_all_items(self.unit) if 
+            self.items = [item for item in item_funcs.get_all_items(self.unit) if
                           item_funcs.available(self.unit, item)]
             self.extra_abilities = skill_system.get_extra_abilities(self.unit)
             for ability in self.extra_abilities.values():
                 self.items.append(ability)
         elif self.behaviour.action == 'Support':
-            self.items = [item for item in item_funcs.get_all_items(self.unit) if 
+            self.items = [item for item in item_funcs.get_all_items(self.unit) if
                           item_funcs.available(self.unit, item)]
             self.extra_abilities = skill_system.get_extra_abilities(self.unit)
             for ability in self.extra_abilities.values():
@@ -306,7 +316,7 @@ class PrimaryAI():
         self.behaviour_targets = get_targets(self.unit, self.behaviour)
 
         logging.info("Testing Items: %s", self.items)
-        
+
         self.item_index = 0
         self.move_index = 0
         self.target_index = 0
@@ -426,6 +436,9 @@ class PrimaryAI():
             tp = self.compute_priority(main_target_pos, splash, move, item)
 
         unit = game.board.get_unit(target)
+        # Don't target self if I've already moved and I'm not targeting my new position
+        if unit is self.unit and target != self.unit.position:
+            return
         if unit:
             name = unit.nid
         else:
@@ -442,7 +455,7 @@ class PrimaryAI():
         tp = 0
         main_target = game.board.get_unit(main_target_pos)
         # Only count main target if it's one of the legal targets
-        if main_target and main_target_pos in self.behaviour_targets:  
+        if main_target and main_target_pos in self.behaviour_targets:
             ai_priority = item_system.ai_priority(self.unit, item, main_target, move)
             # If no ai priority hook defined
             if ai_priority is None:
@@ -533,7 +546,7 @@ class PrimaryAI():
                 logging.info("Accuracy is bad, but continuing with stupid AI")
             elif accuracy > 0 and DB.constants.value('attack_zero_dam'):
                 logging.info("Zero Damage, but continuing with stupid AI")
-            else:    
+            else:
                 logging.info("Offense: %.2f, Defense: %.2f", offense_term, defense_term)
                 return 0
 
@@ -628,11 +641,11 @@ class SecondaryAI():
         self.single_move = self.zero_move + equations.parser.movement(self.unit)
         self.double_move = self.single_move + equations.parser.movement(self.unit)
 
-        movement_group = game.movement.get_movement_group(self.unit)
+        movement_group = MovementManager.get_movement_group(self.unit)
         self.grid = game.board.get_grid(movement_group)
         self.pathfinder = \
-            pathfinding.AStar(self.unit.position, None, self.grid, 
-                              game.tilemap.width, game.tilemap.height, 
+            pathfinding.AStar(self.unit.position, None, self.grid,
+                              game.tilemap.width, game.tilemap.height,
                               self.unit.team, skill_system.pass_through(self.unit),
                               DB.constants.value('ai_fog_of_war'))
 
@@ -715,7 +728,7 @@ class SecondaryAI():
         hp_max = equations.parser.hitpoints(enemy)
         weakness_term = float(hp_max - enemy.get_hp()) / hp_max
 
-        items = [item for item in item_funcs.get_all_items(self.unit) if 
+        items = [item for item in item_funcs.get_all_items(self.unit) if
                  item_funcs.available(self.unit, item)]
 
         terms = []

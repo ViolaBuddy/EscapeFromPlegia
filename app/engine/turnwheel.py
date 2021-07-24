@@ -83,7 +83,7 @@ class ActionLog():
             if isinstance(move, self.Move) and move.end is None:
                 move.end = move.begin
             self.unique_moves.append(move)
-        
+
         # Pay attention to which actions the turnwheel actually has to know about
         self.unique_moves.clear()
         current_move = None
@@ -350,8 +350,6 @@ class ActionLog():
         return self
 
 class TurnwheelDisplay():
-    # locked_sprite = engine.image_load(SPRITES['focus_fade_red'].full_path, convert_alpha=True)
-    # unlocked_sprite = engine.image_load(SPRITES['focus_fade_green'].full_path, convert_alpha=True)
     locked_sprite = SPRITES.get('focus_fade_red')
     unlocked_sprite = SPRITES.get('focus_fade_green')
 

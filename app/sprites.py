@@ -22,3 +22,7 @@ def load_sprites(root):
 
 SPRITES = SpriteDict()
 load_sprites('sprites/')
+
+def reset():
+    SPRITES.clear()
+    load_sprites('sprites/')

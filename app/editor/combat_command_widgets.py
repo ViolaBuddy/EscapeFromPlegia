@@ -67,13 +67,13 @@ class CombatCommand(QWidget):
         offset_layout = QFormLayout()
         self.x_box = QSpinBox()
         self.x_box.setValue(0)
-        self.x_box.setRange(0, WINWIDTH)
+        self.x_box.setRange(-WINWIDTH, WINWIDTH)
         self.x_box.setValue(x)
         self.x_box.valueChanged.connect(self.on_value_changed)
         offset_layout.addRow("X:", self.x_box)
         self.y_box = QSpinBox()
         self.y_box.setValue(0)
-        self.y_box.setRange(0, WINHEIGHT)
+        self.y_box.setRange(-WINHEIGHT, WINHEIGHT)
         self.y_box.setValue(y)
         self.y_box.valueChanged.connect(self.on_value_changed)
         offset_layout.addRow("Y:", self.y_box)
@@ -203,16 +203,16 @@ class WaitForHitCommand(CombatCommand):
     def select_frame1(self):
         combat_anim_editor = self.window.window
         weapon_anim = combat_anim_editor.get_current_weapon_anim()
-        res, ok = FrameSelector.get(combat_anim_editor.current, weapon_anim)
+        res, ok = FrameSelector.get(combat_anim_editor.current, weapon_anim, combat_anim_editor)
         if ok:
-            self.editor1.setText(res)
+            self.editor1.setText(res.nid)
 
     def select_frame2(self):
         combat_anim_editor = self.window.window
         weapon_anim = combat_anim_editor.get_current_weapon_anim()
-        res, ok = FrameSelector.get(combat_anim_editor.current, weapon_anim)
+        res, ok = FrameSelector.get(combat_anim_editor.current, weapon_anim, combat_anim_editor)
         if ok:
-            self.editor2.setText(res)
+            self.editor2.setText(res.nid)
 
 class FrameCommand(CombatCommand):
     def create_editor(self, hbox):
@@ -304,16 +304,16 @@ class DualFrameCommand(CombatCommand):
     def select_frame1(self):
         combat_anim_editor = self.window.window
         weapon_anim = combat_anim_editor.get_current_weapon_anim()
-        res, ok = FrameSelector.get(combat_anim_editor.current, weapon_anim)
+        res, ok = FrameSelector.get(combat_anim_editor.current, weapon_anim, combat_anim_editor)
         if ok:
-            self.editor1.setText(res)
+            self.editor1.setText(res.nid)
 
     def select_frame2(self):
         combat_anim_editor = self.window.window
         weapon_anim = combat_anim_editor.get_current_weapon_anim()
-        res, ok = FrameSelector.get(combat_anim_editor.current, weapon_anim)
+        res, ok = FrameSelector.get(combat_anim_editor.current, weapon_anim, combat_anim_editor)
         if ok:
-            self.editor2.setText(res)
+            self.editor2.setText(res.nid)
 
 class FrameWithOffsetCommand(CombatCommand):
     def create_editor(self, hbox):
@@ -354,7 +354,7 @@ class FrameWithOffsetCommand(CombatCommand):
     def select_frame(self):
         combat_anim_editor = self.window.window
         weapon_anim = combat_anim_editor.get_current_weapon_anim()
-        res, ok = FrameSelector.get(combat_anim_editor.current, weapon_anim)
+        res, ok = FrameSelector.get(combat_anim_editor.current, weapon_anim, combat_anim_editor)
         if ok:
             self.frame.setText(res.nid)
 

@@ -3,7 +3,7 @@ from app.engine import engine
 
 def create_base_surf(width, height, base='menu_bg_base'):
     sprite = SPRITES.get(base)
-    
+
     base_width = sprite.get_width()
     base_height = sprite.get_height()
 
@@ -46,5 +46,25 @@ def create_base_surf(width, height, base='menu_bg_base'):
     surf.blit(topright, (full_width - width, 0))
     surf.blit(botleft, (0, full_height - height))
     surf.blit(botright, (full_width - width, full_height - height))
+
+    return surf
+
+def create_highlight_surf(width) -> engine.Surface:
+    if width < 5:
+        raise ValueError("Highlight surf too short - why are you even calling this?")
+    sprite: engine.Surface = SPRITES.get('equipment_highlight')
+
+    base_width = sprite.get_width()
+    base_height = sprite.get_height()
+
+    left_endcap = engine.subsurface(sprite, (0, 0, 2, base_height))
+    middle_segment = engine.subsurface(sprite, (3, 0, 1, base_height))
+    right_endcap = engine.subsurface(sprite, (base_width - 2, 0, 2, base_height))
+
+    surf = engine.create_surface((width, base_height), transparent=True)
+    surf.blit(left_endcap, (0, 0))
+    for middle_x in range(2, width - 2):
+        surf.blit(middle_segment, (middle_x, 0))
+    surf.blit(right_endcap, (width - 2, 0))
 
     return surf

@@ -100,5 +100,10 @@
         "nid": "Chpt5",
         "terrain_grid": {},
         "autotiles": {}
+    },
+    {
+        "nid": "MagvelWorldMap",
+        "terrain_grid": {},
+        "autotiles": {}
     }
 ]

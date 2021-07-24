@@ -5,7 +5,7 @@ from app.data.database import DB
 from app.data.item_components import ItemComponent
 from app.data.components import Type
 
-from app.engine import skill_system
+from app.engine import skill_system, action
 
 class Exp(ItemComponent):
     nid = 'exp'
@@ -65,7 +65,7 @@ class HealExp(ItemComponent):
 
 class Wexp(ItemComponent):
     nid = 'wexp'
-    desc = "Item gives a custom number of wexp to user on use"
+    desc = "Item gives a custom number of wexp to user while using"
     tag = 'exp'
 
     expose = Type.Int
@@ -73,3 +73,18 @@ class Wexp(ItemComponent):
 
     def wexp(self, playback, unit, item, target):
         return self.value - 1  # Because 1 will already be given by WeaponComponent
+
+class Fatigue(ItemComponent):
+    nid = 'fatigue'
+    desc = "Item gives extra fatigue to user while using"
+    tag = 'exp'
+
+    expose = Type.Int
+    value = 1
+
+    def end_combat(self, playback, unit, item, target, mode):
+        if mode != 'attack':
+            return
+        marks = [mark for mark in playback if mark[0].startswith('mark') and mark[1] is unit and mark[3] is item]
+        if marks:
+            action.do(action.ChangeFatigue(unit, self.value))

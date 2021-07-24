@@ -1,8 +1,8 @@
 from collections import OrderedDict
 
-from app.utilities.data import Data, Prefab
-from app.data.level_units import UniqueUnit, GenericUnit, UnitGroup
+from app.data.level_units import GenericUnit, UniqueUnit, UnitGroup
 from app.events.regions import Region
+from app.utilities.data import Data, Prefab
 
 class LevelPrefab(Prefab):
     def __init__(self, nid, name):
@@ -20,6 +20,8 @@ class LevelPrefab(Prefab):
                           'loss': ''}
         self.roam: bool = False
         self.roam_unit: str = None
+
+        self.go_to_overworld: bool = False
 
         self.units = Data()
         self.regions = Data()

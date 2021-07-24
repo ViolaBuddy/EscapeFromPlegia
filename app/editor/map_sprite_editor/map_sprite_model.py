@@ -82,7 +82,7 @@ class MapSpriteModel(ResourceCollectionModel):
                     lion_throne_mode = True
                 elif 16 <= standing_pix.width() <= 64 and standing_pix.height() % 3 == 0:  # Try for GBA mode
                     lion_throne_mode = False
-                else:   
+                else:
                     QMessageBox.critical(self.window, "Error", "Standing Map Sprite is not correct size for Legacy import (192x144 px)")
                     return
             else:
@@ -117,7 +117,7 @@ class MapSpriteModel(ResourceCollectionModel):
         else:
             return
         if sok and mok and nid:
-            if lion_throne_mode: 
+            if lion_throne_mode:
                 new_map_sprite = MapSprite(nid, stand_full_path, move_full_path)
             else:
                 current_proj = settings.get_current_project()

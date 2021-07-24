@@ -1,7 +1,10 @@
+from __future__ import annotations
+from typing import Type
+from collections.abc import Iterable
 import copy
 import json
 
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QGridLayout, QPushButton, \
+from PyQt5.QtWidgets import QLineEdit, QTextEdit, QWidget, QHBoxLayout, QGridLayout, QPushButton, \
     QSizePolicy, QSplitter, QMessageBox, QApplication, QAbstractItemView
 from PyQt5.QtCore import QSize, Qt, pyqtSignal
 from PyQt5.QtCore import QAbstractListModel
@@ -16,8 +19,8 @@ from app.utilities import str_utils
 import logging
 
 class Collection(QWidget):
-    def __init__(self, deletion_criteria, collection_model, parent,
-                 button_text="Create %s", view_type=RightClickListView):
+    def __init__(self, deletion_criteria, collection_model: Type[DragDropCollectionModel], parent,
+                 button_text="Create %s", view_type: Type[RightClickListView] = RightClickListView):
         super().__init__(parent)
         self.window = parent
 
@@ -42,21 +45,67 @@ class Collection(QWidget):
         self.button = QPushButton(button_text % self.title)
         self.button.clicked.connect(self.model.append)
 
-        grid.addWidget(self.view, 0, 0, 1, 2)
-        grid.addWidget(self.button, 1, 0, 1, 2)
+        self.filter_field = QLineEdit()
+        self.filter_field.setPlaceholderText('Filter by keyword, or by "nid"')
+        self.filter_field.textChanged.connect(self.on_filter_changed)
+
+        grid.addWidget(self.filter_field, 0, 0, 1, 2)
+        grid.addWidget(self.view, 1, 0, 1, 2)
+        grid.addWidget(self.button, 2, 0, 1, 2)
 
         if self.window.allow_import_from_lt:
             self.import_button = QPushButton("Import Legacy data file...")
             self.import_button.clicked.connect(self.window.import_data)
-            grid.addWidget(self.import_button, 2, 0, 1, 2)
+            grid.addWidget(self.import_button, 3, 0, 1, 2)
 
         if self.window.allow_copy_and_paste:
             self.copy_button = QPushButton("Copy to clipboard")
             self.copy_button.clicked.connect(self.window.copy_data)
-            grid.addWidget(self.copy_button, 3, 0)
+            grid.addWidget(self.copy_button, 4, 0)
             self.paste_button = QPushButton("Paste from clipboard")
             self.paste_button.clicked.connect(self.window.paste_data)
-            grid.addWidget(self.paste_button, 3, 1)
+            grid.addWidget(self.paste_button, 4, 1)
+
+    def on_filter_changed(self, text: str):
+        text = text.replace(' ', '')
+        if not text:
+            for i in range(self.model.rowCount()):
+                self.view.setRowHidden(i, False)
+            self.view.setDragEnabled(True)
+            return
+        try:
+            for i in range(self.model.rowCount()):
+                self.view.setRowHidden(i, False)
+                index = self.model.index(i)
+
+                # if quotations are used == strict mode
+                match = False
+                if len(text) > 2 and text.startswith('"'):
+                    match_text = text[1:-1]
+                    name: str = self.model.data(index, Qt.DisplayRole)
+                    if match_text.lower() in name.lower():
+                        match = True
+                else: # search every subfield for occurrences of this string
+                    item = self.model._data[index.row()]
+                    item_attrs = [attr for attr in dir(item) if not callable(getattr(item, attr)) and not attr.startswith("__")]
+                    for attr in item_attrs:
+                        field = getattr(item, attr)
+                        if isinstance(field, str):
+                            if text.lower() in field.lower():
+                                match = True
+                                break
+                        elif isinstance(field, Iterable):
+                            for field_item in field:
+                                if isinstance(field_item, str):
+                                    if text.lower() in field_item.lower():
+                                        match = True
+                                        break
+                if not match:
+                    self.view.setRowHidden(i, True)
+
+            self.view.setDragEnabled(False)
+        except Exception as e:
+            print(e)
 
     def on_item_changed(self, curr, prev):
         if self._data:
@@ -164,7 +213,7 @@ class DatabaseTab(QWidget):
             row = selected_indices[0].row() + 1
         else:
             row = len(self._data)
-        
+
         clipboard = QApplication.clipboard()
         json_string = clipboard.text()
         try:
@@ -180,7 +229,7 @@ class DatabaseTab(QWidget):
 
 class CollectionModel(QAbstractListModel):
     allow_delete_last_obj = False
-    
+
     def __init__(self, data, window):
         super().__init__(window)
         self._data = data
@@ -197,7 +246,7 @@ class CollectionModel(QAbstractListModel):
         if not self.allow_delete_last_obj and len(self._data) == 1:
             QMessageBox.critical(None, "Deletion Error", "Can not delete last object of a kind!")
             return
-            
+
         new_index = 0
         # If deleting the element at the bottom of the list
         if idx == len(self._data) - 1:

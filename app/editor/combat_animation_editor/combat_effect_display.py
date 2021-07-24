@@ -56,7 +56,7 @@ class CombatEffectProperties(CombatAnimProperties):
         else:
             icon_folder = 'icons/dark_icons'
 
-        pose_row = self.pose_box(icon_folder)
+        pose_row = self.set_up_pose_box(icon_folder)
 
         self.info_form.addRow("Unique ID", self.nid_box)
         self.info_form.addRow("Pose", pose_row)
@@ -92,9 +92,9 @@ class CombatEffectProperties(CombatAnimProperties):
         self.export_effect_button = QPushButton("Export...")
         self.export_effect_button.clicked.connect(self.export_effect)
 
-        self.window.left_frame.layout().addWidget(self.import_effect_button, 2, 0)
-        self.window.left_frame.layout().addWidget(self.export_effect_button, 2, 1)
-        self.window.left_frame.layout().addWidget(self.import_from_lt_button, 3, 0, 1, 2)
+        self.window.left_frame.layout().addWidget(self.import_effect_button, 3, 0)
+        self.window.left_frame.layout().addWidget(self.export_effect_button, 3, 1)
+        self.window.left_frame.layout().addWidget(self.import_from_lt_button, 4, 0, 1, 2)
         frame_layout.addWidget(self.import_png_button)
 
     def pose_changed(self, idx):
@@ -169,6 +169,13 @@ class CombatEffectProperties(CombatAnimProperties):
             self.pose_box.setValue(poses[0].nid)
         return poses
 
+    def get_current_weapon_anim(self):
+        """
+        For effects, their "weapon anim" is just themselves
+        So return itself
+        """
+        return self.current
+
     def import_legacy(self):
         starting_path = self.settings.get_last_open_path()
         fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Legacy Effect Script Files", starting_path, "Script Files (*-Script.txt);;All Files (*)")
@@ -181,6 +188,12 @@ class CombatEffectProperties(CombatAnimProperties):
         self.window.update_list()
 
     def select_frame(self):
+        if not self.current.frames:
+            QMessageBox.critical(self, "Frame Error", "%s has no associated frames!" % self.current.nid)
+            return
+        elif not self.current.palettes:
+            QMessageBox.critical(self, "Palette Error", "%s has no associated palettes!" % self.current.nid)
+            return
         dlg = FrameSelector(self.current, self.current, self)
         dlg.exec_()
 

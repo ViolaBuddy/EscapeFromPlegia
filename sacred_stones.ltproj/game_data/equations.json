@@ -98,5 +98,9 @@
     {
         "nid": "HUNDRED",
         "expression": "100"
+    },
+    {
+        "nid": "MAX_FATIGUE",
+        "expression": "HP"
     }
 ]

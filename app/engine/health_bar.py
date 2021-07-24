@@ -7,6 +7,7 @@ from app.engine.fonts import FONT
 from app.engine.sound import SOUNDTHREAD
 from app.engine import engine, combat_calcs, icons, equations, skill_system, item_system
 from app.engine.game_state import game
+from app.engine.game_counters import ANIMATION_COUNTERS
 
 class HealthBar():
     time_for_change_min = 200
@@ -361,8 +362,8 @@ class MapCombatInfo():
                 adv = combat_calcs.compute_advantage(self.unit, self.target, self.item, self.target.get_weapon())
                 disadv = combat_calcs.compute_advantage(self.unit, self.target, self.item, self.target.get_weapon(), False)
 
-                up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 0, 7, 10))
-                down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 10, 7, 10))
+                up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (ANIMATION_COUNTERS.arrow_counter.count * 7, 0, 7, 10))
+                down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (ANIMATION_COUNTERS.arrow_counter.count * 7, 10, 7, 10))
 
                 if adv and adv.modification > 0:
                     bg_surf.blit(up_arrow, (11, 7))

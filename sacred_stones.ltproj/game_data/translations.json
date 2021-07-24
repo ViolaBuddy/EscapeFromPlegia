@@ -318,5 +318,9 @@
     {
         "nid": "unit_record_header",
         "text": "Chapter Name        Kills    Damage    Healing"
+    },
+    {
+        "nid": "_attribution",
+        "text": "created by rainlash"
     }
 ]

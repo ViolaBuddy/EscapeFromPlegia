@@ -1,6 +1,9 @@
 # Binary-compiled files
 *.py[co]
 
+# test project
+test.ltproj
+
 # Save States
 saves/*.p
 saves/*.pmeta

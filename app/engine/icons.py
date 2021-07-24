@@ -9,7 +9,7 @@ from app.engine.fonts import FONT
 from app.engine import engine, skill_system, image_mods
 from app.engine.game_state import game
 
-def get_icon(item):
+def get_icon(item) -> engine.Surface:
     if not item:
         return None
     image = RESOURCES.icons16.get(item.icon_nid)
@@ -53,7 +53,7 @@ def draw_skill(surf, skill, topleft, compact=True, simple=False):
         text = skill_system.get_text(skill)
         if text is not None:
             FONT['text-blue'].blit(text, surf, (topleft[0] + 16, topleft[1]))
-    
+
     return surf
 
 def draw_weapon(surf, weapon_type, topleft, gray=False):
@@ -72,7 +72,7 @@ def draw_weapon(surf, weapon_type, topleft, gray=False):
 
     if gray:
         image = image_mods.make_gray(image.convert_alpha())
-    
+
     surf.blit(image, topleft)
     return surf
 
@@ -86,7 +86,7 @@ def draw_faction(surf, faction, topleft):
     image = engine.subsurface(image.image, (faction.icon_index[0] * 32, faction.icon_index[1] * 32, 32, 32))
     image = image.convert()
     engine.set_colorkey(image, COLORKEY, rleaccel=True)
-    
+
     surf.blit(image, topleft)
     return surf
 
@@ -104,7 +104,7 @@ def get_portrait(unit):
         if not image.image:
             image.image = engine.image_load(image.full_path)
         image = engine.subsurface(image.image, (klass.icon_index[0] * 80, klass.icon_index[1] * 72, 80, 72))
-        
+
     image = image.convert()
     engine.set_colorkey(image, COLORKEY, rleaccel=True)
 

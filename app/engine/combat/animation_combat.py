@@ -109,7 +109,7 @@ class AnimationCombat(BaseCombat, MockCombat):
 
     def update(self) -> bool:
         current_time = engine.get_time() - self.last_update
-        self.current_state = self.state
+        current_state = self.state
 
         if self.state == 'init':
             self.start_combat()
@@ -120,6 +120,7 @@ class AnimationCombat(BaseCombat, MockCombat):
             game.cursor.set_pos(self.view_pos)
             if not self._skip:
                 game.state.change('move_camera')
+            self._set_stats()  # For start combat changes
 
         elif self.state == 'red_cursor':
             if self._skip or current_time > 400:
@@ -284,7 +285,7 @@ class AnimationCombat(BaseCombat, MockCombat):
                 self.end_skip()
                 return True
 
-        if self.state != self.current_state:
+        if self.state != current_state:
             self.last_update = engine.get_time()
 
         # Update hp bars
@@ -509,7 +510,12 @@ class AnimationCombat(BaseCombat, MockCombat):
                 self.current_battle_anim = self.left_battle_anim
             else:
                 self.current_battle_anim = self.right_battle_anim
-        if self.get_from_playback('mark_crit'):
+        alternate_pose = self.get_from_playback('alternate_battle_pose')
+        if alternate_pose:
+            alternate_pose = alternate_pose[0][1]
+        if alternate_pose and self.current_battle_anim.has_pose(alternate_pose):
+            self.current_battle_anim.start_anim(alternate_pose)
+        elif self.get_from_playback('mark_crit'):
             self.current_battle_anim.start_anim('Critical')
         elif self.get_from_playback('mark_hit'):
             self.current_battle_anim.start_anim('Attack')
@@ -574,7 +580,7 @@ class AnimationCombat(BaseCombat, MockCombat):
                 damage = brush[4]
                 unit = brush[1]
                 item = brush[2]
-                magic = item_funcs.is_magic(unit, item)
+                magic = item_funcs.is_magic(unit, item, self.distance)
                 if damage > 0:
                     if magic:
                         self._shake(3)

@@ -32,7 +32,7 @@ class MultiEditTableView(QTableView):
 
         menu = QMenu(self)
         menu.addAction(self.copy_action)
-        menu.addAction(self.paste_action) 
+        menu.addAction(self.paste_action)
 
         menu.popup(self.viewport().mapToGlobal(pos))
 
@@ -224,14 +224,14 @@ class StatAverageDialog(QDialog):
         column_titles = DB.stats.keys()
         self.setup(column_titles, "Average Stats", model)
         if title == 'Generic':
-            self.view.verticalHeader().setFixedWidth(20)  
+            self.view.verticalHeader().setFixedWidth(20)
 
     def setup(self, column_titles, title, model):
         self.model = model(column_titles, self.current, parent=self)
         self.view = QTableView(self)
         self.view.setModel(self.model)
         for col in range(len(column_titles)):
-            self.view.resizeColumnToContents(col)          
+            self.view.resizeColumnToContents(col)
 
         layout = QGridLayout(self)
         layout.setSpacing(0)
@@ -316,7 +316,7 @@ class ClassStatAveragesModel(VirtualListModel):
         super().__init__(parent)
         self.window = parent
         self._columns = self._headers = columns
-        self.current = current  
+        self.current = current
         self._rows = [1] + list(range(5, current.max_level, 5)) + [current.max_level]
 
     def set_current(self, current):
@@ -391,7 +391,7 @@ class GenericStatAveragesModel(ClassStatAveragesModel):
         VirtualListModel.__init__(self, parent)
         self.window = parent
         self._columns = self._headers = columns
-        self.current = current  
+        self.current = current
         self._rows = [current.level]
 
     def set_current(self, current):
@@ -430,7 +430,7 @@ class UnitStatAveragesModel(ClassStatAveragesModel):
         self.get_rows()
 
     def get_rows(self):
-        klass = DB.classes.get(self.current.klass)  
+        klass = DB.classes.get(self.current.klass)
         max_level = klass.max_level
         self._rows = []
         for i in [1] + list(range(5, max_level, 5)) + [max_level]:
@@ -438,7 +438,7 @@ class UnitStatAveragesModel(ClassStatAveragesModel):
         true_levels = 0
         while klass.promotion_options(DB):
             true_levels += max_level
-            klass = DB.classes.get(klass.promotion_options(DB)[0])  
+            klass = DB.classes.get(klass.promotion_options(DB)[0])
             if klass:
                 max_level = klass.max_level
                 for i in [1] + list(range(5, max_level, 5)) + [max_level]:

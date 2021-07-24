@@ -1,14 +1,33 @@
+from typing import Tuple
+
+from app.data.database import DB
+from app.data.difficulty_modes import GrowthOption
+from app.data.units import UnitPrefab
+from app.engine import (action, combat_calcs, equations, item_funcs,
+                        item_system, skill_system, unit_funcs)
+from app.engine.game_state import game
 from app.utilities import utils
 from app.utilities.data import Prefab
-from app.data.database import DB
+from app.utilities.typing import NID
 
-from app.engine import equations, item_system, item_funcs, skill_system, unit_funcs, action
-from app.engine.game_state import game
 
 # Main unit object used by engine
 class UnitObject(Prefab):
+    def __init__(self):
+        self.nid: NID = None
+        self.position: Tuple[int, int] = None
+        self.team: str = None
+        self.party: NID = None
+        self.klass: NID = None
+        self.variant: str = None
+        self.level: int = None
+        self.exp: int = 0
+        self.generic: bool = None
+        self.ai = None
+        self.ai_group = None
+
     @classmethod
-    def from_prefab(cls, prefab):
+    def from_prefab(cls, prefab: UnitPrefab):
         self = cls()
         self.nid: str = prefab.nid
         if prefab.starting_position:
@@ -59,7 +78,7 @@ class UnitObject(Prefab):
 
         method = unit_funcs.get_leveling_method(self)
 
-        if method == 'Fixed':
+        if method == GrowthOption.FIXED:
             self.growth_points = {k: 50 for k in self.stats.keys()}
         else:
             self.growth_points = {k: 0 for k in self.stats.keys()}
@@ -182,11 +201,14 @@ class UnitObject(Prefab):
     def set_mana(self, val):
         self.current_mana = int(utils.clamp(val, 0, equations.parser.get_mana(self)))
 
+    def get_max_fatigue(self):
+        return equations.parser.max_fatigue(self)
+
     def get_fatigue(self):
         return self.current_fatigue
 
     def set_fatigue(self, val):
-        self.current_fatigue = int(utils.clamp(val, 0, equations.parser.get_fatigue(self)))
+        self.current_fatigue = int(max(val, 0))
 
     def get_exp(self):
         return self.exp
@@ -209,6 +231,24 @@ class UnitObject(Prefab):
 
     def get_growth(self, stat_nid):
         return self.growths.get(stat_nid, 0) + self.growth_bonus(stat_nid)
+
+    def get_stat_cap(self, stat_nid):
+        return DB.classes.get(self.klass).max_stats.get(stat_nid, 30)
+
+    def get_damage_with_current_weapon(self) -> int:
+        if self.equipped_weapon:
+            return combat_calcs.damage(self, self.equipped_weapon)
+        else:
+            return 0
+
+    def get_accuracy_with_current_weapon(self) -> int:
+        if self.equipped_weapon:
+            return combat_calcs.accuracy(self, self.equipped_weapon)
+        else:
+            return 0
+
+    def get_avoid_with_current_weapon(self) -> int:
+        return combat_calcs.avoid(self, self.equipped_weapon)
 
     @property
     def sprite(self):

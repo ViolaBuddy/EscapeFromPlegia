@@ -3,19 +3,16 @@ import sys
 
 block_cipher = None
 
-name = sys.argv[3]
-project = name + '.ltproj'
-
-a = Analysis(['run_engine.py'],
+a = Analysis(['run_editor.py'],
              pathex=['.'],
              binaries=[],
              datas=[('saves/save_storage.txt', 'saves'),
                     ('resources', 'resources'),
                     ('sprites', 'sprites'),
-                    (project, project),
                     ('favicon.ico', '.'),
+                    ('icons', 'icons'),
                     ('app', 'app')],
-             hiddenimports=[],
+             hiddenimports=['json', 'colorsys', 'dataclasses', 'filecmp', 'pygame'],
              hookspath=[],
              runtime_hooks=[],
              excludes=[],
@@ -44,16 +41,16 @@ def remove_from_list(input, keys):
 exe = EXE(pyz,
           a.scripts,
           exclude_binaries=True,
-          name=name,
+          name='lt_editor',
           debug=False,
           strip=False,
           upx=True,
           console=True,
-          icon='main_icon.ico' )
+          icon='favicon.ico' )
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
                a.datas,
                strip=False,
                upx=True,
-               name=name)
+               name='lt_editor')

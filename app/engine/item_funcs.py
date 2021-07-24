@@ -7,8 +7,8 @@ from app.engine.objects.skill import SkillObject
 
 import logging
 
-def is_magic(unit, item) -> bool:
-    if item.magic:
+def is_magic(unit, item, distance=0) -> bool:
+    if item.magic or (item.magic_at_range and distance > 1):
         return True
     return False
 

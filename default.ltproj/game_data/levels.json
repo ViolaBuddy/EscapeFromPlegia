@@ -22,6 +22,7 @@
         },
         "roam": false,
         "roam_unit": "Eirika",
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Eirika",
@@ -145,6 +146,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": true,
         "units": [
             {
                 "nid": "Eirika",
@@ -601,6 +603,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Eirika",
@@ -1063,6 +1066,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Eirika",
@@ -1638,6 +1642,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Eirika",
@@ -2582,6 +2587,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Eirika",
@@ -3466,6 +3472,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Bone",

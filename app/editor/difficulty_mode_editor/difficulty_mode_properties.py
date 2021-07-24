@@ -1,12 +1,12 @@
-from PyQt5.QtWidgets import QWidget, QLineEdit, QMessageBox, \
-    QVBoxLayout, QHBoxLayout, QSpinBox
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import (QHBoxLayout, QLineEdit, QMessageBox, QSpinBox,
+                             QVBoxLayout, QWidget)
 
-from app.sprites import SPRITES
-
+from app.data.difficulty_modes import GrowthOption, PermadeathOption, RNGOption
 from app.editor.stat_widget import StatListWidget
-from app.extensions.custom_gui import PropertyBox, ComboBox
+from app.extensions.custom_gui import ComboBox, PropertyBox
+from app.sprites import SPRITES
 from app.utilities import str_utils
 
 class PlayerStatListWidget(StatListWidget):
@@ -32,7 +32,7 @@ class DifficultyModeProperties(QWidget):
         self.nid_box = PropertyBox("Unique ID", QLineEdit, self)
         self.nid_box.edit.textChanged.connect(self.nid_changed)
         self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
-        
+
         self.name_box = PropertyBox("Display Name", QLineEdit, self)
         self.name_box.edit.setMaxLength(20)
         self.name_box.edit.textChanged.connect(self.name_changed)
@@ -45,15 +45,15 @@ class DifficultyModeProperties(QWidget):
         self.color_box.edit.currentIndexChanged.connect(self.color_changed)
 
         self.permadeath_choice = PropertyBox("Permadeath", ComboBox, self)
-        self.permadeath_choice.edit.addItems(['Player Choice', 'Classic', 'Casual'])
+        self.permadeath_choice.edit.addItems([perma.value for perma in PermadeathOption])
         self.permadeath_choice.edit.currentIndexChanged.connect(self.permadeath_changed)
 
         self.growths_choice = PropertyBox("Growth method", ComboBox, self)
-        self.growths_choice.edit.addItems(['Player Choice', 'Random', 'Fixed', 'Dynamic'])
+        self.growths_choice.edit.addItems([growth.value for growth in GrowthOption])
         self.growths_choice.edit.currentIndexChanged.connect(self.growths_changed)
 
         self.rng_choice = PropertyBox("Method for resolving accuracy rolls", ComboBox, self)
-        self.rng_choice.edit.addItems(["Classic", "True Hit", "True Hit+", "Grandmaster"])
+        self.rng_choice.edit.addItems([hit.value for hit in RNGOption])
         self.rng_choice.edit.currentIndexChanged.connect(self.rng_changed)
 
         self.player_stat_widget = PlayerStatListWidget(self.current, "Player Bonus Stats", average_button=False, parent=self)
@@ -91,12 +91,12 @@ class DifficultyModeProperties(QWidget):
         main_section.addWidget(self.boss_stat_widget)
         main_section.addLayout(autolevel_section)
         self.setLayout(main_section)
-        
+
     def nid_changed(self, text):
         if self.current.name == self.current.nid:
             self.name_box.edit.setText(text)
         self.current.nid = text
-        self.window.update_list()        
+        self.window.update_list()
 
     def nid_done_editing(self):
         other_nids = [d.nid for d in self._data.values() if d is not self.current]

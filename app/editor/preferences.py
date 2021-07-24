@@ -12,6 +12,10 @@ name_to_button = {'L-click': Qt.LeftButton,
                   'R-click': Qt.RightButton}
 button_to_name = {v: k for k, v in name_to_button.items()}
 
+key_to_button = {'Tab': Qt.Key_Tab,
+                 'Enter': Qt.Key_Return}
+button_to_key = {v: k for k, v in key_to_button.items()}
+
 class PreferencesDialog(Dialog):
     theme_options = ['Light', 'Dark', 'Discord', 'Sidereal', 'Mist']
 
@@ -28,9 +32,11 @@ class PreferencesDialog(Dialog):
         self.saved_preferences['place_button'] = self.settings.get_place_button(Qt.RightButton)
         self.saved_preferences['theme'] = self.settings.get_theme(0)
         self.saved_preferences['event_autocomplete'] = self.settings.get_event_autocomplete(1)
+        self.saved_preferences['autocomplete_button'] = self.settings.get_autocomplete_button(Qt.Key_Tab)
         self.saved_preferences['autosave_time'] = self.settings.get_autosave_time()
 
         self.available_options = name_to_button.keys()
+        self.autocomplete_options = key_to_button.keys()
 
         label = QLabel("Modify mouse preferences for Unit and Tile Painter Menus")
 
@@ -54,6 +60,12 @@ class PreferencesDialog(Dialog):
         self.autocomplete = PropertyCheckBox('Event Autocomplete', QCheckBox, self)
         self.autocomplete.edit.setChecked(bool(self.saved_preferences['event_autocomplete']))
 
+        self.autocomplete_button = PropertyBox('Autocomplete Button', ComboBox, self)
+        for option in self.autocomplete_options:
+            self.autocomplete_button.edit.addItem(option)
+        self.autocomplete_button.edit.setValue(button_to_key[self.saved_preferences['autocomplete_button']])
+        self.autocomplete_button.edit.currentIndexChanged.connect(self.autocomplete_button_changed)
+
         self.autosave = PropertyBox('Autosave Time (minutes)', QDoubleSpinBox, self)
         self.autosave.edit.setRange(0.5, 99)
         self.autosave.edit.setValue(self.saved_preferences['autosave_time'])
@@ -63,6 +75,7 @@ class PreferencesDialog(Dialog):
         self.layout.addWidget(self.select)
         self.layout.addWidget(self.place)
         self.layout.addWidget(self.theme)
+        self.layout.addWidget(self.autocomplete_button)
         self.layout.addWidget(self.autocomplete)
         self.layout.addWidget(self.autosave)
         self.layout.addWidget(self.buttonbox)
@@ -81,6 +94,13 @@ class PreferencesDialog(Dialog):
         else:
             self.select.edit.setValue('L-click')
 
+    def autocomplete_button_changed(self, idx):
+        choice = self.autocomplete_button.edit.currentText()
+        if choice == 'Tab':
+            self.autocomplete_button.edit.setValue('Tab')
+        else:
+            self.autocomplete_button.edit.setValue('Return')
+
     def theme_changed(self, idx):
         choice = self.theme.edit.currentText()
         ap = QApplication.instance()
@@ -96,6 +116,7 @@ class PreferencesDialog(Dialog):
     def accept(self):
         self.settings.set_select_button(name_to_button[self.select.edit.currentText()])
         self.settings.set_place_button(name_to_button[self.place.edit.currentText()])
+        self.settings.set_autocomplete_button(key_to_button[self.autocomplete_button.edit.currentText()])
         self.settings.set_theme(self.theme.edit.currentIndex())
         # For some reason Qt doesn't save booleans correctly
         # resorting to int

@@ -342,5 +342,9 @@
     {
         "nid": "Dynamic_desc",
         "text": "Level-ups are random, but you can't be stat-screwed."
+    },
+    {
+        "nid": "_attribution",
+        "text": "created by rainlash"
     }
 ]

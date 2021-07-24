@@ -171,16 +171,16 @@ class ScrollArrow():
     def draw(self, surf):
         self.arrow_counter.update()
         if self.direction == 'up':
-            pos = (self.x, self.y - (self.offset.pop() if self.offset else 0))
+            pos = (self.x, self.y - (self.offset.pop(0) if self.offset else 0))
             surf.blit(engine.subsurface(self.images['up'], (0, self.arrow_counter.get() * 8, 14, 8)), pos)
         elif self.direction == 'down':
-            pos = (self.x, self.y + (self.offset.pop() if self.offset else 0))
+            pos = (self.x, self.y + (self.offset.pop(0) if self.offset else 0))
             surf.blit(engine.subsurface(self.images['down'], (0, self.arrow_counter.get() * 8, 14, 8)), pos)
         elif self.direction == 'left':
-            pos = (self.x - (self.offset.pop() if self.offset else 0), self.y)
+            pos = (self.x - (self.offset.pop(0) if self.offset else 0), self.y)
             surf.blit(engine.subsurface(self.images['left'], (self.arrow_counter.get() * 8, 0, 8, 14)), pos)
         elif self.direction == 'right':
-            pos = (self.x - (self.offset.pop() if self.offset else 0), self.y)
+            pos = (self.x + (self.offset.pop(0) if self.offset else 0), self.y)
             surf.blit(engine.subsurface(self.images['right'], (self.arrow_counter.get() * 8, 0, 8, 14)), pos)
 
 class ScrollBar():
@@ -338,7 +338,7 @@ class MouseIndicator():
     mouse_indicator_left = engine.flip_horiz(SPRITES.get('mouse_indicator_right'))
     mouse_indicator_top = SPRITES.get('mouse_indicator_top')
     mouse_indicator_bottom = engine.flip_vert(SPRITES.get('mouse_indicator_top'))
-    
+
     def draw(self, surf):
         mouse_position = INPUT.get_real_mouse_position()
         if mouse_position:

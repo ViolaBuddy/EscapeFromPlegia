@@ -15,6 +15,8 @@ from app.editor import timer
 
 from app.editor.new_game_dialog import NewGameDialog
 
+import logging
+
 class ProjectFileBackend():
     def __init__(self, parent, app_state_manager):
         self.parent = parent
@@ -59,6 +61,10 @@ class ProjectFileBackend():
             fn, ok = QFileDialog.getSaveFileName(self.parent, "Save Project", starting_path,
                                                  "All Files (*)")
             if ok:
+                # Make sure you can't save as "autosave" or "default"
+                if os.path.split(fn)[-1] in ('autosave.ltproj', 'default.ltproj', 'autosave', 'default'):
+                    QMessageBox.critical(self.parent, "Save Error", "You cannot save project as <b>default.ltproj</b> or <b>autosave.ltproj</b>!\nChoose another name.")
+                    return False
                 if fn.endswith('.ltproj'):
                     self.current_proj = fn
                 else:
@@ -126,7 +132,7 @@ class ProjectFileBackend():
             if fn:
                 self.current_proj = fn
                 self.settings.set_current_project(self.current_proj)
-                print("Opening project %s" % self.current_proj)
+                logging.info("Opening project %s" % self.current_proj)
                 self.load()
                 return True
             else:
@@ -140,7 +146,7 @@ class ProjectFileBackend():
 
     def auto_open(self):
         path = self.settings.get_current_project()
-        print("Auto Open: %s" % path)
+        logging.info("Auto Open: %s" % path)
 
         if path and os.path.exists(path):
             try:
@@ -149,11 +155,12 @@ class ProjectFileBackend():
                 self.load()
                 return True
             except Exception as e:
-                print(e)
-                print("Falling back to default.ltproj")
+                logging.error(e)
+                logging.warning("path %s not found. Falling back to default.ltproj" % path)
                 self.auto_open_fallback()
                 return False
         else:
+            logging.warning("path %s not found. Falling back to default.ltproj" % path)
             self.auto_open_fallback()
             return False
 
@@ -178,7 +185,7 @@ class ProjectFileBackend():
             pass
 
         # Actually save project
-        print("Autosaving project to %s..." % autosave_dir)
+        logging.info("Autosaving project to %s..." % autosave_dir)
         RESOURCES.save(autosave_dir, specific='autosave', progress=self.autosave_progress)
         self.autosave_progress.setValue(75)
         DB.serialize(autosave_dir)

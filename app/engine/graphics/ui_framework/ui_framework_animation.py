@@ -34,43 +34,43 @@ def animated(name: str):
 
 class UIAnimation():
     """An Animation class for the UI.
-    
+
     Usage of this is straightforward. An animation consists of the following:
-    
+
         component [UIComponent]: A UI Component on which to perform the animation.
-        
+
         halt_condition [Callable[[UIComponent, Optional[int]], bool]]:
-            A function (or list of such functions) 
-            that takes in a UI component and time passed and informs us if the 
-            animation is finished. Defaults to None, which means that it will run before_anim 
+            A function (or list of such functions)
+            that takes in a UI component and time passed and informs us if the
+            animation is finished. Defaults to None, which means that it will run before_anim
             function once, and end immediately.
-        
+
         before_anim, do_anim, after_anim [Callable[[UIComponent, Optional[int]]]]:
-            A series of arbitrary functions (or list of such functions) 
-            that take in a UI Component and time passed and 
-            alter its properties in some way. Namely, these three functions will be called 
+            A series of arbitrary functions (or list of such functions)
+            that take in a UI Component and time passed and
+            alter its properties in some way. Namely, these three functions will be called
             on the provided UI Component above.
-            
+
             before_anim is called once, when the animation is begun (via animation.begin())
             do_anim is continuously called.
             after_anim is called once, when the animation ends (via the halt_condition())
-            
+
             Generally, it is advised that after_anim contains the expected end state of a
             component, as animations can be skipped, and do_anim is not guaranteed to be
             called until halt_condition is satisfied.
-            
+
         skippable [bool]:
             Whether or not this animation is skippable. Some animations, such as passive hovering animations,
             are not skippable, and skipping them would result in a program lock.
     """
-    def __init__(self, halt_condition: Callable[[UIComponent, int], bool] = None, 
-                 before_anim:   List[Callable[[UIComponent, int, int]]] | Callable[[UIComponent, int, int]] = None, 
-                 do_anim:       List[Callable[[UIComponent, int, int]]] | Callable[[UIComponent, int, int]] = None, 
+    def __init__(self, halt_condition: Callable[[UIComponent, int], bool] = None,
+                 before_anim:   List[Callable[[UIComponent, int, int]]] | Callable[[UIComponent, int, int]] = None,
+                 do_anim:       List[Callable[[UIComponent, int, int]]] | Callable[[UIComponent, int, int]] = None,
                  after_anim:    List[Callable[[UIComponent, int, int]]] | Callable[[UIComponent, int, int]] = None,
                  skippable: bool = True):
         self.component: UIComponent = None
         self.skippable = skippable
-        
+
         if isinstance(before_anim, list):
             self.before_anim = before_anim
         else:
@@ -84,7 +84,7 @@ class UIAnimation():
         else:
             self.after_anim = [after_anim]
         self.should_halt = halt_condition
-        
+
         self.start_time: int = 0
         self.current_time: int = 0
         self.begun = False
@@ -93,12 +93,12 @@ class UIAnimation():
         for before_anim in self.before_anim:
             if before_anim:
                 before_anim(component, start_time, 0)
-        
+
     def _exec_do_anims(self, component: UIComponent, anim_time: int, delta_time: int):
         for do_anim in self.do_anim:
             if do_anim:
                 do_anim(component, anim_time, delta_time)
-                
+
     def _exec_after_anims(self, component: UIComponent, anim_time: int, delta_time: int):
         for after_anim in self.after_anim:
             if after_anim:
@@ -117,13 +117,13 @@ class UIAnimation():
         self.start_time = 0
         self.current_time = 0
         self._exec_before_anims(self.component, 0, 0)
-        
+
     def update(self, delta_time: int = 0) -> bool:
         """Plays the animation.
         If the animation hasn't started, start it.
         If the animation is started, iterate the animation one stage.
         If the animation should stop, finish it and return true.
-        
+
         Args:
             delta_time (int, optional): the time since an animation was last updated. Defaults to 0.
                 necessary to calculate animation progress and lerping
@@ -138,7 +138,7 @@ class UIAnimation():
             return False
         # update internal timer
         self.current_time = self.current_time + delta_time
-        anim_time = self.current_time 
+        anim_time = self.current_time
         # update animation
         if self.should_halt is None or self.should_halt(self.component, anim_time, delta_time):
             self._exec_after_anims(self.component, anim_time, delta_time)
@@ -149,18 +149,16 @@ class UIAnimation():
         else:
             self._exec_do_anims(self.component, anim_time, delta_time)
             return False
-    
+
     def reset(self):
         self.begun = False
-           
+
     # override some magic methods
     def __add__(self, other: UIAnimation):
-        return UIAnimation(self.should_halt, 
-                           self.before_anim + other.before_anim, 
+        return UIAnimation(self.should_halt,
+                           self.before_anim + other.before_anim,
                            self.do_anim + other.do_anim,
                            self.after_anim + other.after_anim)
-
-
 
 def hybridize_animation(anims: Dict[str, UIAnimation], keyfunction: Callable[[UIComponent], str]) -> UIAnimation:
     """Helper function for creating a switchable animation.
@@ -198,6 +196,6 @@ def hybridize_animation(anims: Dict[str, UIAnimation], keyfunction: Callable[[UI
             if anims[which_anim].should_halt:
                 return anims[which_anim].should_halt(c, *args)
         return True
-    
+
     composite_anim = UIAnimation(halt_condition=composite_halt, before_anim=composite_before, do_anim=composite_do, after_anim=composite_after)
     return composite_anim

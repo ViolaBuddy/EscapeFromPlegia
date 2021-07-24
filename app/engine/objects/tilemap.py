@@ -1,3 +1,5 @@
+from app.utilities.typing import NID
+from typing import List
 from app.constants import TILEWIDTH, TILEHEIGHT, AUTOTILE_FRAMES, COLORKEY
 from app.utilities.data import Data, Prefab
 
@@ -28,7 +30,7 @@ class LayerObject():
 
     def should_draw(self, cull_rect) -> bool:
         """
-        Check to see if my bounds intersect with the 
+        Check to see if my bounds intersect with the
         culling rect
         """
         ans = self.pixel_bounds and cull_rect[0] < self.pixel_bounds[2] and \
@@ -111,6 +113,13 @@ class LayerObject():
     # Restore not needed -- handled in TileMapObjects deserialize function
 
 class TileMapObject(Prefab):
+    def __init__(self):
+        super().__init__()
+        self.weather: List[particles.ParticleSystem] = []
+        self.width: int = 0
+        self.height: int = 0
+        self.nid: NID = None
+
     @classmethod
     def from_prefab(cls, prefab):
         self = cls()
@@ -147,14 +156,14 @@ class TileMapObject(Prefab):
                 new_layer.pixel_bounds = [left_bound, top_bound, right_bound, bottom_bound]
 
             has_autotiles = False
-            for coord, tile_sprite in layer.sprite_grid.items():    
+            for coord, tile_sprite in layer.sprite_grid.items():
                 tileset = RESOURCES.tilesets.get(tile_sprite.tileset_nid)
                 if not tileset.image:
                     tileset.image = engine.image_load(tileset.full_path)
                 if not tileset.autotile_image and tileset.autotile_full_path:
                     tileset.autotile_image = engine.image_load(tileset.autotile_full_path)
                 pos = tile_sprite.tileset_position
-    
+
                 rect = (pos[0] * TILEWIDTH, pos[1] * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
                 sub_image = engine.subsurface(tileset.image, rect)
                 image.blit(sub_image, (coord[0] * TILEWIDTH, coord[1] * TILEHEIGHT))

@@ -107,9 +107,6 @@ class PaletteMenu(QListWidget):
         return self.palette_widgets[self.current_idx]
 
     def palette_name_changed(self, idx):
-        print("PaletteMenu named changed")
-        print(self.palette_widgets[idx].name_label.text())
-        print(self.combat_anim.palettes)
         self.combat_anim.palettes[idx][0] = self.palette_widgets[idx].name_label.text()
 
     def palette_nid_changed(self, idx):

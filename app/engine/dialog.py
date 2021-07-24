@@ -47,7 +47,7 @@ class Dialog():
         self.no_wait = False
         self.text_commands = self.format_text(text)
         self.text_lines = []
-        
+
         # Size
         if width:
             self.width = width
@@ -87,7 +87,7 @@ class Dialog():
         else:
             self.background = None
             self.tail = None
-            
+
         if self.variant in ('noir', 'hint', 'cinematic'):
             self.tail = None
         elif self.variant == 'thought_bubble':
@@ -299,7 +299,6 @@ class Dialog():
                     self.portrait.talk()
 
     def play_talk_boop(self):
-        # SOUNDTHREAD.stop_sfx('Talk_Boop')
         if cf.SETTINGS['talk_boop'] and engine.get_true_time() - self.last_sound_update > 32:
             self.last_sound_update = engine.get_true_time()
             SOUNDTHREAD.play_sfx('Talk_Boop')
@@ -400,7 +399,7 @@ class Dialog():
                 width = font.width(text)
                 font.blit(text, text_surf, (x_pos, y_set))
                 x_pos += width
-            
+
             end_x_pos = self.position[0] + 8 + x_pos
             end_y_pos = self.position[1] + 8 + y_pos
 

@@ -28,7 +28,7 @@ class PartyProperties(QWidget):
         name_section.addWidget(self.name_box)
 
         self.leader_box = UnitBox(self, title="Leader Unit")
-        self.leader_box.edit.currentIndexChanged.connect(self.leader_changed)
+        self.leader_box.edit.activated.connect(self.leader_changed)
         name_section.addWidget(self.leader_box)
 
         self.setLayout(name_section)
@@ -54,7 +54,8 @@ class PartyProperties(QWidget):
         self.current.name = text
         self.window.update_list()
 
-    def leader_changed(self, idx):
+    def leader_changed(self):
+        idx = self.leader_box.edit.currentIndex()
         self.current.leader = DB.units[idx].nid
         self.window.update_list()
 

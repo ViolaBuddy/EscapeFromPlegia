@@ -54,8 +54,9 @@ class CombatArt(SkillComponent):
 
     def on_deactivation(self, unit):
         self.skill.data['active'] = False
-        if self._action:
-            action.reverse(self._action)
+        # Remove the added combat art skill
+        if self._action and self._action.skill_obj:
+            action.do(action.RemoveSkill(unit, self._action.skill_obj))
         self._action = None
 
     def end_combat(self, playback, unit, item, target, mode):
@@ -64,7 +65,7 @@ class CombatArt(SkillComponent):
         self.skill.data['active'] = False
 
     def post_combat(self, playback, unit, item, target, mode):
-        if self._action:
+        if self._action and self._action.skill_obj:
             action.do(action.RemoveSkill(unit, self._action.skill_obj))
         self._action = None
 

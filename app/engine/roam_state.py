@@ -40,7 +40,8 @@ class FreeRoamState(MapState):
             # No roam unit assigned, time to go
             self.rationalize()
 
-        if not self.roam_unit:
+        if not self.roam_unit or not self.roam_unit.position:
+            game.level.roam = False
             # Leave this state
             game.state.back()
             return 'repeat'

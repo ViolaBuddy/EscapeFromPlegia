@@ -122,7 +122,7 @@ class DisplayExpResults(QWidget):
         self.level1.setMaximumWidth(60)
         self.level1.setAlignment(Qt.AlignRight)
         self.level1.valueChanged.connect(self.update_parameters)
-        
+
         self.level2 = QSpinBox(self)
         self.level2.setValue(10)
         self.level2.setRange(1, 255)
@@ -363,7 +363,11 @@ class ConstantDatabase(DatabaseTab):
         bool_layout.addWidget(bool_view)
 
         battle_constants = ('num_items', 'num_accessories', 'min_damage', 'enemy_leveling')
-        battle_section = self.create_section(battle_constants)
+        battle_info = ("Number of non-accessory items units will be able to carry. The engine will not display inventories of size 6 or greater correctly.",
+                       "Number of accessory items units will be able to carry. Combine with Number of Items to get total inventory size.",
+                       "Minimum damage dealt by a damaging attack (usually 0 or 1)",
+                       "How should enemy units get their automatic level ups")
+        battle_section = self.create_section(battle_constants, battle_info)
         battle_section.setTitle("Battle Constants")
         misc_constants = ('game_nid', 'title', 'num_save_slots')
         misc_section = self.create_section(misc_constants)
@@ -411,12 +415,13 @@ class ConstantDatabase(DatabaseTab):
         self.setLayout(self.true_layout)
         self.true_layout.addWidget(self.splitter)
 
-    def create_section(self, constants):
+    def create_section(self, constants, info=None):
         section = QGroupBox(self)
         layout = QVBoxLayout()
         section.setLayout(layout)
-        
-        for constant_nid in constants:
+        info = info or ['' for _ in constants]
+
+        for constant_nid, info_text in zip(constants, info):
             constant = self._data.get(constant_nid)
             if not constant:
                 logging.error("Couldn't find constant %s" % constant_nid)
@@ -444,6 +449,7 @@ class ConstantDatabase(DatabaseTab):
                 box.edit.addItems(constant.attr)
                 box.edit.setValue(constant.value)
                 box.edit.currentTextChanged.connect(constant.set_value)
+            box.setToolTip(info_text)
             layout.addWidget(box)
         return section
 

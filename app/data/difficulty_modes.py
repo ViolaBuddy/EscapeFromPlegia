@@ -1,6 +1,23 @@
 from dataclasses import dataclass
-
+from enum import Enum
 from app.utilities.data import Data, Prefab
+
+class PermadeathOption(str, Enum):
+    PLAYER_CHOICE = 'Player Choice'
+    CLASSIC = 'Classic'
+    CASUAL = 'Casual'
+
+class GrowthOption(str, Enum):
+    PLAYER_CHOICE = 'Player Choice'
+    RANDOM = 'Random'
+    FIXED = 'Fixed'
+    DYNAMIC = 'Dynamic'
+
+class RNGOption(str, Enum):
+    CLASSIC = 'Classic'
+    TRUE_HIT = 'True Hit'
+    TRUE_HIT_PLUS = 'True Hit Plus'
+    GRANDMASTER = 'Grandmaster'
 
 @dataclass
 class DifficultyModePrefab(Prefab):
@@ -8,9 +25,9 @@ class DifficultyModePrefab(Prefab):
     name: str = None
     color: str = 'green'
 
-    permadeath_choice: str = 'Player Choice'
-    growths_choice: str = 'Player Choice'
-    rng_choice: str = 'True Hit'
+    permadeath_choice: PermadeathOption = PermadeathOption.PLAYER_CHOICE
+    growths_choice: GrowthOption = GrowthOption.PLAYER_CHOICE
+    rng_choice: RNGOption = RNGOption.TRUE_HIT
 
     player_bases: dict = None
     enemy_bases: dict = None

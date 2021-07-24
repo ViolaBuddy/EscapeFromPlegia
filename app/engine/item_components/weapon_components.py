@@ -1,3 +1,4 @@
+from app.utilities import utils
 from app.data.database import DB
 
 from app.data.item_components import ItemComponent
@@ -50,6 +51,26 @@ class Magic(ItemComponent):
 
     def resist_formula(self, unit, item):
         return 'MAGIC_DEFENSE'
+
+class MagicAtRange(ItemComponent):
+    nid = 'magic_at_range'
+    desc = 'Makes Item use magic damage formula at range'
+    tag = 'weapon'
+
+    def dynamic_damage(self, unit, item, target, mode) -> int:
+        running_damage = 0
+        if unit.position and target and target.position:
+            dist = utils.calculate_distance(unit.position, target.position)
+            if dist > 1:
+                normal_damage = equations.parser.get('DAMAGE', unit)
+                new_damage = equations.parser.get('MAGIC_DAMAGE', unit)
+                normal_resist = equations.parser.get('DEFENSE', target)
+                new_resist = equations.parser.get('MAGIC_DEFENSE', target)
+                running_damage -= normal_damage
+                running_damage += new_damage
+                running_damage += normal_resist
+                running_damage -= new_resist
+        return running_damage
 
 class Hit(ItemComponent):
     nid = 'hit'

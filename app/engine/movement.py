@@ -1,19 +1,21 @@
-from app.data.database import DB
-
-from app.utilities import utils
-import app.engine.config as cf
-from app.engine.sound import SOUNDTHREAD
-from app.engine import engine, skill_system, action, equations
-from app.engine.game_state import game
-
 import logging
 
+import app.engine.config as cf
+from app.data.database import DB
+from app.engine import action, engine, equations, skill_system
+from app.engine.game_state import game
+from app.engine.sound import SOUNDTHREAD
+from app.utilities import utils
+
+
 class MovementData():
-    def __init__(self, path, event, follow):
+    def __init__(self, path, event, follow, speed_adj=1, linger=250):
         self.path = path
         self.last_update = 0
         self.event = event
         self.follow = follow
+        self.speed_adj = speed_adj
+        self.linger = linger
 
 class MovementManager():
     def __init__(self):
@@ -49,7 +51,8 @@ class MovementManager():
         else:
             return None
 
-    def get_movement_group(self, unit_to_move):
+    @classmethod
+    def get_movement_group(cls, unit_to_move):
         movement_group = skill_system.movement_type(unit_to_move)
         if not movement_group:
             movement_group = DB.classes.get(unit_to_move.klass).movement_group

@@ -22,6 +22,7 @@
         },
         "roam": false,
         "roam_unit": "Ophie",
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Ophie",
@@ -403,6 +404,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Ophie",
@@ -756,6 +758,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Althea",
@@ -1242,6 +1245,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Renae",
@@ -2390,6 +2394,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Eliza",
@@ -3448,6 +3453,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Sam",
@@ -4547,6 +4553,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Coyote",
@@ -6481,6 +6488,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Marduk",
@@ -8175,6 +8183,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Vagnius",
@@ -9980,6 +9989,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Jakin",
@@ -11546,6 +11556,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Ulver",
@@ -12686,6 +12697,7 @@
         },
         "roam": false,
         "roam_unit": "Ophie",
+        "go_to_overworld": false,
         "units": [],
         "regions": [],
         "unit_groups": []
@@ -12693,7 +12705,7 @@
     {
         "nid": "DEBUG",
         "name": "DEBUG",
-        "tilemap": "Chapter 9",
+        "tilemap": "Chapter 3",
         "party": "Resistance",
         "music": {
             "player_phase": null,
@@ -12711,6 +12723,7 @@
         },
         "roam": false,
         "roam_unit": "Ophie",
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Ophie",
@@ -12718,79 +12731,10 @@
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    27,
-                    26
+                    11,
+                    12
                 ],
                 "generic": false
-            },
-            {
-                "nid": "106",
-                "variant": null,
-                "level": 10,
-                "klass": "Mage",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Fire",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    14,
-                    20
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
-                "nid": "108",
-                "variant": null,
-                "level": 10,
-                "klass": "Mage",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Fire",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    14,
-                    18
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
-                "nid": "104",
-                "variant": null,
-                "level": 5,
-                "klass": "Dragoon",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Iron Lance",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "Pursue",
-                "ai_group": null,
-                "starting_position": [
-                    17,
-                    13
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
             },
             {
                 "nid": "107",
@@ -12808,8 +12752,8 @@
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    12,
-                    21
+                    2,
+                    12
                 ],
                 "name": null,
                 "desc": null,
@@ -12831,8 +12775,8 @@
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    11,
-                    19
+                    0,
+                    11
                 ],
                 "name": null,
                 "desc": null,
@@ -12870,21 +12814,18 @@
                 "team": "player",
                 "ai": "None",
                 "ai_group": null,
-                "starting_position": [
-                    12,
-                    15
-                ],
+                "starting_position": null,
                 "generic": false
             },
             {
                 "nid": "102",
                 "variant": null,
                 "level": 1,
-                "klass": "Soldier",
+                "klass": "Cavalier",
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Javelin",
+                        "Iron Lance",
                         false
                     ]
                 ],
@@ -12892,8 +12833,8 @@
                 "ai": "Attack",
                 "ai_group": null,
                 "starting_position": [
-                    24,
-                    26
+                    15,
+                    12
                 ],
                 "name": null,
                 "desc": null,
@@ -12915,8 +12856,54 @@
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
+                    10,
+                    13
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "111",
+                "variant": null,
+                "level": 10,
+                "klass": "Halberdier",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    11,
+                    4
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "112",
+                "variant": null,
+                "level": 10,
+                "klass": "General",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Mithril Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
                     12,
-                    20
+                    4
                 ],
                 "name": null,
                 "desc": null,

@@ -19,6 +19,8 @@ def copy_and_overwrite(src, dst):
 def autoupdate(local, remote_lnk):
     print(local)
     tmp = local + '.tmp'
+    if not os.path.exists(tmp):
+        os.mkdir(tmp)
     print(tmp)
     # Actually download data
     download_url(remote_lnk, remote_zip)
@@ -30,19 +32,20 @@ def autoupdate(local, remote_lnk):
     try:
         with ZipFile(remote_zip, 'r') as z:
             print("Extracting...")
-            z.extractall(remote_dir)
-        print("Done extracting to %s" % remote_dir)
-        shutil.copytree(os.path.join(remote_dir, 'lt-maker/lt-maker'), tmp)
+            z.extractall(tmp)
+        print("Done extracting to %s" % tmp)
+        # shutil.copytree(os.path.join(remote_dir, 'lt-maker/lt-maker'), tmp)
     except OSError as e:
-        print("Failed to fully unzip remote %s! %s" % (remote_dir, e))
+        print("Failed to fully unzip remote %s to %s! %s" % (remote_dir, tmp, e))
         return
 
     try:    
         print("Copy projects and saves")
-        copy_and_overwrite(os.path.join(local, 'saves'), os.path.join(tmp, 'saves'))
+        tmp_lt_editor = os.path.join(tmp, 'lt_editor/lt_editor')
+        copy_and_overwrite(os.path.join(local, 'saves'), os.path.join(tmp_lt_editor, 'saves'))
         for fn in os.listdir(local):
-            if fn.endswith('.ltproj'):
-                copy_and_overwrite(os.path.join(local, fn), os.path.join(tmp, fn))
+            if fn.endswith('.ltproj') and not fn.startswith('autosave') and not fn.startswith('default'):
+                copy_and_overwrite(os.path.join(local, fn), os.path.join(tmp_lt_editor, fn))
     except OSError as e:
         print("Failed to copy saves or project files to tmp directory %s! %s" % (tmp, e))
         return

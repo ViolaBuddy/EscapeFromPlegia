@@ -12,6 +12,8 @@ from app.editor.settings import MainSettingsController
 
 import app.editor.utilities as editor_utilities
 
+import logging
+
 def populate_palettes(current, images, nid):
     for image_fn in images:
         palette_name = os.path.split(image_fn)[-1][:-4].split('-')[-1]
@@ -56,6 +58,10 @@ def add_frames(index_fn, current, new_weapon, images):
     convert_dict = {qRgb(*color): qRgb(0, coord[0], coord[1]) for coord, color in colors.items()}
     main_pixmap = QPixmap(images[0])
     for i in index_lines:
+        # Only accepts length 4 lines
+        if len(i) != 4:
+            logging.warning("Line %s is formatted incorrectly", i)
+            continue
         nid = i[0]
         x, y = [int(_) for _ in i[1].split(',')]
         width, height = [int(_) for _ in i[2].split(',')]
@@ -107,12 +113,12 @@ def import_from_legacy(current, fn):
         "*-Script.txt" file to read from
     """
 
-    print(fn)
+    logging.info("Import from legacy script: %s", fn)
     if '-Script.txt' not in fn:
         QMessageBox.critical(None, "Error", "Not a valid combat animation script file: %s" % fn)
         return
     kind = os.path.split(fn)[-1].replace('-Script.txt', '')
-    print(kind)
+    logging.info("Script kind: %s", fn)
     nid, weapon = kind.split('-')
     index_fn = fn.replace('-Script.txt', '-Index.txt')
     if not os.path.exists(index_fn):
@@ -137,7 +143,6 @@ def import_from_legacy(current, fn):
     if new_weapon.nid in current.weapon_anims.keys():
         current.weapon_anims.remove_key(new_weapon.nid)
     current.weapon_anims.append(new_weapon)
-    print("Done!!! %s" % fn)
 
 def get_child_effects(fn_dir: str, current: combat_anims.EffectAnimation):
     for pose in current.poses:
@@ -159,7 +164,7 @@ def import_effect_from_legacy(fn: str):
         "*-Script.txt" file to read from
     """
 
-    print(fn)
+    logging.info("Import legacy effect from script: %s" % fn)
     fn_dir = os.path.split(fn)[0]
     if '-Script.txt' not in fn:
         QMessageBox.critical(None, "Error", "Not a valid combat animation script file: %s" % fn)
@@ -342,12 +347,11 @@ def import_from_gba(current, fn):
     """
     weapon_types = {'Sword', 'Lance', 'Axe', 'Disarmed', 'Unarmed', 'Handaxe',
                     'Bow', 'Magic', 'Staff', 'Monster', 'Dragonstone', 'Refresh'}
-    print(fn)
+    logging.info("Import GBA weapon animation from script %s", fn)
     head, tail = os.path.split(fn)
     # if any(bad_char in head for bad_char in ('[', ']', '*', '?', '!')):
     #     QMessageBox.critical(None, "Error", "Bad character in filepath %s found. Remove all ('[', ']', '*', '?', '!') characters from the filepath." % head)
     #     return
-    print(tail)
     tail = tail.replace('_without_comment', '')
     
     weapon_type = tail[:-4].lower().capitalize()
@@ -366,7 +370,7 @@ def import_from_gba(current, fn):
     # image_paths = os.path.join(head, '*.png')
     # print(image_paths)
     # images = glob.glob(image_paths)
-    print(images)
+    logging.info("Images located: %s", images)
     # Remove main sheet if it exists
     images = list(sorted([path for path in images if 'Sheet' not in os.path.split(path)[-1]]))
     if not images:
@@ -384,13 +388,13 @@ def import_from_gba(current, fn):
         palette = RESOURCES.combat_palettes.get(palette_nid)
         if palette.is_similar(all_palette_colors):
             my_palette = palette
-            print("Using existing palette! %s" % palette.nid)
+            logging.info("Using existing palette! %s" % palette.nid)
             # Change first color to colorkey
             colorkey_conversion = {qRgb(*all_palette_colors[0]): editor_utilities.qCOLORKEY}
             pixmaps = {name: color_convert(pixmap, colorkey_conversion) for name, pixmap in pixmaps.items()}
             break
     else:
-        print("Generating new palette...")
+        logging.info("Generating new palette...")
         palette_nid = str_utils.get_next_name("New Palette", RESOURCES.combat_palettes.keys())
         my_palette = combat_palettes.Palette(palette_nid)
         RESOURCES.combat_palettes.append(my_palette)
@@ -494,7 +498,6 @@ def import_from_gba(current, fn):
     if os.path.basename(settings.get_current_project()) != 'default.ltproj':
         path = os.path.join(settings.get_current_project(), 'resources', 'combat_anims')
         RESOURCES.combat_anims.save_image(path, current)
-    print("Done!!! %s" % fn)
 
 def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
     # Read script
@@ -573,7 +576,6 @@ def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
     def copy_frame(frame_command, num_frames: int = 1):
         new_command = frame_command.__class__.copy(frame_command)
         new_command.set_frame_count(num_frames)
-        print("Copy", new_command)
         current_pose.timeline.append(new_command)
 
     def wait_for_hit(frame_command):
@@ -616,7 +618,7 @@ def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
         print("end_loop")
 
     for line in script_lines:
-        print(line, current_command)
+        logging.info("Processing script line: %s", line)
         if line.startswith('/// - '):
             if current_mode:
                 save_images(current_pose)
@@ -758,10 +760,10 @@ def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
                 parse_text('sound;ArmorShift')
             elif command_code == '2E':
                 parse_text('sound;MageInit')
-                print("Change MageInit effect to SageInit effect if working with Sage animations")
+                logging.warning("Change MageInit effect to SageInit effect if working with Sage animations")
             elif command_code == '2F':
                 parse_text('sound;MageCrit')
-                print("Change MageCrit effect to SageCrit effect if working with Sage animations")
+                logging.warning("Change MageCrit effect to SageCrit effect if working with Sage animations")
             elif command_code == '30':
                 parse_text('effect;DirtKick')
             elif command_code == '33':
@@ -817,7 +819,7 @@ def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
             elif command_code == '7B':
                 parse_text('sound;ManaketeRoar')
             else:
-                print("Unknown Command Code: C%s" % command_code)
+                logging.warning("Unknown Command Code: C%s" % command_code)
 
             if write_extra_frame and current_command:
                 current_command.increment_frame_count()
@@ -825,23 +827,25 @@ def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
         elif line.startswith('~~~'):
             pass
 
-        elif line == 'L':
+        elif line.startswith('L'):
             parse_text('start_loop')
             loop_end = True
 
         elif line.startswith('S'):
-            print('Cannot parse "%s"! Skipping over this line...' % line)
+            logging.warning('Cannot parse "%s"! Skipping over this line...' % line)
 
         else:  # Frame
             try:
-                num_frames, _, png_name = line.split()
+                s_l = line.split()
+                num_frames = s_l[0]
+                png_name = ' '.join(s_l[2:])
             except ValueError:
-                print('Cannot parse "%s"! Skipping over this line...' % line)
+                logging.error('Cannot parse "%s"! Skipping over this line...' % line)
                 continue
             num_frames = int(num_frames)
             name = png_name[:-4]
             if name not in pixmaps:
-                print("%s frame not in pixmaps" % name)
+                logging.error("%s frame not in pixmaps" % name)
             if begin:
                 num_frames = 6
                 begin = False

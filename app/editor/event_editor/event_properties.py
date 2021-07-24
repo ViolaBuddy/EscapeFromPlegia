@@ -140,7 +140,7 @@ class Highlighter(QSyntaxHighlighter):
 
     def validate_line(self, line) -> list:
         try:
-            command = event_commands.parse_text(line)
+            command = event_commands.parse_text(line, strict=True)
             if command:
                 true_values, flags = event_commands.parse(command)
                 broken_args = []
@@ -326,6 +326,11 @@ class CodeEditor(QPlainTextEdit):
         if tc.blockNumber() <= 0 and cursor_pos <= 0:  # Remove if cursor is at the very top left of event
             return
         if self.prev_keyboard_press == Qt.Key_Backspace or self.prev_keyboard_press == Qt.Key_Return: # don't do autocomplete on backspace
+            try:
+                if self.completer.popup().isVisible():
+                    self.completer.popup().hide()
+            except: # popup doesn't exist?
+                pass
             return
 
         # determine what dictionary to use for completion
@@ -334,6 +339,11 @@ class CodeEditor(QPlainTextEdit):
         if flags:
             autofill_dict = autofill_dict + event_autocompleter.generate_flags_wordlist(flags)
         if len(autofill_dict) == 0:
+            try:
+                if self.completer.popup().isVisible():
+                    self.completer.popup().hide()
+            except: # popup doesn't exist?
+                pass
             return
         self.completer.setModel(QStringListModel(autofill_dict, self.completer))
 

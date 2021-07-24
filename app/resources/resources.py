@@ -18,7 +18,7 @@ import logging
 
 class Resources():
     save_data_types = ("icons16", "icons32", "icons80", "portraits", "animations", "panoramas",
-                       "map_icons", "map_sprites", "combat_palettes", "combat_anims", "combat_effects", "music", "sfx", 
+                       "map_icons", "map_sprites", "combat_palettes", "combat_anims", "combat_effects", "music", "sfx",
                        "tilesets", "tilemaps")
 
     def __init__(self):
@@ -76,6 +76,7 @@ class Resources():
 
         # Load custom sprites for the UI
         # This should overwrite the regular sprites in the "/sprites" folder
+        sprites.reset()
         sprites.load_sprites(os.path.join(self.main_folder, 'custom_sprites'))
 
         if specific:
@@ -141,7 +142,11 @@ class Resources():
             data_dir = os.path.join(resource_dir, data_type)
             if not os.path.exists(data_dir):
                 continue
-            getattr(self, data_type).clean(data_dir)
+            try:
+                getattr(self, data_type).clean(data_dir)
+            except Exception as e:
+                logging.exception(e)
+                logging.error("Could not successfully clean %s" % data_type)
 
         end = time.time_ns() / 1e6
         logging.warning("Total Time Taken for cleaning resource directory: %s ms" % (end - start))

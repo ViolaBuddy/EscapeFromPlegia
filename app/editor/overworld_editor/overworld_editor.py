@@ -1,32 +1,34 @@
+import math
 from collections import namedtuple
 from enum import Enum
-import math
+from typing import Tuple
 
-from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QMessageBox, \
-    QDockWidget, QWidget
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
+from PyQt5 import QtWidgets
+from PyQt5 import QtCore
 
+from app.data.database import DB
 # Data
 from app.data.overworld import OverworldPrefab
-from app.resources.resources import RESOURCES
-from app.data.database import DB
 from app.data.overworld_node import OverworldNodePrefab
-
 # Components
 from app.editor.lib.components.dock import Dock
-from app.editor.world_map_view import WorldMapView
-from .overworld_properties import OverworldPropertiesMenu
-from .node_properties import NodePropertiesMenu
-
-# Application State
-from app.editor.settings import MainSettingsController
-from app.editor.lib.state_editor.editor_state_manager import EditorStateManager
-from app.editor.lib.state_editor.state_enums import MainEditorScreenStates
-
 # utils
 from app.editor.lib.math.math_utils import distance_from_line
+from app.editor.lib.state_editor.editor_state_manager import EditorStateManager
+from app.editor.lib.state_editor.state_enums import MainEditorScreenStates
+# Application State
+from app.editor.settings import MainSettingsController
+from app.editor.world_map_view import WorldMapView
+from app.resources.resources import RESOURCES
 from app.utilities import str_utils, utils
+from app.utilities.typing import Point
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QAction, QDockWidget, QMainWindow, QLabel, QFrame
+
+from .node_properties import NodePropertiesMenu
+from .overworld_properties import OverworldPropertiesMenu
+
 
 class OverworldEditorEditMode(Enum):
     NONE = 0
@@ -54,6 +56,13 @@ class OverworldEditor(QMainWindow):
         self.set_current_overworld(self.state_manager.state.selected_overworld)
         self.edit_mode = OverworldEditorEditMode.NONE
         self.selected_object = SelectedObject(type=OverworldEditorInternalTypes.NONE, obj=None)
+
+    @property
+    def double_fit_ghost_road(self) -> bool:
+        modifiers = QtWidgets.QApplication.keyboardModifiers()
+        if modifiers == QtCore.Qt.ShiftModifier:
+            return False
+        return True
 
     @property
     def selected_object(self):
@@ -123,6 +132,23 @@ class OverworldEditor(QMainWindow):
         if(self.edit_mode == OverworldEditorEditMode.NODES):
             self.select_object_on_map(x, y)
 
+    def on_map_hover(self, x, y):
+        self.set_position_bar((x, y))
+        if self.selected_object.type == OverworldEditorInternalTypes.UNFINISHED_ROAD:
+            first_point = self.lock_angle(self.selected_object.obj[-1], (x, y), self.double_fit_ghost_road)
+            second_point = self.lock_angle(first_point, (x, y), self.double_fit_ghost_road)
+            if not self.double_fit_ghost_road:
+                second_point = first_point
+            self.map_view.set_ghost_road_endpoint([first_point, second_point])
+        elif self.selected_object.type == OverworldEditorInternalTypes.MAP_NODE:
+            first_point = self.lock_angle(self.selected_object.obj.pos, (x, y), self.double_fit_ghost_road)
+            second_point = self.lock_angle(first_point, (x, y), self.double_fit_ghost_road)
+            if not self.double_fit_ghost_road:
+                second_point = first_point
+            self.map_view.set_ghost_road_endpoint([first_point, second_point])
+        else:
+            self.map_view.set_ghost_road_endpoint(None)
+
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Delete:
             del self.selected_object
@@ -185,8 +211,53 @@ class OverworldEditor(QMainWindow):
                     closest_obj_type = OverworldEditorInternalTypes.FINISHED_ROAD
 
         self.selected_object = SelectedObject(type=closest_obj_type, obj=closest_obj)
+        if closest_obj_type == OverworldEditorInternalTypes.FINISHED_ROAD:
+            self.set_message("Selected road")
+        elif closest_obj_type == OverworldEditorInternalTypes.MAP_NODE:
+            self.set_message("Selected map node: %s" % closest_obj.nid)
 
-    def edit_road(self, x, y):
+    def lock_angle(self, prev_point: Point, next_point: Point, short=True) -> Point:
+        """Roads can only run either horizontal/vertical, or in 45 degree angles.
+        Therefore, when adding a new segment, we must 'lock' the new point to
+        one of these angles relative to the old point.
+
+        Args:
+            prev_point (Point): point of reference
+            next_point (Point): new point to lock
+            short (bool): whether or not the segment should be short or long. Hard to describe.
+
+        Returns:
+            Point: adjusted point that is correctly angled from the old point.
+        """
+        segment_vec = utils.tuple_sub(next_point, prev_point)
+        seg_y = abs(segment_vec[1])
+        seg_x = abs(segment_vec[0])
+
+        snapped_vec: Tuple[int, int] = (0, 0)
+        if seg_y * math.sqrt(3) < seg_x: # we're at a low angle, snap horizontal
+            if short:
+                # ask @mag about this logic, it's a bit confusing. This is meant to prepare
+                # lock_angle for usage with two-segment flexible fits
+                segment_len = abs(abs(seg_x) - abs(seg_y))
+            else:
+                segment_len = max(seg_x, seg_y)
+
+            snapped_vec = (segment_len * utils.sign(segment_vec[0]), 0)
+        elif seg_y > seg_x * math.sqrt(3): # we're at a high angle, snap vertical
+            if short:
+                segment_len = abs(abs(seg_x) - abs(seg_y))
+            else:
+                segment_len = max(seg_x, seg_y)
+            snapped_vec = (0, segment_len * utils.sign(segment_vec[1]))
+        else: # we're at a mid angle, snap 45
+            if short:
+                segment_len = min(seg_x, seg_y)
+            else:
+                segment_len = max(seg_x, seg_y)
+            snapped_vec = (segment_len * utils.sign(segment_vec[0]), segment_len * utils.sign(segment_vec[1]))
+        return utils.tuple_add(prev_point, snapped_vec)
+
+    def edit_road(self, x: int, y: int):
         """Function handles road creation and termination.
         Contextually creates a road and enters road editing mode, appends
         the clicked coordinate to the current road being edited, or
@@ -211,12 +282,25 @@ class OverworldEditor(QMainWindow):
             # we have a road in progress, continue
             pass
 
-        # now we have a road in progress, process the cell we just clicked on
+        # now we have a road in progress
+        # process the node we just clicked on, but make sure to lock it first
         current_road = self.selected_object.obj
+        xp, yp = self.lock_angle(current_road[-1], (x, y), self.double_fit_ghost_road)
+        x, y = self.lock_angle((xp, yp), (x, y), self.double_fit_ghost_road)
+        if not self.double_fit_ghost_road:
+            x, y = xp, yp
+
+        # make sure our midpoint isn't accidentally ending the road
+        if (xp, yp) != (x, y):
+            if self.find_node(xp, yp):
+                return
+
         other_node = self.find_node(x, y)
         if (other_node):
             # we clicked on another node; terminate our road and save into prefab
             if (x, y) not in current_road:
+                if (xp, yp) != (x, y):
+                    current_road.append((xp, yp))
                 current_road.append((x, y))
                 start_point = current_road[0]
                 end_point = current_road[-1]
@@ -225,7 +309,9 @@ class OverworldEditor(QMainWindow):
                 self.selected_object = SelectedObject(type=OverworldEditorInternalTypes.MAP_NODE, obj=other_node)
         else:
             # we clicked on empty space, add it to our road
-            if (x, y) not in current_road:
+            if (x, y) not in current_road and (xp, yp) not in current_road:
+                if (xp, yp) != (x, y):
+                    current_road.append((xp, yp))
                 current_road.append((x, y))
             self.selected_object = SelectedObject(type=OverworldEditorInternalTypes.UNFINISHED_ROAD, obj=current_road)
 
@@ -242,6 +328,27 @@ class OverworldEditor(QMainWindow):
         self._connect_listeners()
         self.setCentralWidget(self.map_view)
         self._initialize_docks()
+
+        self.create_statusbar()
+
+    def create_statusbar(self):
+        self.status_bar = self.statusBar()
+        self.position_bar = QLabel("", self)
+        self.position_bar.setFrameStyle(QFrame.Panel | QFrame.Sunken)
+        self.position_bar.setMinimumWidth(100)
+        self.status_bar.addPermanentWidget(self.position_bar)
+
+    def set_position_bar(self, pos):
+        if pos:
+            self.position_bar.setText("Position (%d, %d)" % (pos[0], pos[1]))
+        else:
+            self.position_bar.setText("")
+
+    def set_message(self, msg):
+        if msg:
+            self.status_bar.showMessage(msg)
+        else:
+            self.status_bar.clearMessage()
 
     def _initialize_docks(self):
         self.docks = {}
@@ -272,14 +379,22 @@ class OverworldEditor(QMainWindow):
         self.map_view.position_double_clicked.connect(self.on_map_double_left_click)
         self.map_view.position_clicked_float.connect(self.on_map_left_click)
         self.map_view.position_right_clicked.connect(self.on_map_right_click)
+        self.map_view.position_moved.connect(self.on_map_hover)
 
     def on_node_tab_select(self, visible):
         if visible:
             self.edit_mode = OverworldEditorEditMode.NODES
+            self.set_message(" L-click to select a node or road."
+                             " R-click to place a road, L-click to cancel current road."
+                             " Del to delete current selected object."
+                             " Double L-click to create a new node."
+                             " Space to toggle road guide."
+                             " Hold Shift to lock road guide to a straight line.")
 
     def on_property_tab_select(self, visible):
         if visible:
             self.edit_mode = OverworldEditorEditMode.NONE
+            self.set_message("Edit Overworld Properties")
 
     def update_view(self, _=None):
         self.map_view.update_view()
@@ -288,8 +403,6 @@ class OverworldEditor(QMainWindow):
         self.state_manager.subscribe_to_key(OverworldEditor.__name__, 'selected_overworld', self.set_current_overworld)
         self.state_manager.subscribe_to_key(OverworldEditor.__name__, 'ui_refresh_signal', self.update_view)
         self.state_manager.subscribe_to_key(WorldMapView.__name__, 'selected_overworld', self.map_view.set_current_level)
-
-
 
     """=========MainEditorWindow related functions========="""
 

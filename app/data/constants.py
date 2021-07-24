@@ -1,4 +1,6 @@
+from app.data.difficulty_modes import GrowthOption
 from app.utilities.data import Data
+
 
 class Constant(object):
     def __init__(self, nid=None, name='', attr=bool, value=False, tag='other'):
@@ -54,12 +56,11 @@ constants = ConstantCatalog([
     Constant('fog_los', "Fog of War will also be affected by line of sight", bool, False, 'line_of_sight'),
     Constant('ai_fog_of_war', "AI will also be affected by Fog of War", bool, False, 'line_of_sight'),
     Constant('def_double', "Defender can double counterattack", bool, True, 'features'),
-    Constant('enemy_leveling', "Method for autoleveling generic units", ("Random", "Fixed", "Dynamic", "Match"), "Match", 'leveling'),
+    Constant('enemy_leveling', "Method for autoleveling generic units", (*[growth.value for growth in GrowthOption if growth != GrowthOption.PLAYER_CHOICE], "Match"), "Match", 'leveling'),
     Constant('auto_promote', "Units will promote automatically upon reaching max level", bool, False, 'leveling'),
     Constant('promote_level_reset', "Promotion resets level back to 1", bool, True, 'leveling'),
     Constant('class_change_level_reset', "Class Change resets level back to 1", bool, False, 'leveling'),
     Constant('generic_feats', "Generic units will be given random feats when appropriate", bool, False, 'leveling'),
-    # Constant('rng', "Method for resolving accuracy rolls", ("Classic", "True Hit", "True Hit+", "Grandmaster"), "True Hit", 'leveling'),
     Constant('min_damage', "Min damage dealt by an attack", int, 0),
     Constant('boss_crit', "Final blow on boss will use critical animation", bool),
     Constant('convoy_on_death', "Weapons held by dead player units are sent to convoy", bool),

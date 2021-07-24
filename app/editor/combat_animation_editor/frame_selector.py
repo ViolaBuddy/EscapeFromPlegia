@@ -60,12 +60,12 @@ class FrameSelector(Dialog):
         offset_layout = QFormLayout()
         self.x_box = QSpinBox()
         self.x_box.setValue(0)
-        self.x_box.setRange(0, WINWIDTH)
+        self.x_box.setRange(-WINWIDTH, WINWIDTH)
         self.x_box.valueChanged.connect(self.on_x_changed)
         offset_layout.addRow("X:", self.x_box)
         self.y_box = QSpinBox()
         self.y_box.setValue(0)
-        self.y_box.setRange(0, WINHEIGHT)
+        self.y_box.setRange(-WINHEIGHT, WINHEIGHT)
         self.y_box.valueChanged.connect(self.on_y_changed)
         offset_layout.addRow("Y:", self.y_box)
         offset_section.setLayout(offset_layout)
@@ -202,7 +202,7 @@ class FrameSelector(Dialog):
 
             combat_animation_imports.update_weapon_anim_full_image(self.weapon_anim)
             self.model.layoutChanged.emit()
-            
+
             parent_dir = os.path.split(fns[-1])[0]
             self.settings.set_last_open_path(parent_dir)
 

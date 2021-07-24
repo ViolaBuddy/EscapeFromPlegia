@@ -22,6 +22,7 @@
         },
         "roam": false,
         "roam_unit": "Eirika",
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Eirika",
@@ -145,6 +146,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Eirika",
@@ -601,6 +603,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Eirika",
@@ -1063,6 +1066,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Eirika",
@@ -1638,6 +1642,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Eirika",
@@ -2582,6 +2587,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Eirika",
@@ -3466,6 +3472,7 @@
         },
         "roam": false,
         "roam_unit": null,
+        "go_to_overworld": false,
         "units": [
             {
                 "nid": "Bone",
@@ -3510,7 +3517,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "None",
+                "ai": "Attack",
                 "ai_group": null,
                 "starting_position": [
                     12,
@@ -3613,7 +3620,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "None",
+                "ai": "Attack",
                 "ai_group": null,
                 "starting_position": [
                     3,
@@ -3713,6 +3720,24 @@
                 "only_once": true
             }
         ],
-        "unit_groups": []
+        "unit_groups": [
+            {
+                "nid": "Eirika",
+                "units": [
+                    "Eirika",
+                    "Gilliam"
+                ],
+                "positions": {
+                    "Eirika": [
+                        0,
+                        14
+                    ],
+                    "Gilliam": [
+                        0,
+                        13
+                    ]
+                }
+            }
+        ]
     }
 ]

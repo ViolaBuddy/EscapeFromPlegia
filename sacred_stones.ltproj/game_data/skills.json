@@ -1051,6 +1051,10 @@
                     128,
                     248
                 ]
+            ],
+            [
+                "alternate_battle_anim",
+                "Critical"
             ]
         ]
     },
@@ -1091,6 +1095,26 @@
             [
                 "live_to_serve",
                 1.0
+            ]
+        ]
+    },
+    {
+        "nid": "Smush",
+        "name": "Smush",
+        "desc": "",
+        "icon_nid": "Anima",
+        "icon_index": [
+            0,
+            2
+        ],
+        "components": [
+            [
+                "combat_condition",
+                "True"
+            ],
+            [
+                "damage",
+                30
             ]
         ]
     }

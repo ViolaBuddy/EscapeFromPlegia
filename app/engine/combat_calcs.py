@@ -403,6 +403,7 @@ def compute_damage(unit, target, item, def_item, mode, crit=False):
 
     # Handles things like effective damage
     might += item_system.dynamic_damage(unit, item, target, mode)
+    might += skill_system.dynamic_damage(unit, item, target, mode)
 
     # Weapon Triangle
     triangle_bonus = 0
@@ -437,14 +438,12 @@ def compute_damage(unit, target, item, def_item, mode, crit=False):
     total_might = might
 
     might -= defense(target, def_item, item)
+    might -= skill_system.dynamic_resist(target, item, unit, mode)
 
     if crit or skill_system.crit_anyway(unit):
         might *= equations.parser.crit_mult(unit)
         for _ in range(equations.parser.crit_add(unit)):
             might += total_might
-
-    might += skill_system.dynamic_damage(unit, item, target, mode)
-    might -= skill_system.dynamic_resist(target, item, unit, mode)
 
     might *= skill_system.damage_multiplier(unit, item, target, mode)
     might *= skill_system.resist_multiplier(target, item, unit, mode)

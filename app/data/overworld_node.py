@@ -1,16 +1,16 @@
-from collections import OrderedDict
+from typing import Tuple
 
-from app.utilities.data import Data, Prefab
-from app.data.level_units import UnitGroup
 from app.resources.map_icons import MapIconCatalog
+from app.utilities.data import Data, Prefab
+
 
 class OverworldNodePrefab(Prefab):
-    def __init__(self, nid, name, pos, icon=MapIconCatalog.DEFAULT()):
-        self.nid = nid
-        self.name = name
-        self.pos = pos             # tuple of location pair
-        self.icon = icon           # icon nid (see map_icons.json for a manifest)
-        self.level = None          # level associated
+    def __init__(self, nid: str, name: str, pos: str, icon: str = None):
+        self.nid: str = nid
+        self.name: str = name
+        self.pos: Tuple[int, int] = pos             # tuple of location pair
+        self.icon: str = icon or MapIconCatalog.DEFAULT()           # icon nid (see map_icons.json for a manifest)
+        self.level: str = None          # level associated
 
     def save_attr(self, name, value):
         value = super().save_attr(name, value)

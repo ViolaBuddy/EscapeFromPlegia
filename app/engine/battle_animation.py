@@ -808,7 +808,7 @@ def get_battle_anim(unit, item, distance=1, klass=None) -> BattleAnimation:
         weapon_prefab = DB.weapons.get(weapon_type)
         if not weapon_type:
             weapon_type = "Neutral"
-        magic = item_funcs.is_magic(unit, item)
+        magic = item_funcs.is_magic(unit, item, distance)
         ranged = item_funcs.is_ranged(unit, item)
         if item.nid in res.weapon_anims.keys():
             weapon_anim_nid = item.nid

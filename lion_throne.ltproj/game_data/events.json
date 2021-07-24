@@ -12139,6 +12139,12 @@
                 ]
             ],
             [
+                "add_weather",
+                [
+                    "Light"
+                ]
+            ],
+            [
                 "comment",
                 [
                     "# So Eliza doesn't show up in the base menu"

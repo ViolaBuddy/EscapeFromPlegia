@@ -65,6 +65,7 @@ class UnloadUnit(ItemComponent):
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         if self.item.data.get('stored_unit'):
             rescuee = game.get_unit(self.item.data['stored_unit'])
+            self.item.data['stored_unit'] = None
             if rescuee:
                 actions.append(action.Warp(rescuee, target_pos))
                 # Move camera over position

@@ -17,6 +17,8 @@ class EquationMultiModel(MultiAttrListModel):
     def data(self, index, role):
         if not index.isValid():
             return None
+        if role == Qt.EditRole:
+            return self._data[index.row()]
         if index.column() == 1 and role == Qt.DecorationRole:
             equation = self._data[index.row()]
             good = self.test_equation(equation)

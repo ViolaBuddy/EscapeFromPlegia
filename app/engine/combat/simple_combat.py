@@ -389,6 +389,9 @@ class SimpleCombat():
             if (self.alerts and exp > 0) or exp + self.attacker.exp >= 100:
                 game.exp_instance.append((self.attacker, exp, None, 'init'))
                 game.state.change('exp')
+                game.ai.end_skip()
+            elif not self.alerts and exp > 0:
+                action.do(action.GainExp(self.attacker, exp))
 
         elif self.defender and self.defender.team == 'player' and not self.defender.is_dying:
             exp = self.calculate_exp(self.defender, self.def_item)
@@ -397,6 +400,9 @@ class SimpleCombat():
             if (self.alerts and exp > 0) or exp + self.defender.exp >= 100:
                 game.exp_instance.append((self.defender, exp, None, 'init'))
                 game.state.change('exp')
+                game.ai.end_skip()
+            elif not self.alerts and exp > 0:
+                action.do(action.GainExp(self.defender, exp))
 
     def get_exp(self, attacker, item, defender) -> int:
         exp = item_system.exp(self.full_playback, attacker, item, defender)

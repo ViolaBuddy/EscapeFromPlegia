@@ -12,6 +12,10 @@ def start(title, from_editor=False):
     engine.init()
     icon = engine.image_load('favicon.ico')
     engine.set_icon(icon)
+
+    from app.engine import sprites
+    sprites.load_images()
+
     # Hack to get icon to show up in windows
     try:
         import ctypes
@@ -19,6 +23,7 @@ def start(title, from_editor=False):
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     except:
         print("Maybe not Windows? (but that's OK)")
+
     engine.DISPLAYSURF = engine.build_display(engine.SCREENSIZE)
     engine.set_title(title + ' - v' + VERSION)
     print("Version: %s" % VERSION)
@@ -44,14 +49,18 @@ def save_screenshot(raw_events: list, surf):
 
 def run(game):
     from app.engine.sound import SOUNDTHREAD
+    from app.engine.game_counters import ANIMATION_COUNTERS
     from app.engine.input_manager import INPUT
-    
+
+    ANIMATION_COUNTERS.reset()
+
     SOUNDTHREAD.reset()
     SOUNDTHREAD.set_music_volume(cf.SETTINGS['music_volume'])
     SOUNDTHREAD.set_sfx_volume(cf.SETTINGS['sound_volume'])
-    
+
     surf = engine.create_surface((WINWIDTH, WINHEIGHT))
     # import time
+    clock = engine.Clock()
     while True:
         # start = time.time_ns()
         engine.update_time()
@@ -69,25 +78,27 @@ def run(game):
         SOUNDTHREAD.update(raw_events)
 
         engine.push_display(surf, engine.SCREENSIZE, engine.DISPLAYSURF)
-        
+
         save_screenshot(raw_events, surf)
 
         engine.update_display()
+        # end = time.time_ns()
         # milliseconds_elapsed = (end - start)/1e6
         # if milliseconds_elapsed > 10:
         #     print("Engine took too long: %f" % milliseconds_elapsed)
 
-        game.playtime += engine.tick()
+        game.playtime += clock.tick()
 
 def run_combat(mock_combat):
     from app.engine.sound import SOUNDTHREAD
     from app.engine.input_manager import INPUT
-    
+
     SOUNDTHREAD.reset()
     SOUNDTHREAD.set_music_volume(cf.SETTINGS['music_volume'])
     SOUNDTHREAD.set_sfx_volume(cf.SETTINGS['sound_volume'])
-    
+
     surf = engine.create_surface((WINWIDTH, WINHEIGHT))
+    clock = engine.Clock()
     while True:
         engine.update_time()
 
@@ -106,4 +117,4 @@ def run_combat(mock_combat):
         save_screenshot(raw_events, surf)
 
         engine.update_display()
-        engine.tick()
+        clock.tick()

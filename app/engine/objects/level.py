@@ -18,7 +18,7 @@ class LevelObject():
         self.music = {}
         self.objective = {}
 
-        self.units = Data()
+        self.units: Data[UnitObject] = Data()
         self.regions = Data()
         self.unit_groups = Data()
 

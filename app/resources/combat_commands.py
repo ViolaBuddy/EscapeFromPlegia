@@ -1,6 +1,8 @@
 from app.utilities.data import Data
 from app.utilities import str_utils
 
+import logging
+
 class CombatAnimationCommand():
     def __init__(self, nid=None, name='', attr=bool, value=(True,), tag=None, desc=''):
         self.nid: str = nid
@@ -66,7 +68,7 @@ def generate_text(command: CombatAnimationCommand) -> str:
 
 def parse_text(text: str) -> CombatAnimationCommand:
     split_text = text.split(';')
-    print("Import", split_text)
+    logging.info("Import %s", split_text)
     command_nid = split_text[0]
     if command_nid == 'f':
         if len(split_text) == 3: 
@@ -125,7 +127,6 @@ def parse_text(text: str) -> CombatAnimationCommand:
             split_text.append(vals[0])
             split_text.append(vals[1])
     command = get_command(command_nid)
-    print(command)
     if not command:
         return None
     values = []

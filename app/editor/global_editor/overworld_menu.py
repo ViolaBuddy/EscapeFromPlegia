@@ -23,7 +23,7 @@ class OverworldDatabase(QWidget):
         self.setLayout(self.grid)
 
         def deletion_func(model, index):
-            return len(DB.overworlds) > 1
+            return model.rowCount() > 1
 
         self.view = RightClickListView((deletion_func, None, None), self)
         self.view.setMinimumSize(128, 320)

@@ -298,7 +298,7 @@ class UnitProperties(QWidget):
         view = self.unit_stat_widget.view
         selected_indexes = view.selectionModel().selectedIndexes()
         my_klass = DB.classes.get(self.current.klass)
-        
+
         if not selected_indexes:
             # Select all
             topLeft = model.index(0, 0)

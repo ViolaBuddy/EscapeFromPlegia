@@ -13,6 +13,8 @@ class Trigger(object):
 all_triggers = Data([
     Trigger('level_start'),
     Trigger('level_end'),
+    Trigger('overworld_start'),
+    Trigger('level_select'),
     Trigger('turn_change'),
     Trigger('enemy_turn_change'),
     Trigger('enemy2_turn_change'),
@@ -20,7 +22,8 @@ all_triggers = Data([
     Trigger('unit_death', True, False, False, True),
     Trigger('unit_wait', True, False, False, True),
     Trigger('unit_select', True, False, False, True),
-    Trigger('unit_level_up', True, False, False, False),
+    Trigger('unit_level_up', True, True, False, False),
+    Trigger('during_unit_level_up', True, True, False, False),
     Trigger('combat_start', True, True, True, True),
     Trigger('combat_end', True, True, True, True),
     Trigger('on_talk', True, True, False, True),

@@ -2,7 +2,7 @@ from app.utilities.data import Data, Prefab
 
 AI_ActionTypes = ['None', 'Attack', 'Support', 'Steal', 'Interact', 'Move_to', 'Move_away_from']
 AI_TargetTypes = ['None', 'Enemy', 'Ally', 'Unit', 'Position', 'Event']
-unit_spec = ['All', 'Class', 'Tag', 'Name', 'Faction', 'Party', 'ID']
+unit_spec = ['All', 'Class', 'Tag', 'Name', 'Team', 'Faction', 'Party', 'ID']
 # View Range
 # (Don't look | Movement*2 + Maximum Item Range | Entire Map | Custom Range (Integer))
 
