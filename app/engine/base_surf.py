@@ -1,8 +1,13 @@
 from app.engine.sprites import SPRITES
 from app.engine import engine
 
-def create_base_surf(width, height, base='menu_bg_base'):
+import logging
+
+def create_base_surf(width, height, base='menu_bg_base') -> engine.Surface:
     sprite = SPRITES.get(base)
+    if not sprite:
+        logging.error("Could not find sprite named '%s.png'. Falling back on 'menu_bg_base.png'." % (base))
+        sprite = SPRITES.get('menu_bg_base')
 
     base_width = sprite.get_width()
     base_height = sprite.get_height()

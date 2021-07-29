@@ -152,6 +152,8 @@ class OverworldEditor(QMainWindow):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Delete:
             del self.selected_object
+        elif event.key() == Qt.Key_Space:
+            self.map_view.should_draw_ghost = not self.map_view.should_draw_ghost
 
     def create_node(self, x, y):
         """Function handles node creation.

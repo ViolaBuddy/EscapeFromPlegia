@@ -48,6 +48,7 @@ class Collection(QWidget):
         self.filter_field = QLineEdit()
         self.filter_field.setPlaceholderText('Filter by keyword, or by "nid"')
         self.filter_field.textChanged.connect(self.on_filter_changed)
+        self.model.layoutChanged.connect(lambda _: self.on_filter_changed(self.filter_field.text()))
 
         grid.addWidget(self.filter_field, 0, 0, 1, 2)
         grid.addWidget(self.view, 1, 0, 1, 2)

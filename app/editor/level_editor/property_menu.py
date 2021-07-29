@@ -131,7 +131,7 @@ class PropertiesMenu(QWidget):
         timer.get_timer().tick_elapsed.connect(self.tick)
 
     def tick(self):
-        if DB.constants.get('overworld').value:
+        if DB.constants.value('overworld'):
             self.overworld_box.show()
         else:
             self.overworld_box.hide()

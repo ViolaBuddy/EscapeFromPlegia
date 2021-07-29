@@ -285,7 +285,7 @@ class UIView():
         obj = game.level.objective['simple']
         text_lines = evaluate.eval_string(obj).split(',')
         longest_surf_width = text_funcs.get_max_width(font, text_lines)
-        bg_surf = base_surf.create_base_surf(longest_surf_width + 16, 16 * len(text_lines) + 8, 'menu_bg_base_opaque')
+        bg_surf = base_surf.create_base_surf(longest_surf_width + 16, 16 * len(text_lines) + 8)
 
         if len(text_lines) == 1:
             shimmer = SPRITES.get('menu_shimmer1')

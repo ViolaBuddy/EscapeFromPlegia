@@ -1,37 +1,37 @@
 [
     {
-        "nid": "Nephthys",
-        "name": "Nephthys",
-        "desc": "Devout priestess of Grima, dedicated to keeping his power safely contained.",
-        "variant": "",
-        "level": 8,
-        "klass": "Priestess",
+        "nid": "Eirika",
+        "name": "Eirika",
+        "desc": "The princess of the Kingdom of\nRenais. She's elegant and kind.",
+        "variant": null,
+        "level": 1,
+        "klass": "Eirika_Lord",
         "tags": [
             "Lord"
         ],
         "bases": {
-            "HP": 21,
-            "STR": 0,
-            "MAG": 14,
-            "SKL": 5,
-            "SPD": 4,
-            "LCK": 0,
+            "HP": 16,
+            "STR": 4,
+            "MAG": 2,
+            "SKL": 8,
+            "SPD": 9,
+            "LCK": 5,
             "DEF": 3,
-            "CON": 7,
-            "MOV": 6,
-            "RES": 9
+            "CON": 5,
+            "MOV": 5,
+            "RES": 1
         },
         "growths": {
-            "HP": 45,
-            "STR": 0,
-            "MAG": 35,
-            "SKL": 25,
-            "SPD": 22,
-            "LCK": 40,
-            "DEF": 8,
+            "HP": 70,
+            "STR": 40,
+            "MAG": 20,
+            "SKL": 60,
+            "SPD": 60,
+            "LCK": 60,
+            "DEF": 30,
             "CON": 0,
             "MOV": 0,
-            "RES": 50
+            "RES": 30
         },
         "starting_items": [
             [
@@ -39,11 +39,7 @@
                 false
             ],
             [
-                "Rescue",
-                false
-            ],
-            [
-                "Mend",
+                "Rapier",
                 false
             ]
         ],
@@ -52,7 +48,7 @@
         "wexp_gain": {
             "Sword": [
                 true,
-                0
+                1
             ],
             "Lance": [
                 false,
@@ -68,7 +64,7 @@
             ],
             "Staff": [
                 false,
-                255
+                0
             ],
             "Light": [
                 false,
@@ -80,7 +76,7 @@
             ],
             "Dark": [
                 false,
-                121
+                0
             ],
             "Default": [
                 false,
@@ -88,108 +84,14 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Nephthys",
-        "affinity": "Dark"
-    },
-    {
-        "nid": "Isis",
-        "name": "Isis",
-        "desc": "Grimleal priestess and Nephthys's twin sister. Highly adept in the ways of magic.",
-        "variant": "Female",
-        "level": 12,
-        "klass": "Grandmaster",
-        "tags": [],
-        "bases": {
-            "HP": 20,
-            "STR": 0,
-            "MAG": 5,
-            "SKL": 6,
-            "SPD": 5,
-            "LCK": 0,
-            "DEF": 5,
-            "RES": 6,
-            "CON": 7,
-            "MOV": 6
-        },
-        "growths": {
-            "HP": 45,
-            "STR": 0,
-            "MAG": 45,
-            "SKL": 30,
-            "SPD": 25,
-            "LCK": 15,
-            "DEF": 10,
-            "RES": 40,
-            "CON": 0,
-            "MOV": 0
-        },
-        "starting_items": [
-            [
-                "Fimbulvetr",
-                false
-            ],
-            [
-                "Vulnerary",
-                false
-            ],
-            [
-                "Fenrir",
-                false
-            ],
-            [
-                "Light Brand",
-                false
-            ]
-        ],
-        "learned_skills": [],
-        "unit_notes": [],
-        "wexp_gain": {
-            "Sword": [
-                false,
-                255
-            ],
-            "Lance": [
-                false,
-                0
-            ],
-            "Axe": [
-                false,
-                0
-            ],
-            "Bow": [
-                false,
-                0
-            ],
-            "Staff": [
-                true,
-                0
-            ],
-            "Light": [
-                false,
-                255
-            ],
-            "Anima": [
-                false,
-                255
-            ],
-            "Dark": [
-                false,
-                255
-            ],
-            "Default": [
-                false,
-                0
-            ]
-        },
-        "alternate_classes": null,
-        "portrait_nid": "Isis",
-        "affinity": "Ice"
+        "portrait_nid": "Eirika",
+        "affinity": "Light"
     },
     {
         "nid": "Seth",
         "name": "Seth",
         "desc": "A young commander of Renais.\nHe's calm, composed, and skilled.",
-        "variant": "",
+        "variant": null,
         "level": 1,
         "klass": "Paladin",
         "tags": [],
@@ -279,7 +181,7 @@
         "nid": "Franz",
         "name": "Franz",
         "desc": "An earnest and compassionate cavalier from Renais.",
-        "variant": "",
+        "variant": null,
         "level": 1,
         "klass": "Cavalier",
         "tags": [],
@@ -809,7 +711,7 @@
         "desc": "A childhood friend of Colm who hails from Renais. She cries a lot.",
         "variant": "Female",
         "level": 1,
-        "klass": "Archer",
+        "klass": "SpecialSniper",
         "tags": [],
         "bases": {
             "HP": 17,
@@ -983,7 +885,7 @@
         "nid": "Artur",
         "name": "Artur",
         "desc": "A young monk from Renais. He is a very forthright and pious man.",
-        "variant": "",
+        "variant": null,
         "level": 2,
         "klass": "Monk",
         "tags": [],
@@ -1050,7 +952,7 @@
             ],
             "Anima": [
                 false,
-                0
+                1
             ],
             "Dark": [
                 false,
@@ -1146,6 +1048,92 @@
         "alternate_classes": null,
         "portrait_nid": "Lute",
         "affinity": "Anima"
+    },
+    {
+        "nid": "Natasha",
+        "name": "Natasha",
+        "desc": "A beautiful cleric from the Grado Empire. She's graceful and serious.",
+        "variant": "Female",
+        "level": 1,
+        "klass": "Cleric",
+        "tags": [],
+        "bases": {
+            "HP": 18,
+            "STR": 0,
+            "MAG": 2,
+            "SKL": 4,
+            "SPD": 8,
+            "LCK": 6,
+            "DEF": 2,
+            "RES": 6,
+            "CON": 4,
+            "MOV": 5
+        },
+        "growths": {
+            "HP": 50,
+            "STR": 0,
+            "MAG": 60,
+            "SKL": 25,
+            "SPD": 40,
+            "LCK": 60,
+            "DEF": 15,
+            "RES": 55,
+            "CON": 0,
+            "MOV": 0
+        },
+        "starting_items": [
+            [
+                "Mend",
+                false
+            ],
+            [
+                "Vulnerary",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "unit_notes": [],
+        "wexp_gain": {
+            "Sword": [
+                false,
+                0
+            ],
+            "Lance": [
+                false,
+                0
+            ],
+            "Axe": [
+                false,
+                0
+            ],
+            "Bow": [
+                false,
+                0
+            ],
+            "Staff": [
+                true,
+                31
+            ],
+            "Light": [
+                false,
+                0
+            ],
+            "Anima": [
+                false,
+                0
+            ],
+            "Dark": [
+                false,
+                0
+            ],
+            "Default": [
+                false,
+                0
+            ]
+        },
+        "alternate_classes": null,
+        "portrait_nid": "Natasha",
+        "affinity": "Ice"
     },
     {
         "nid": "Joshua",
@@ -2045,7 +2033,7 @@
         "desc": "An aloof sword fighter from Jehanna. She\u2019s known as the Crimson Flash.",
         "variant": null,
         "level": 5,
-        "klass": "Eirika_Lord",
+        "klass": "Myrmidon",
         "tags": [],
         "bases": {
             "HP": 23,
@@ -2372,7 +2360,7 @@
             ],
             "Anima": [
                 true,
-                181
+                302
             ],
             "Dark": [
                 false,
@@ -3337,13 +3325,13 @@
         },
         "alternate_classes": null,
         "portrait_nid": "VigardeHealthy",
-        "affinity": null
+        "affinity": "None"
     },
     {
         "nid": "Caellach",
         "name": "Caellach",
         "desc": "",
-        "variant": "",
+        "variant": null,
         "level": 12,
         "klass": "Hero",
         "tags": [],
@@ -3520,40 +3508,40 @@
         "affinity": null
     },
     {
-        "nid": "Validar",
-        "name": "Validar",
-        "desc": "High priest of the Grimleal. Formerly sought to keep Grima's power contained but now has fallen under Grima's control and seeks to revive him.",
-        "variant": "",
+        "nid": "Riev",
+        "name": "Riev",
+        "desc": "",
+        "variant": null,
         "level": 16,
-        "klass": "Shaman",
+        "klass": "Cleric",
         "tags": [],
         "bases": {
-            "HP": 18,
+            "HP": 51,
             "STR": 0,
-            "MAG": 9,
-            "SKL": 4,
-            "SPD": 5,
-            "LCK": 0,
-            "DEF": 3,
-            "RES": 8,
+            "MAG": 16,
+            "SKL": 22,
+            "SPD": 20,
+            "LCK": 11,
+            "DEF": 16,
+            "RES": 20,
             "CON": 7,
             "MOV": 6
         },
         "growths": {
-            "HP": 45,
-            "STR": 5,
-            "MAG": 55,
-            "SKL": 30,
-            "SPD": 25,
-            "LCK": 20,
-            "DEF": 10,
-            "RES": 25,
+            "HP": 0,
+            "STR": 0,
+            "MAG": 0,
+            "SKL": 0,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 0,
+            "RES": 0,
             "CON": 0,
             "MOV": 0
         },
         "starting_items": [
             [
-                "Naglfar",
+                "Aura",
                 true
             ]
         ],
@@ -3582,15 +3570,15 @@
             ],
             "Light": [
                 false,
-                0
+                251
             ],
             "Anima": [
                 false,
-                0
+                251
             ],
             "Dark": [
                 false,
-                251
+                0
             ],
             "Default": [
                 false,
@@ -3599,15 +3587,15 @@
         },
         "alternate_classes": null,
         "portrait_nid": "Riev",
-        "affinity": "None"
+        "affinity": null
     },
     {
         "nid": "Lyon",
         "name": "Lyon",
         "desc": "",
-        "variant": "",
+        "variant": null,
         "level": 14,
-        "klass": "Necromancer",
+        "klass": "Sorcerer",
         "tags": [],
         "bases": {
             "HP": 46,
@@ -3685,6 +3673,353 @@
         },
         "alternate_classes": null,
         "portrait_nid": "Lyon",
+        "affinity": null
+    },
+    {
+        "nid": "Robin",
+        "name": "Robin",
+        "desc": "",
+        "variant": null,
+        "level": 1,
+        "klass": "Citizen",
+        "tags": [],
+        "bases": {
+            "HP": 0,
+            "STR": 0,
+            "MAG": 0,
+            "SKL": 0,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 0,
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
+        },
+        "growths": {
+            "HP": 0,
+            "STR": 0,
+            "MAG": 0,
+            "SKL": 0,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 0,
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
+        },
+        "starting_items": [],
+        "learned_skills": [],
+        "unit_notes": [],
+        "wexp_gain": {
+            "Sword": [
+                false,
+                0
+            ],
+            "Lance": [
+                false,
+                0
+            ],
+            "Axe": [
+                false,
+                0
+            ],
+            "Bow": [
+                false,
+                0
+            ],
+            "Staff": [
+                false,
+                0
+            ],
+            "Light": [
+                false,
+                0
+            ],
+            "Anima": [
+                false,
+                0
+            ],
+            "Dark": [
+                false,
+                0
+            ],
+            "Default": [
+                false,
+                0
+            ]
+        },
+        "alternate_classes": null,
+        "portrait_nid": "SoldierRed",
+        "affinity": "None"
+    },
+    {
+        "nid": "Nephthys",
+        "name": "Nephthys",
+        "desc": "Priestess of Grima and mother of the Fell Vessel Robin",
+        "variant": null,
+        "level": 10,
+        "klass": "War Cleric",
+        "tags": [],
+        "bases": {
+            "HP": 45,
+            "STR": 17,
+            "MAG": 19,
+            "SKL": 18,
+            "SPD": 17,
+            "LCK": 14,
+            "DEF": 14,
+            "RES": 20,
+            "CON": 7,
+            "MOV": 6
+        },
+        "growths": {
+            "HP": 80,
+            "STR": 40,
+            "MAG": 50,
+            "SKL": 40,
+            "SPD": 50,
+            "LCK": 65,
+            "DEF": 25,
+            "RES": 45,
+            "CON": 0,
+            "MOV": 0
+        },
+        "starting_items": [
+            [
+                "Steel Axe",
+                false
+            ],
+            [
+                "Sleep",
+                false
+            ],
+            [
+                "Mend",
+                false
+            ],
+            [
+                "Infinicrit Axe",
+                false
+            ],
+            [
+                "Neverhit Axe",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "unit_notes": [],
+        "wexp_gain": {
+            "Sword": [
+                false,
+                0
+            ],
+            "Lance": [
+                false,
+                0
+            ],
+            "Axe": [
+                false,
+                31
+            ],
+            "Bow": [
+                false,
+                0
+            ],
+            "Staff": [
+                false,
+                251
+            ],
+            "Light": [
+                false,
+                0
+            ],
+            "Anima": [
+                false,
+                0
+            ],
+            "Dark": [
+                false,
+                0
+            ],
+            "Default": [
+                false,
+                0
+            ]
+        },
+        "alternate_classes": null,
+        "portrait_nid": "Nephthys",
+        "affinity": "None"
+    },
+    {
+        "nid": "Isis",
+        "name": "Isis",
+        "desc": "A priestess of Grima and sister to Nephthys. Strong in both swordplay and magic.",
+        "variant": null,
+        "level": 10,
+        "klass": "Grandmaster",
+        "tags": [],
+        "bases": {
+            "HP": 56,
+            "STR": 30,
+            "MAG": 35,
+            "SKL": 24,
+            "SPD": 31,
+            "LCK": 27,
+            "DEF": 23,
+            "RES": 21,
+            "CON": 7,
+            "MOV": 6
+        },
+        "growths": {
+            "HP": 80,
+            "STR": 55,
+            "MAG": 50,
+            "SKL": 50,
+            "SPD": 50,
+            "LCK": 55,
+            "DEF": 40,
+            "RES": 30,
+            "CON": 0,
+            "MOV": 0
+        },
+        "starting_items": [
+            [
+                "Silver Sword",
+                false
+            ],
+            [
+                "Excalibur",
+                false
+            ],
+            [
+                "Light Brand",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "unit_notes": [],
+        "wexp_gain": {
+            "Sword": [
+                false,
+                251
+            ],
+            "Lance": [
+                false,
+                0
+            ],
+            "Axe": [
+                false,
+                0
+            ],
+            "Bow": [
+                false,
+                0
+            ],
+            "Staff": [
+                false,
+                0
+            ],
+            "Light": [
+                false,
+                0
+            ],
+            "Anima": [
+                false,
+                251
+            ],
+            "Dark": [
+                false,
+                0
+            ],
+            "Default": [
+                false,
+                0
+            ]
+        },
+        "alternate_classes": null,
+        "portrait_nid": "Isis",
+        "affinity": null
+    },
+    {
+        "nid": "Validar",
+        "name": "Validar",
+        "desc": "A fiendish sorcerer and leader of the Grimleal. Sees resurrecting Grima as the natural order of the universe.",
+        "variant": null,
+        "level": 18,
+        "klass": "Sorcerer",
+        "tags": [],
+        "bases": {
+            "HP": 80,
+            "STR": 6,
+            "MAG": 44,
+            "SKL": 33,
+            "SPD": 31,
+            "LCK": 29,
+            "DEF": 34,
+            "RES": 34,
+            "CON": 7,
+            "MOV": 6
+        },
+        "growths": {
+            "HP": 0,
+            "STR": 0,
+            "MAG": 0,
+            "SKL": 0,
+            "SPD": 0,
+            "LCK": 0,
+            "DEF": 0,
+            "RES": 0,
+            "CON": 0,
+            "MOV": 0
+        },
+        "starting_items": [
+            [
+                "Naglfar",
+                false
+            ]
+        ],
+        "learned_skills": [],
+        "unit_notes": [],
+        "wexp_gain": {
+            "Sword": [
+                false,
+                0
+            ],
+            "Lance": [
+                false,
+                0
+            ],
+            "Axe": [
+                false,
+                0
+            ],
+            "Bow": [
+                false,
+                0
+            ],
+            "Staff": [
+                false,
+                0
+            ],
+            "Light": [
+                false,
+                0
+            ],
+            "Anima": [
+                false,
+                0
+            ],
+            "Dark": [
+                false,
+                251
+            ],
+            "Default": [
+                false,
+                0
+            ]
+        },
+        "alternate_classes": null,
+        "portrait_nid": "Validar",
         "affinity": "None"
     }
 ]

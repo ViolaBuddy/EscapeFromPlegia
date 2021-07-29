@@ -104,7 +104,9 @@ class Channel():
                         # Could also have been told to fade out without ever starting to play
                         # In which case we don't need to do anything
                         self.state = 'stopped'
-                        self.last_state = 'stopped'
+                        # This state machine is an absolute mess that 
+                        # needs to be considerably refactored
+                        # self.last_state = 'stopped'
                     return True
                 elif self.state == 'crossfade_out':
                     self.state = "playing"
@@ -445,6 +447,7 @@ class SoundController():
                     # Move to top
                     logging.info("Using original channel")
                     if from_start:
+                        logging.info("Rewinding song to beginning")
                         song.channel.stop()  # Stop it now, so when it fades in, it will start from beginning
                     self.channel_stack.remove(song.channel)
                     self.channel_stack.append(song.channel)

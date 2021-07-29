@@ -325,6 +325,7 @@ class CombatAnimProperties(QWidget):
         self.delete_pose_button.setEnabled(b)
         self.export_button.setEnabled(b)
         self.test_combat_button.setEnabled(b)
+        self.play_button.setEnabled(b)
 
     def weapon_changed(self, idx):
         weapon_nid = self.weapon_box.currentText()
@@ -521,12 +522,23 @@ class CombatAnimProperties(QWidget):
         weapon_nid = self.weapon_box.currentText()
         return self.current.weapon_anims.get(weapon_nid)
 
+    def get_current_pose(self):
+        weapon_anim = self.get_current_weapon_anim()
+        if weapon_anim:
+            current_pose_nid = self.pose_box.currentText()
+            current_pose = weapon_anim.poses.get(current_pose_nid)
+            return current_pose
+        return None
+
     def reset_weapon_box(self):
         self.weapon_box.clear()
         weapon_anims = self.current.weapon_anims
         if weapon_anims:
+            self.has_weapon(True)
             self.weapon_box.addItems([d.nid for d in weapon_anims])
             self.weapon_box.setValue(weapon_anims[0].nid)
+        else:
+            self.has_weapon(False)
         return weapon_anims
 
     def reset_pose_box(self, weapon_anim):
@@ -535,6 +547,9 @@ class CombatAnimProperties(QWidget):
         if poses:
             self.pose_box.addItems([d.nid for d in poses])
             self.pose_box.setValue(poses[0].nid)
+            self.has_pose(True)
+        else:
+            self.has_pose(False)
         return poses
 
     def import_legacy(self):
@@ -590,21 +605,25 @@ class CombatAnimProperties(QWidget):
         weapon_anims = self.current.weapon_anims
         self.weapon_box.addItems([d.nid for d in weapon_anims])
         if weapon_anims:
+            self.has_weapon(True)
             self.weapon_box.setValue(weapon_anims[0].nid)
             weapon_anim = self.get_current_weapon_anim()
             poses = self.reset_pose_box(weapon_anim)
             self.timeline_menu.set_current_frames(weapon_anim.frames)
         else:
+            self.has_weapon(False)
             self.pose_box.clear()
             weapon_anim, poses = None, None
 
         self.palette_menu.set_current(self.current)
 
         if weapon_anim and poses:
+            self.has_pose(True)
             current_pose_nid = self.pose_box.currentText()
             current_pose = poses.get(current_pose_nid)
             self.timeline_menu.set_current_pose(current_pose)
         else:
+            self.has_pose(False)
             self.timeline_menu.clear_pose()
 
     def get_current_palette(self):

@@ -605,6 +605,17 @@
         ]
     },
     {
+        "nid": "Nephthys",
+        "blinking_offset": [
+            24,
+            32
+        ],
+        "smiling_offset": [
+            16,
+            48
+        ]
+    },
+    {
         "nid": "Isis",
         "blinking_offset": [
             24,
@@ -616,14 +627,14 @@
         ]
     },
     {
-        "nid": "Nephthys",
+        "nid": "Validar",
         "blinking_offset": [
             24,
-            32
+            24
         ],
         "smiling_offset": [
             16,
-            48
+            40
         ]
     }
 ]

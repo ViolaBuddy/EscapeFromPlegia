@@ -5980,7 +5980,7 @@
             ],
             [
                 "weapon_type",
-                "Light"
+                "Anima"
             ],
             [
                 "weapon_rank",
@@ -6032,7 +6032,7 @@
             ],
             [
                 "weapon_type",
-                "Light"
+                "Anima"
             ],
             [
                 "weapon_rank",
@@ -6112,7 +6112,7 @@
             ],
             [
                 "weapon_type",
-                "Light"
+                "Anima"
             ],
             [
                 "weapon_rank",
@@ -6184,7 +6184,7 @@
             ],
             [
                 "weapon_type",
-                "Light"
+                "Anima"
             ],
             [
                 "weapon_rank",
@@ -6292,7 +6292,7 @@
             ],
             [
                 "weapon_type",
-                "Light"
+                "Anima"
             ],
             [
                 "weapon_rank",
@@ -6344,7 +6344,7 @@
             ],
             [
                 "weapon_type",
-                "Light"
+                "Anima"
             ],
             [
                 "weapon_rank",
@@ -9831,6 +9831,138 @@
             [
                 "multi_target",
                 3
+            ]
+        ]
+    },
+    {
+        "nid": "Infinicrit Axe",
+        "name": "Infinicrit Axe",
+        "desc": "",
+        "icon_nid": "Axe",
+        "icon_index": [
+            0,
+            5
+        ],
+        "components": [
+            [
+                "weapon",
+                null
+            ],
+            [
+                "target_enemy",
+                null
+            ],
+            [
+                "level_exp",
+                null
+            ],
+            [
+                "damage",
+                11
+            ],
+            [
+                "hit",
+                65
+            ],
+            [
+                "weapon_type",
+                "Axe"
+            ],
+            [
+                "weapon_rank",
+                "E"
+            ],
+            [
+                "uses",
+                20
+            ],
+            [
+                "weight",
+                11
+            ],
+            [
+                "crit",
+                200
+            ],
+            [
+                "warning",
+                "True"
+            ],
+            [
+                "value",
+                1000
+            ],
+            [
+                "min_range",
+                1
+            ],
+            [
+                "max_range",
+                1
+            ]
+        ]
+    },
+    {
+        "nid": "Neverhit Axe",
+        "name": "Neverhit Axe",
+        "desc": "",
+        "icon_nid": "Axe",
+        "icon_index": [
+            0,
+            5
+        ],
+        "components": [
+            [
+                "weapon",
+                null
+            ],
+            [
+                "target_enemy",
+                null
+            ],
+            [
+                "level_exp",
+                null
+            ],
+            [
+                "damage",
+                11
+            ],
+            [
+                "hit",
+                -200
+            ],
+            [
+                "weapon_type",
+                "Axe"
+            ],
+            [
+                "weapon_rank",
+                "E"
+            ],
+            [
+                "uses",
+                20
+            ],
+            [
+                "weight",
+                11
+            ],
+            [
+                "crit",
+                -100
+            ],
+            [
+                "value",
+                1000
+            ],
+            [
+                "min_range",
+                1
+            ],
+            [
+                "max_range",
+                1
             ]
         ]
     }

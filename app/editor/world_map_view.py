@@ -21,10 +21,6 @@ class WorldMapView(SimpleMapView):
         self.road_sprite = RoadSpriteWrapper()
         self.should_draw_ghost = False
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Space:
-            self.should_draw_ghost = not self.should_draw_ghost
-
     def set_current_level(self, overworld_nid):
         overworld = DB.overworlds.get(overworld_nid)
         if isinstance(overworld, OverworldPrefab):

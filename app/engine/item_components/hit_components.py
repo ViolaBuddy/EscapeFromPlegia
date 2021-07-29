@@ -180,7 +180,6 @@ class ShoveTargetRestrict(Shove, ItemComponent):
     value = 1
 
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
-        # only targets units that need to be restored
         defender = game.board.get_unit(def_pos)
         if defender and self._check_shove(defender, unit.position, self.value) and \
                 not skill_system.ignore_forced_movement(defender):
@@ -207,6 +206,125 @@ class Swap(ItemComponent):
         if not skill_system.ignore_forced_movement(unit) and not skill_system.ignore_forced_movement(target):
             actions.append(action.Swap(unit, target))
             playback.append(('swap_hit', unit, item, target))
+
+class Pivot(ItemComponent):
+    nid = 'pivot'
+    desc = "User moves to other side of target on hit."
+    tag = 'special'
+    author = "Lord Tweed"
+
+    expose = Type.Int
+    value = 1
+
+    def _check_pivot(self, unit_to_move, anchor_pos, magnitude):
+        offset_x = utils.clamp(unit_to_move.position[0] - anchor_pos[0], -1, 1)
+        offset_y = utils.clamp(unit_to_move.position[1] - anchor_pos[1], -1, 1)
+        new_position = (anchor_pos[0] + offset_x * -magnitude,
+                        anchor_pos[1] + offset_y * -magnitude)
+
+        mcost = game.movement.get_mcost(unit_to_move, new_position)
+        if game.tilemap.check_bounds(new_position) and \
+                not game.board.get_unit(new_position) and \
+                mcost <= equations.parser.movement(unit_to_move):
+            return new_position
+        return False
+
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
+        if not skill_system.ignore_forced_movement(unit):
+            new_position = self._check_pivot(unit, target.position, self.value)
+            if new_position:
+                actions.append(action.ForcedMovement(unit, new_position))
+                playback.append(('shove_hit', unit, item, unit))
+
+class PivotTargetRestrict(Pivot, ItemComponent):
+    nid = 'pivot_target_restrict'
+    desc = "Suppresses the Pivot command when it would be invalid."
+    tag = 'special'
+    author = "Lord Tweed"
+
+    expose = Type.Int
+    value = 1
+
+    def target_restrict(self, unit, item, def_pos, splash) -> bool:
+        defender = game.board.get_unit(def_pos)
+        if defender and self._check_pivot(unit, defender.position, self.value) and \
+                not skill_system.ignore_forced_movement(unit):
+            return True
+        for s_pos in splash:
+            s = game.board.get_unit(s_pos)
+            if self._check_pivot(unit, s.position, self.value) and \
+                    not skill_system.ignore_forced_movement(unit):
+                return True
+        return False
+
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
+        pass
+
+    def end_combat(self, playback, unit, item, target, mode):
+        pass
+        
+class DrawBack(ItemComponent):
+    nid = 'draw_back'
+    desc = "Item moves both user and target back on hit."
+    tag = 'special'
+    author = "Lord Tweed"
+
+    expose = Type.Int
+    value = 1
+
+    def _check_draw_back(self, target, user, magnitude):
+        offset_x = utils.clamp(target.position[0] - user.position[0], -1, 1)
+        offset_y = utils.clamp(target.position[1] - user.position[1], -1, 1)
+        new_position_user = (user.position[0] - offset_x * magnitude,
+                             user.position[1] - offset_y * magnitude)
+        new_position_target = (target.position[0] - offset_x * magnitude,
+                               target.position[1] - offset_y * magnitude)
+
+        mcost_user = game.movement.get_mcost(user, new_position_user)
+        mcost_target = game.movement.get_mcost(target, new_position_target)
+
+        if game.tilemap.check_bounds(new_position_user) and \
+                not game.board.get_unit(new_position_user) and \
+                mcost_user <= equations.parser.movement(user) and mcost_target <= equations.parser.movement(target):
+            return new_position_user, new_position_target
+        return None, None
+
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
+        if not skill_system.ignore_forced_movement(target):
+            new_position_user, new_position_target = self._check_draw_back(target, unit, self.value)
+            if new_position_user and new_position_target:
+                actions.append(action.ForcedMovement(unit, new_position_user))
+                playback.append(('shove_hit', unit, item, unit))
+                actions.append(action.ForcedMovement(target, new_position_target))
+                playback.append(('shove_hit', unit, item, target))
+
+class DrawBackTargetRestrict(DrawBack, ItemComponent):
+    nid = 'draw_back_target_restrict'
+    desc = "Suppresses the Draw Back command when it would be invalid."
+    tag = 'special'
+    author = "Lord Tweed"
+
+    expose = Type.Int
+    value = 1
+
+    def target_restrict(self, unit, item, def_pos, splash) -> bool:
+        defender = game.board.get_unit(def_pos)
+        positions = [result for result in self._check_draw_back(defender, unit, self.value)]
+        if defender and all(positions) and \
+                not skill_system.ignore_forced_movement(defender):
+            return True
+        for s_pos in splash:
+            s = game.board.get_unit(s_pos)
+            splash_positions = [result for result in self._check_draw_back(s, unit, self.value)]
+            if all(splash_positions) and not skill_system.ignore_forced_movement(s):
+                return True
+        return False
+
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
+        pass
+
+    def end_combat(self, playback, unit, item, target, mode):
+        pass
 
 class Steal(ItemComponent):
     nid = 'steal'

@@ -1436,6 +1436,7 @@ When called, the player is sent to the Base menu. The _Panorama_ and _Music_ key
 
     keywords = ["Panorama"]
     optional_keywords = ["Music"]
+    flags = ["show_map"]
 
 class Shop(EventCommand):
     nid = 'shop'

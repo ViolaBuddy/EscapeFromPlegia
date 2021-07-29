@@ -1,5 +1,4 @@
 from app.engine.game_counters import ANIMATION_COUNTERS
-from app import sprites
 from app.constants import WINWIDTH, WINHEIGHT
 from app.utilities import utils
 
@@ -12,6 +11,7 @@ from app.engine.fonts import FONT
 from app.engine.input_manager import INPUT
 from app.engine.state import State
 
+from app.engine.state import MapState
 from app.engine.game_state import game
 from app.engine import menus, base_surf, background, text_funcs, \
     image_mods, gui, icons, prep, record_book, unit_sprite, action
@@ -136,13 +136,15 @@ class BaseMainState(State):
             self.menu.update()
 
     def draw(self, surf):
-        surf = super().draw(surf)
-        if self.bg:
-            self.bg.draw(surf)
+        if game.game_vars.get('_base_transparent'):
+            surf = MapState.draw(self, surf)
+        else:
+            surf = super().draw(surf)
+            if self.bg:
+                self.bg.draw(surf)
         if self.menu:
             self.menu.draw(surf)
         return surf
-
 
 class BaseMarketSelectState(prep.PrepManageState):
     name = 'base_market_select'
@@ -272,6 +274,7 @@ class SupportDisplay():
 
         self.cursor = menus.Cursor()
         self.draw_cursor = False
+        self.scroll_bar = gui.ScrollBar()
 
         self.char_idx = 0
         self.rank_idx = 0
@@ -377,12 +380,18 @@ class SupportDisplay():
             other_unit_nids = self.options
 
             map_sprites = []
-            for idx, other_unit_nid in enumerate(other_unit_nids):
+
+            limit = 8
+            start_index = utils.clamp(self.char_idx - 4, 0, max(0, len(other_unit_nids) - limit))
+            end_index = start_index + limit
+            choices = other_unit_nids[start_index:end_index]
+
+            for idx, other_unit_nid in enumerate(choices):
                 if game.get_unit(other_unit_nid):
                     other_unit = game.get_unit(other_unit_nid)
                     if other_unit.dead:
                         map_sprite = other_unit.sprite.create_image('gray')
-                    elif self.char_idx == idx:
+                    elif self.char_idx - start_index == idx:
                         map_sprite = other_unit.sprite.create_image('active')
                     else:
                         map_sprite = other_unit.sprite.create_image('passive')
@@ -432,10 +441,16 @@ class SupportDisplay():
 
             surf.blit(self.support_word_sprite, (120, 11))
 
+            # Scroll Bar
+            if len(self.options) > limit:
+                right = 100 + self.width
+                topright = (right, 4)
+                self.scroll_bar.draw(surf, topright, start_index, limit, len(self.options))
+
             # Cursor
             if self.draw_cursor:
                 left = self.rank_idx * 10 + 82 + 100
-                top = self.char_idx * 16 + 12 + 12
+                top = (self.char_idx - start_index) * 16 + 12 + 12
                 self.cursor.update()
                 self.cursor.draw(surf, left, top)
 
@@ -827,7 +842,7 @@ class BaseGuideState(BaseLibraryState):
     name = 'base_guide'
 
     def start(self):
-        self.bg = game.memory.get('base_bg', None)
+        self.bg = game.memory.get('base_bg')
         if not self.bg:
             panorama = RESOURCES.panoramas.get('default_background')
             self.bg = background.ScrollingBackground(panorama)

@@ -458,12 +458,14 @@ class Choice(Simple):
         return did_move
 
     def create_bg_surf(self):
+        # Handle clear background
         if not self.background:
             if self._bg_surf and self._bg_surf.get_width() == self.get_menu_width() and self._bg_surf.get_height() == self.get_menu_height():
                 pass
             else:
                 self._bg_surf = engine.create_surface((self.get_menu_width(), self.get_menu_height()), transparent=True)
-                return self._bg_surf
+            return self._bg_surf
+
         if self.horizontal:
             width = sum(option.width() + 8 for option in self.options) + 16
             if self._bg_surf and self._bg_surf.get_width() == width:

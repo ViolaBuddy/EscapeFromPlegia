@@ -2,7 +2,7 @@
     {
         "name": "Intro",
         "trigger": "level_start",
-        "level_nid": "6",
+        "level_nid": "0",
         "condition": "True",
         "commands": [
             [
@@ -20,6 +20,14 @@
             [
                 "add_portrait",
                 [
+                    "Isis",
+                    "Left",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
                     "Nephthys",
                     "Right"
                 ]
@@ -27,49 +35,83 @@
             [
                 "add_portrait",
                 [
-                    "Isis",
-                    "Left"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Nephthys",
-                    "So this is it. Our final battle.|We're escaping with my child. The child that the Grimleal have spent generations|breeding to be fit for Grima's vessel."
+                    "Robin",
+                    "OffscreenRight"
                 ]
             ],
             [
                 "speak",
                 [
                     "Isis",
-                    "Yes. It's too late to turn back now."
+                    "Nephthys! You have the child?"
                 ]
             ],
             [
                 "speak",
                 [
                     "Nephthys",
-                    "Alas that I cannot fight while holding the child. We will have to try to avoid battle."
+                    "Yes, safe and unharmed."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Robin",
+                    "Wa!"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Nephthys",
+                    "CenterRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Nephthys",
+                    "Now all that remains is the difficult part:|actually making it out the front door."
                 ]
             ],
             [
                 "speak",
                 [
                     "Isis",
-                    "My magic is at the ready to protect you and your child, should it be necessary.|But indeed it would be best if we can avoid detection altogether."
+                    "They do not yet know of our escape. We best keep it that way."
                 ]
             ],
             [
                 "speak",
                 [
                     "Nephthys",
-                    "...|Well, no use hesitating now. let's go."
+                    "Especially as I am holding a child.|If they find out and attack me, I cannot properly defend myself."
                 ]
             ],
             [
-                "multi_remove_portrait",
+                "speak",
+                [
+                    "Isis",
+                    "Leave any fighting to me if it comes to that."
+                ]
+            ],
+            [
+                "speak",
                 [
                     "Nephthys",
+                    "Yes, thank you, Isis.|...Well, let's go."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Nephthys",
+                    "no_block"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
                     "Isis"
                 ]
             ],
@@ -645,7 +687,7 @@
     {
         "name": "DeathONeill",
         "trigger": "unit_death",
-        "level_nid": "6",
+        "level_nid": "0",
         "condition": "unit.nid == \"O'Neill\"",
         "commands": [
             [
@@ -756,7 +798,7 @@
     {
         "name": "Outro",
         "trigger": "level_end",
-        "level_nid": "6",
+        "level_nid": "0",
         "condition": "True",
         "commands": [
             [
@@ -845,39 +887,9 @@
         "priority": 22
     },
     {
-        "name": "OnlyBoss",
-        "trigger": "combat_end",
-        "level_nid": "6",
-        "condition": "len(game.get_enemy_units()) == 1",
-        "commands": [
-            [
-                "add_portrait",
-                [
-                    "Seth",
-                    "Left"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Seth",
-                    "All that's left is their leader..."
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "Seth"
-                ]
-            ]
-        ],
-        "only_once": true,
-        "priority": 20
-    },
-    {
         "name": "Defeat Boss",
         "trigger": "combat_end",
-        "level_nid": "6",
+        "level_nid": "0",
         "condition": "game.check_dead(\"O'Neill\")",
         "commands": [
             [
@@ -903,9 +915,46 @@
         "priority": 20
     },
     {
+        "name": "EnemyTurn2",
+        "trigger": "enemy_turn_change",
+        "level_nid": "0",
+        "condition": "game.turncount == 2",
+        "commands": [
+            [
+                "add_portrait",
+                [
+                    "O'Neill",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "O'Neill",
+                    "What was that? Do you think you can take me, wretched lordling?|Come! It's time you high-and-mighty knights learned to respect a true warrior!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "O'Neill"
+                ]
+            ],
+            [
+                "change_ai",
+                [
+                    "O'Neill",
+                    "Defend"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
         "name": "FightONeill",
         "trigger": "combat_start",
-        "level_nid": "6",
+        "level_nid": "0",
         "condition": "unit.nid == \"O'Neill\" or unit2.nid == \"O'Neill\"",
         "commands": [
             [
@@ -2217,8 +2266,26 @@
                 []
             ],
             [
+                "comment",
+                [
+                    ""
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Let's have some fun in the overworld"
+                ]
+            ],
+            [
                 "change_background",
                 []
+            ],
+            [
+                "comment",
+                [
+                    "# This command is necessary to load the overworld tilemap"
+                ]
             ],
             [
                 "overworld_cinematic",
@@ -2227,6 +2294,12 @@
                 ],
                 [
                     "Magvel (0)"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# The next two commands are self-explanatory. You'll use these to manipulate overworld data."
                 ]
             ],
             [
@@ -2249,6 +2322,24 @@
                 [
                     "Eirika's Group (Eirika)",
                     "Border Mulan (0)"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    ""
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Here are examples of overworld animations and sounds."
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Notice that they are the same as the normal tilemap commands."
                 ]
             ],
             [
@@ -2314,6 +2405,24 @@
                 ]
             ],
             [
+                "comment",
+                [
+                    ""
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Because narration is more involved than dialogue, we need some different commands"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# to animate the narration window in."
+                ]
+            ],
+            [
                 "toggle_narration_mode",
                 [
                     "open",
@@ -2374,7 +2483,7 @@
             [
                 "comment",
                 [
-                    "overworld_cinematic_exit;"
+                    ""
                 ]
             ],
             [
@@ -3101,9 +3210,882 @@
         "priority": 20
     },
     {
+        "name": "Intro",
+        "trigger": "level_start",
+        "level_nid": "2",
+        "condition": "True",
+        "commands": [
+            [
+                "comment",
+                [
+                    "# Setup"
+                ]
+            ],
+            [
+                "game_var",
+                [
+                    "_convoy",
+                    "True"
+                ]
+            ],
+            [
+                "add_talk",
+                [
+                    "Eirika",
+                    "Ross"
+                ]
+            ],
+            [
+                "add_talk",
+                [
+                    "Ross",
+                    "Garcia"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "PrevVillage",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_group",
+                [
+                    "Bandits1",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Vanessa",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_group",
+                [
+                    "BlueTeam",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_group",
+                [
+                    "RossGarcia",
+                    "immediate"
+                ]
+            ],
+            [
+                "remove_group",
+                [
+                    "BanditReinforcements",
+                    "immediate"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Money making"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Bedroom"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "give_money",
+                [
+                    "5000"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Show chapter title"
+                ]
+            ],
+            [
+                "chapter_title",
+                []
+            ],
+            [
+                "change_background",
+                [
+                    "Clearing"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eirika",
+                    "Left",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Vanessa",
+                    "FarRight",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Moulder",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Seth has mapped out a route for us.|We'll travel south of Renais and pass through Serafew into Grado territory."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Moulder",
+                    "Hmm...{br}That would seem a sensible plan.|Assuming, of course, that we can avoid any run-ins with Grado soldiers..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vanessa",
+                    "Princess Eirika, may I have your leave to scout ahead?|From the sky, I'll have a better chance of spotting any nearby troops."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Moulder",
+                    "We're yours to command, Your Higness. Will you give your permission?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Yes, of course.|Keep an eye out for enemy bowmen though, Vanessa."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vanessa",
+                    "Yes, Your Higness, I shall.|I shall prove myself worthy of the honor of your trust."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Vanessa"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "She seems very...sincere."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Moulder",
+                    "Sincere... Yes, quite."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Eirika",
+                    "no_block"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Moulder"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "end_skip",
+                []
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "comment",
+                [
+                    "# Transition to Bandit conversation"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Vanessa",
+                    "1,0",
+                    "immediate"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Vanessa",
+                    "7,4"
+                ]
+            ],
+            [
+                "add_group",
+                [
+                    "Bandits1",
+                    "14,8",
+                    "immediate",
+                    "stack"
+                ]
+            ],
+            [
+                "move_group",
+                [
+                    "Bandits1",
+                    "Bandits1",
+                    "no_follow"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Bone"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Bone",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Bone",
+                    "Hey, boss! We've found more villages ripe for the picking."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Bazba",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Bazba",
+                    "One, two, three...{br}Ha ha ha! I love a good war!|With all those soldiers preoccupied, we're free to pillage as we please!|Right, Bone--you're in charge.|Grab everything that's not nailed down and bring it to the hideout."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Bone",
+                    "I'm on it."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Bazba",
+                    "Bone"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "BoneBuddy",
+                    "14,10",
+                    "no_follow"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "BoneBuddy",
+                    "immediate"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Transition to Ross and Garcia conversation"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "12,3"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Town"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Garcia",
+                    "Right",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ross",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Ross",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ross",
+                    "Dad!{br}Bandits approaching!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Garcia",
+                    "Hmmm...|I'm getting you out of here, Ross. You stay close to me!"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Transition to Bone leaving and TopBandit destroying the village"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Bone"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Bone",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Bone",
+                    "Let's start with that village there! Go to it, boys! It's all yours.|Cut down anyone fool enough to get in your way.|I'm heading west around the mountains to the other villages."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Bone"
+                ]
+            ],
+            [
+                "end_skip",
+                []
+            ],
+            [
+                "move_unit",
+                [
+                    "Bone",
+                    "9,10",
+                    "no_follow"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Bone",
+                    "immediate"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "TopBandit",
+                    "12,3"
+                ]
+            ],
+            [
+                "hide_layer",
+                [
+                    "PrevVillage"
+                ]
+            ],
+            [
+                "sound",
+                [
+                    "ItemBreak"
+                ]
+            ],
+            [
+                "alert",
+                [
+                    "The village was destroyed."
+                ]
+            ],
+            [
+                "add_group",
+                [
+                    "RossGarcia",
+                    "12,3",
+                    "immediate",
+                    "stack"
+                ]
+            ],
+            [
+                "move_group",
+                [
+                    "RossGarcia",
+                    "Starting"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Ross"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Forest"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ross",
+                    "Left",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Garcia",
+                    "Right"
+                ]
+            ],
+            [
+                "bop_portrait",
+                [
+                    "Ross"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ross",
+                    "Unnnng!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Garcia",
+                    "Ross? What is it? What's wrong?"
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Ross",
+                    "Smile"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ross",
+                    "It's nothing! It's just a scratch!|You're a warrior, Dad, and I am your son. I won't be beaten so easily."
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Ross",
+                    "NoSmile"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Garcia",
+                    "Don't risk yourself so foolishly...{br}We need to get you some help.|Please! Someone help my son!"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_group",
+                [
+                    "BlueTeam",
+                    "0,0",
+                    "immediate",
+                    "stack"
+                ]
+            ],
+            [
+                "move_group",
+                [
+                    "BlueTeam",
+                    "Starting"
+                ]
+            ],
+            [
+                "end_skip",
+                []
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Vanessa"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Vanessa",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vanessa",
+                    "Ah! This looks serious.|I must report back to Priness Eirika at once."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Vanessa"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Vanessa",
+                    "2,3"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Vanessa"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Vanessa",
+                    "OffscreenRight",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eirika",
+                    "Left"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Vanessa",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vanessa",
+                    "I have bad news.|The village to the east is under attack by bandits."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Bandits?!"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Moulder",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Moulder",
+                    "We have arrived at our first dilemma.|We must move quickly and attract as little attention as possible, but..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "But I cannot stand by and watch innocents be harmed.|Vanessa, how fare the villagers?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vanessa",
+                    "I spotted one injured person.{br}He appeared to be just a child."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Father Moulder, can your staff help him?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Moulder",
+                    "Well, yes, I can heal his injuries with my staff, but...|I cannot do it from here. He's too far away. I must be near him."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vanessa",
+                    "Princess, please leave this to me.|I shall bring the boy here."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Eirika",
+                    "no_block"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Moulder",
+                    "no_block"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Vanessa"
+                ]
+            ],
+            [
+                "flicker_cursor",
+                [
+                    "Moulder"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Moulder",
+                    "Right",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Vanessa",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Moulder",
+                    "All right, Vanessa. It's up to you."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Vanessa",
+                    "Very well. I'm off."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Vanessa"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Moulder"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Vanessa"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Add the two enemy units back"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "Bone",
+                    "",
+                    "immediate"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "BoneBuddy",
+                    "",
+                    "immediate"
+                ]
+            ],
+            [
+                "set_current_hp",
+                [
+                    "Ross",
+                    "5"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
         "name": "Armory",
         "trigger": "Armory",
-        "level_nid": "6",
+        "level_nid": "2",
         "condition": "True",
         "commands": [
             [
@@ -3191,7 +4173,7 @@
     {
         "name": "Village1Eirika",
         "trigger": "Visit",
-        "level_nid": "6",
+        "level_nid": "2",
         "condition": "region.nid == 'Village1' and unit.nid == 'Eirika'",
         "commands": [
             [
@@ -3393,7 +4375,7 @@
     {
         "name": "Village1",
         "trigger": "Visit",
-        "level_nid": "6",
+        "level_nid": "2",
         "condition": "region.nid == 'Village1' and unit.nid != 'Eirika'",
         "commands": [
             [
@@ -4158,7 +5140,7 @@
     {
         "name": "EirikaRossTalk",
         "trigger": "on_talk",
-        "level_nid": "6",
+        "level_nid": "2",
         "condition": "unit.nid == 'Eirika' and unit2.nid == 'Ross'",
         "commands": [
             [
@@ -4251,7 +5233,7 @@
     {
         "name": "Village2",
         "trigger": "Visit",
-        "level_nid": "6",
+        "level_nid": "2",
         "condition": "region.nid == 'Village2'",
         "commands": [
             [
@@ -4336,7 +5318,7 @@
     {
         "name": "Village3",
         "trigger": "Visit",
-        "level_nid": "6",
+        "level_nid": "2",
         "condition": "region.nid == 'Village3'",
         "commands": [
             [
@@ -4421,7 +5403,7 @@
     {
         "name": "RossGarciaTalk",
         "trigger": "on_talk",
-        "level_nid": "6",
+        "level_nid": "2",
         "condition": "unit.nid == 'Ross' and unit2.nid == 'Garcia'",
         "commands": [
             [
@@ -4671,7 +5653,7 @@
     {
         "name": "Turn3",
         "trigger": "turn_change",
-        "level_nid": "6",
+        "level_nid": "2",
         "condition": "game.turncount == 3",
         "commands": [
             [
@@ -4695,7 +5677,7 @@
     {
         "name": "Turn2",
         "trigger": "turn_change",
-        "level_nid": "6",
+        "level_nid": "2",
         "condition": "game.turncount == 2",
         "commands": [
             [
@@ -4739,7 +5721,7 @@
     {
         "name": "FightBone",
         "trigger": "combat_start",
-        "level_nid": "6",
+        "level_nid": "2",
         "condition": "(unit.nid == \"Bone\" and unit2.team == 'player') or (unit2.nid == \"Bone\" and unit.team == 'player')",
         "commands": [
             [
@@ -4769,7 +5751,7 @@
     {
         "name": "DeathBone",
         "trigger": "unit_death",
-        "level_nid": "6",
+        "level_nid": "2",
         "condition": "unit.nid == \"Bone\"",
         "commands": [
             [
@@ -4820,6 +5802,835 @@
                 "remove_portrait",
                 [
                     "Bazba"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Outro",
+        "trigger": "level_end",
+        "level_nid": "2",
+        "condition": "True",
+        "commands": [
+            [
+                "if",
+                [
+                    "game.check_alive(\"Garcia\") and game.check_alive(\"Ross\")"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Just in case Garcia hasn't been recruited yet"
+                ]
+            ],
+            [
+                "change_team",
+                [
+                    "Garcia",
+                    "player"
+                ]
+            ],
+            [
+                "change_team",
+                [
+                    "Ross",
+                    "player"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "Clearing"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Seth",
+                    "MidLeft",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eirika",
+                    "FarLeft",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Garcia",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Garcia",
+                    "You saved my son.{br}I owe you my thanks."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "It's not necessary..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "...Hold on a moment...|Aren't you...the great Garcia?{br}You fought for Renais, didn't you?",
+                    "low_priority"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Garcia",
+                    "......"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Seth, do you know this man?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "He was a troop commander for Renais until around ten years ago.|When I was a recruit, the soldiers used to tell so many tales about him.|They called him a daring and fearless fighter for Renais.{w}{clear}Master Garcia, you must know the peril our homeland faces right now...|Can we impose upon you to lend your strength to Renais once again?",
+                    "low_priority"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Garcia",
+                    "...I'm sorry. I'm retired now.|I'm not a soldier anymore. It's... a decision I made long ago."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "Master Garcia...",
+                    "low_priority"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Garcia",
+                    "...When I was a soldier, I lived my life fighting for my country's honor.|I left no time for my family.|I spent my life fighting for faceless, uncaring nobles.{w}{clear}When my wife fell ill and died, I met the child she had left behind...|At that moment, I finally     realized what my duty had cost me."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "......"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Garcia",
+                    "I stood at my wife's grave and promised her I would be a father to our son.|I'm done with armies. I'm done with fighting, except to protect my son.|I've no regrets. I'm the boy's father."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "......",
+                    "low_priority"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "Princess, are you injured?"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Eirika"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Seth"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ross",
+                    "OffscreenLeft",
+                    "immediate"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Ross",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ross",
+                    "You...you blasted fool!|Father, what's all this nonsense I'm hearing?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Garcia",
+                    "Ross!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ross",
+                    "If you're not going, then I will!|I'm a fighter!{br}I know I can do this!"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Garcia",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Garcia",
+                    "Ross, what are you saying?{br}I..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ross",
+                    "Dad, please! Listen to me!|I respect you more than any other man in the world.|I know you gave up being a soldier for me. I know that!|But how can you throw away such a big part of yourself?|You're a warrior at heart! You can't give that up and be happy!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Garcia",
+                    "......"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ross",
+                    "Look at me, Dad!{br}Have you seen me fight?|I'm not a child anymore.{br}I'm a warrior, like you.|You're free to worry, but I can survive on my own."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Garcia",
+                    "...Ross."
+                ]
+            ],
+            [
+                "bop_portrait",
+                [
+                    "Ross"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ross",
+                    "You want to challenge me, Father?|I'm a fighter! The best in all of Ide!|I'm not going to lose to you!{br}I'm not going to lose to anyone!"
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Ross",
+                    "Smile"
+                ]
+            ],
+            [
+                "expression",
+                [
+                    "Garcia",
+                    "Smile"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Garcia",
+                    "...You're right.|You're a good soldier, Ross."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ross"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eirika",
+                    "MidLeft",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Seth",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Garcia",
+                    "Sir Seth...|If these old bones of mine can still serve, I'd like to join you."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Ross",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ross",
+                    "Dad..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Garcia",
+                    "Looks like my boy grew up while I wasn't looking...|He's tougher than I thought. He doesn't need my help.|I've raised him as best I could, but he's right.|I've nothing to fear. I should fight. I will fight."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Ross",
+                    "Dad!"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Ross",
+                    "no_block"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Garcia",
+                    "no_block"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Eirika",
+                    "no_block"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Seth"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# If either die, they don't join your party"
+                ]
+            ],
+            [
+                "else",
+                []
+            ],
+            [
+                "change_team",
+                [
+                    "Garcia",
+                    "other"
+                ]
+            ],
+            [
+                "change_team",
+                [
+                    "Ross",
+                    "other"
+                ]
+            ],
+            [
+                "end",
+                []
+            ],
+            [
+                "transition",
+                [
+                    "Close"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "TownSunset"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eirika",
+                    "Left",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Man2",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Man2",
+                    "Thank you so much for your help. Please stay the night and rest..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "We would if we could, but we have much to do and far to travel.|Your safety is reward enough."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Man2",
+                    "Ah, well...|My, that is a splendid bracelet you're wearing."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Thank you. My father gave this to me."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Man2",
+                    "It's a wonderful gift.|But you should be careful, wearing such a valuable item so openly.|Since Renais was invaded, things have become so dangerous around here.|There are gold-hungry thieves and bandits everywhere.{w}{clear}The most wicked ae Bazba's Bandits. They are...cruel beyond words.|If you have something they want, your life is worth less than nothing.|Just the other day they assaulted some travelers and... Oh, it was awful."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "I...I can't believe such things..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Man2",
+                    "Oh, Renais is finished, mark my words.{br}The Grado Empire's stolen our future.|Our only hope against them was that Prince Ephraim would prevail, but...|Rumor has it that he's on the verge of being crushed by Grado's vast numbers.|These are dark days. Travel with care."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "......"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Fade to night"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close",
+                    "750"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "ForestDark"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open",
+                    "750"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eirika",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Ephraim..."
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close",
+                    "2000",
+                    "248,248,248"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "CastleSepia"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open",
+                    "2000",
+                    "248,248,248"
+                ]
+            ],
+            [
+                "location_card",
+                [
+                    "3 years ago"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "2000"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "EphraimSepia",
+                    "Left",
+                    "no_block"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "EirikaSepia",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "EphraimSepia",
+                    "It's time to start.{br}Are you ready, Eirika?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "EirikaSepia",
+                    "Yes, Ephraim.{br}Let's begin."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "EphraimSepia",
+                    "Tell me, though: why do you want me to teach you to fight?|I thought you didn't care for violence..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "EirikaSepia",
+                    "I do not like uncivilized behaviour.|I think one can solve one's problems without fighting.|And yet..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "EphraimSepia",
+                    "And yet what?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "EirikaSepia",
+                    "I've always relied on you to protect me, Brother.|I would rather not be such a burden to you in the future.|So, I thought maybe I should learn to protect myself..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "EphraimSepia",
+                    "I'm your brother. Brothers are supposed to protect their sisters.|It's nothing for you to worry about. It's no cause for concern."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "EirikaSepia",
+                    "Yes, but...|I am your sister. Sisters are supposed to worry about their brothers.{w}{clear}So I would like to learn something of swordplay, if only a little.|And maybe, someday, I can protect you in your time of need...|So please, Ephraim."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "EphraimSepia",
+                    "All right, all right. How could I say no?|Honestly, once you get an idea into your head, that's it. I might as well give in.{w}{clear}It's agreed. I'll teach you, but I won't hold back because you're my sister.|And I want no complaining once we've starting, Eirika."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "EirikaSepia",
+                    "Complain? Me? Never!"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close",
+                    "2000",
+                    "248,248,248"
+                ]
+            ],
+            [
+                "change_background",
+                [
+                    "ForestDark"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Open",
+                    "2000",
+                    "248,248,248"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Eirika",
+                    "MidLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "......"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Colm arrives"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Colm",
+                    "OffscreenLeft",
+                    "immediate"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Colm",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Colm",
+                    "Oops! Beg your pardon."
+                ]
+            ],
+            [
+                "bop_portrait",
+                [
+                    "Eirika"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Hey!"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Colm",
+                    "OffscreenRight"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Colm",
+                    "immediate"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Seth",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "Princess, are you all right?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Y-yes... Someone bumped into me is all. I was jarred."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "Hm?{br}Your Higness, where is your bracelet?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "My bracelet?{br}It's...gone.|Where could it be?{br}Did that man--"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "I'll find him!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Eirika",
+                    "Don't worry about it, Seth.|That bracelet was a gift from my father, but Ephraim needs our help.|I can't let sentimentality get in the way of my duty."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Seth",
+                    "No, Princess... We must retrieve your bracelet regardless of cost.|You cannot lose it. Let's go.{br}We must hurry."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Eirika",
+                    "no_block"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Seth"
+                ]
+            ],
+            [
+                "transition",
+                [
+                    "Close",
+                    "250",
+                    "0,0,0"
                 ]
             ]
         ],
@@ -4954,7 +6765,7 @@
     {
         "name": "DestroyVillage1",
         "trigger": "Destructible",
-        "level_nid": "6",
+        "level_nid": "2",
         "condition": "region.nid == 'DestroyVillage1'",
         "commands": [
             [
@@ -5094,7 +6905,7 @@
     {
         "name": "DestroyVillage2",
         "trigger": "Destructible",
-        "level_nid": "6",
+        "level_nid": "2",
         "condition": "region.nid == 'DestroyVillage2'",
         "commands": [
             [
@@ -5122,7 +6933,7 @@
     {
         "name": "DestroyVillage3",
         "trigger": "Destructible",
-        "level_nid": "6",
+        "level_nid": "2",
         "condition": "region.nid == 'DestroyVillage3'",
         "commands": [
             [
@@ -5204,7 +7015,7 @@
     {
         "name": "Rout",
         "trigger": "combat_end",
-        "level_nid": "6",
+        "level_nid": "2",
         "condition": "len(game.get_enemy_units()) == 0",
         "commands": [
             [
@@ -10775,7 +12586,7 @@
     {
         "name": "OnOverworldEnter",
         "trigger": "overworld_start",
-        "level_nid": "6",
+        "level_nid": "2",
         "condition": "True",
         "commands": [
             [
@@ -10834,7 +12645,7 @@
     {
         "name": "OnLevelSelect",
         "trigger": "level_select",
-        "level_nid": "6",
+        "level_nid": "2",
         "condition": "True",
         "commands": [
             [
@@ -10933,104 +12744,6 @@
             ]
         ],
         "only_once": true,
-        "priority": 20
-    },
-    {
-        "name": "Escape",
-        "trigger": "Escape",
-        "level_nid": "6",
-        "condition": "True",
-        "commands": [
-            [
-                "if",
-                [
-                    "unit.nid == 'Isis'"
-                ]
-            ],
-            [
-                "add_portrait",
-                [
-                    "Isis",
-                    "FarRight"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Isis",
-                    "It's high time we leave this dusty place for greener pastures."
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "Isis"
-                ]
-            ],
-            [
-                "elif",
-                [
-                    "unit.nid == 'Nephthys'"
-                ]
-            ],
-            [
-                "add_portrait",
-                [
-                    "Nephthys",
-                    "FarRight"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Nephthys",
-                    "Oh! I can feel the open air beyond this door.|We've really made it!"
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "Nephthys"
-                ]
-            ],
-            [
-                "end",
-                []
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "remove_unit",
-                [
-                    "{unit}"
-                ]
-            ],
-            [
-                "wait",
-                [
-                    "400"
-                ]
-            ],
-            [
-                "if",
-                [
-                    "not any(unit.team == \"player\" for unit in game.units if unit.position)"
-                ]
-            ],
-            [
-                "win_game",
-                []
-            ],
-            [
-                "end",
-                []
-            ]
-        ],
-        "only_once": false,
         "priority": 20
     }
 ]

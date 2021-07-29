@@ -1082,6 +1082,10 @@ class Event():
             action.do(action.SetGameVar('_base_bg_name', panorama_nid))
             if len(values) > 1 and values[1]:
                 action.do(action.SetGameVar('_base_music', values[1]))
+            if 'show_map' in flags:
+                action.do(action.SetGameVar('_base_transparent', True)) 
+            else:
+                action.do(action.SetGameVar('_base_transparent', False))
             game.state.change('base_main')
             self.state = 'paused'
 
@@ -1853,12 +1857,11 @@ class Event():
         """
         values, flags = event_commands.parse(command)
 
-
         reload_map = 'reload' in flags
         if reload_map and game.is_displaying_overworld(): # just go back to the level
             from app.engine import level_cursor, map_view, movement
             game.cursor = level_cursor.LevelCursor(game)
-            game.movement =  movement.MovementManager()
+            game.movement = movement.MovementManager()
             game.map_view = map_view.MapView()
             game.set_up_game_board(game.level.tilemap)
             return

@@ -37,7 +37,7 @@
     ],
     [
         "overworld",
-        false
+        true
     ],
     [
         "unit_notes",
@@ -53,7 +53,7 @@
     ],
     [
         "growth_info",
-        false
+        true
     ],
     [
         "backpropagate_difficulty_growths",
@@ -81,7 +81,7 @@
     ],
     [
         "enemy_leveling",
-        "Random"
+        "Dynamic"
     ],
     [
         "auto_promote",
@@ -133,11 +133,11 @@
     ],
     [
         "game_nid",
-        "LT"
+        "EscapeFromPlegia"
     ],
     [
         "title",
-        "Lex Talionis Game"
+        "Escape from Plegia"
     ],
     [
         "title_particles",
@@ -161,15 +161,15 @@
     ],
     [
         "kill_wexp",
-        false
+        true
     ],
     [
         "double_wexp",
-        false
+        true
     ],
     [
         "miss_wexp",
-        false
+        true
     ],
     [
         "exp_curve",
@@ -177,7 +177,7 @@
     ],
     [
         "exp_magnitude",
-        0.0
+        10.0
     ],
     [
         "exp_offset",
@@ -193,7 +193,7 @@
     ],
     [
         "min_exp",
-        0
+        1
     ],
     [
         "default_exp",
@@ -201,7 +201,7 @@
     ],
     [
         "heal_curve",
-        0.0
+        1.0
     ],
     [
         "heal_magnitude",
@@ -213,7 +213,7 @@
     ],
     [
         "heal_min",
-        0
+        5
     ],
     [
         "dark_sprites",
