@@ -3,11 +3,11 @@ from app.data.components import Type
 from app.data.item_components import ItemComponent, tags
 
 def get_item_components():
-    # Necessary for get_item_components to find all the 
+    # Necessary for get_item_components to find all the
     # item components defined in item_components folder
     from app.engine import item_components
 
-    subclasses = ItemComponent.__subclasses__() 
+    subclasses = ItemComponent.__subclasses__()
     # Sort by tag
     subclasses = sorted(subclasses, key=lambda x: tags.index(x.tag) if x.tag in tags else 100)
     return Data(subclasses)
@@ -32,6 +32,8 @@ def restore_component(dat):
             elif base_class.expose[0] in (Type.Dict, Type.FloatDict):
                 val = [v.copy() for v in value]
                 copy = base_class(val)
+            else:
+                copy = base_class(value)
         else:
             copy = base_class(value)
         return copy

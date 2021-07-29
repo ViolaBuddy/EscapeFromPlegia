@@ -55,7 +55,7 @@ class SoundDict(dict):
 class Channel():
     fade_in_time = 400
     fade_out_time = 400
-    playing_states = ("playing", "fade_out", "crossfade_out", "fade_in", "crossfade_in")
+    playing_states = ("playing", "crossfade_out", "fade_in", "crossfade_in")
 
     def __init__(self, name, nid, end_event):
         self.name = name
@@ -91,6 +91,7 @@ class Channel():
             pass
         if self.state in ("fade_out", "crossfade_out"):
             progress = utils.clamp((current_time - self.last_update) / self.fade_out_time, 0, 1)
+            # logging.debug("Progress: %s", progress)
             self.local_volume = 1 - progress
             self._channel.set_volume(self.local_volume * self.global_volume)
             if progress >= 1:
@@ -317,6 +318,7 @@ class SoundController():
         return self.channel_stack[-1]
 
     def clear(self):
+        logging.debug("Clear")
         self.stop()
         for channel in self.channel_stack:
             channel.clear()
@@ -410,6 +412,12 @@ class SoundController():
         self.current_channel.crossfade()
         return True
 
+    def get_current_song(self):
+        is_playing = self.is_playing()
+        if is_playing and self.song_stack:
+            return self.song_stack[-1]
+        return None
+
     def fade_in(self, next_song, num_plays=-1, fade_in=400, from_start=False):
         logging.info("Fade in %s" % next_song)
         next_song = MUSIC.get(next_song)
@@ -418,10 +426,7 @@ class SoundController():
             return None
 
         is_playing = self.is_playing()
-        if is_playing and self.song_stack:
-            current_song = self.song_stack[-1]
-        else:
-            current_song = None
+        current_song = self.get_current_song()
 
         # Confirm that we're not just replacing the same song
         if current_song is next_song:
@@ -495,7 +500,9 @@ class SoundController():
         for channel in self.channel_stack:
             if channel.update(event_list, current_time):
                 any_changes = True
-                break
+                # break
+        if any_changes:
+            logging.debug("Any Changes")
 
         if self.fade_out_start and any_changes:
             logging.debug('Update Fade In')

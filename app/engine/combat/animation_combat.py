@@ -155,6 +155,7 @@ class AnimationCombat(BaseCombat, MockCombat):
 
         elif self.state == 'init_pause':
             if self._skip or current_time > utils.frames2ms(25):
+                self.start_event(True)
                 self.state = 'pre_proc'
 
         elif self.state == 'pre_proc':

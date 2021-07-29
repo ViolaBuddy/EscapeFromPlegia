@@ -28,8 +28,15 @@ def fade_in_phase_music():
 
 def fade_out_phase_music():
     logging.info('Fade out Phase Music')
-    fade = game.game_vars.get('_phase_music_fade_ms', 400)
-    SOUNDTHREAD.fade_to_pause(fade_out=fade)
+    next_team = game.phase.get_current()
+    next_music = game.level.music.get(next_team + '_phase')
+    currently_playing = SOUNDTHREAD.get_current_song()
+    # Don't fade_out phase music if we will just fade in to the same song
+    if currently_playing and next_music and next_music == currently_playing.nid:
+        pass
+    else:
+        fade = game.game_vars.get('_phase_music_fade_ms', 400)
+        SOUNDTHREAD.fade_to_pause(fade_out=fade)
 
 class PhaseController():
     def __init__(self):

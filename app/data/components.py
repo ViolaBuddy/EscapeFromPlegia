@@ -30,6 +30,7 @@ class Type(IntEnum):
     List = 100
     Dict = 101  # Item followed by integer
     FloatDict = 102  # Item followed by floating
+    MultipleChoice = 103 # item is a string value from a number of choices
 
 class Component():
     nid: str = None

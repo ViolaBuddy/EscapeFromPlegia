@@ -1,3 +1,4 @@
+from app.engine.fonts import NORMAL_FONT_COLORS
 from app.data.item_components import ItemComponent
 from app.data.components import Type
 
@@ -106,3 +107,16 @@ class EvalWarning(ItemComponent):
         except Exception as e:
             print("Could not evaluate %s (%s)" % (self.value, e))
             return False
+
+class TextColor(ItemComponent):
+    nid = 'text_color'
+    desc = 'Special color for item text.'
+    tag = 'aesthetic'
+
+    expose = (Type.MultipleChoice, NORMAL_FONT_COLORS)
+    value = 'white'
+
+    def text_color(self, unit, item):
+        if self.value not in NORMAL_FONT_COLORS:
+            return 'text-white'
+        return 'text-' + self.value

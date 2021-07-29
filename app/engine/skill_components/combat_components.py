@@ -78,7 +78,7 @@ class EvalDamage(SkillComponent):
             return int(evaluate.evaluate(self.value, unit, item=item))
         except:
             print("Couldn't evaluate %s conditional" % self.value)
-        return 0 
+        return 0
 
 class Resist(SkillComponent):
     nid = 'resist'

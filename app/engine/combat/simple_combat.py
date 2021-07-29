@@ -64,6 +64,7 @@ class SimpleCombat():
         self.actions = []
 
         self.start_combat()
+        self.start_event()
         while self.state_machine.get_state():
             self.actions, self.playback = self.state_machine.do()
             self.full_playback += self.playback
@@ -141,10 +142,13 @@ class SimpleCombat():
         a_broke, d_broke = self.find_broken_items()
         self.handle_broken_items(a_broke, d_broke)
 
+    def start_event(self, full_animation=False):
+        # region is set to True or False depending on whether we are in a battle anim
+        game.events.trigger('combat_start', self.attacker, self.defender, self.main_item, self.attacker.position, full_animation)
+
     def start_combat(self):
         self.initial_random_state = static_random.get_combat_random_state()
 
-        game.events.trigger('combat_start', self.attacker, self.defender, self.main_item, self.attacker.position)
         skill_system.pre_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
 
         already_pre = [self.attacker]

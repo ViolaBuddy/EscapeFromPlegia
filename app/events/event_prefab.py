@@ -24,7 +24,7 @@ all_triggers = Data([
     Trigger('unit_select', True, False, False, True),
     Trigger('unit_level_up', True, True, False, False),
     Trigger('during_unit_level_up', True, True, False, False),
-    Trigger('combat_start', True, True, True, True),
+    Trigger('combat_start', True, True, True, True, True),  # Region is whether we are in full battle anim
     Trigger('combat_end', True, True, True, True),
     Trigger('on_talk', True, True, False, True),
     Trigger('on_support', True, True, True, True),  # Item is support rank nid

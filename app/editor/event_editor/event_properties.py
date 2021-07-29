@@ -310,8 +310,16 @@ class CodeEditor(QPlainTextEdit):
         # offset the position and display
         tc_top_right = self.mapTo(self.parent(), self.cursorRect(tc).topRight())
         height = self.function_annotator.height()
-        tc_top_right.setY(tc_top_right.y() - height - 5)
-        tc_top_right.setX(min(tc_top_right.x() + 15, self.width() - self.function_annotator.width()))
+
+        top, left = tc_top_right.y() - height - 5, min(tc_top_right.x() + 15, self.width() - self.function_annotator.width())
+        if top < 0:
+            if self.completer.popup().isVisible():
+                top = tc_top_right.y() + self.completer.popup().height() + 6
+                left = min(tc_top_right.x(), self.width() - self.function_annotator.width())
+            else:
+                top = tc_top_right.y() + 5
+        tc_top_right.setY(top)
+        tc_top_right.setX(left)
         self.function_annotator.move(tc_top_right)
 
     def complete(self):

@@ -569,7 +569,7 @@ class LoadUnit(EventCommand):
 
     desc = \
         """
-Loads a unique (non-generic) unit from memory. This does not place the unit on the map. If the unit already exists in the game's memory, this command will do nothing. 
+Loads a unique (non-generic) unit from memory. This does not place the unit on the map. If the unit already exists in the game's memory, this command will do nothing.
 
 Optionally, the loaded unit can be assigned to a _Team_ and given an _AI_ preset. If not specified, defaults of Player team and no AI script are applied.
         """
@@ -600,7 +600,7 @@ class CreateUnit(EventCommand):
         """
 Creates a new instance of a unit and, optionally, places it on the map. _Unit_ points to the unit template to be used. A new nid can be assigned using _String_ (can be empty: '').
 
-Several optional keywords can be provided to modify the unit and/or place it on the map. 
+Several optional keywords can be provided to modify the unit and/or place it on the map.
 
 Optional keywords can be specified to place the unit on the map. The _String_ value sets the unit's nid, if a specific nid is desired. The _Condition_ value, if provided, sets the unit's level. The _Position_ value indicates the map coordinates that the unit will be placed at. _EntryType_ defines which placement animation is used. Finally, _Placement_ defines the behavior that occurs if the chosen map position is already occupied.
         """
@@ -617,7 +617,7 @@ class AddUnit(EventCommand):
 
     desc = \
         """
-Places _Unit_ on the map. The unit must be in the chapter's data or otherwise have been loaded into memory (see **load_unit** or **make_generic**). 
+Places _Unit_ on the map. The unit must be in the chapter's data or otherwise have been loaded into memory (see **load_unit** or **make_generic**).
 
 The optional keywords define how the unit is placed. _Position_ indicates the map coordinates that the unit will be placed at. _EntryType_ defines which placement animation is used. _Placement_ defines the behavior that occurs if the chosen map position is already occupied. If no placement information is provided, the unit will attempt to be placed at its starting location from the chapter data (if any).
         """
@@ -782,7 +782,7 @@ class AddGroup(EventCommand):
 
     desc = \
         """
-Adds a unit group to the map. This will use the group's starting position data in the chapter by default. Alternatively, a separate unit group nid can be provided as _StartingGroup_ to cause the units to be placed at this other group's starting position. _EntryType_ selects the method of placement, and _Placement_ defines the behavior that occurs if any of the chosen map positions are already occupied. 
+Adds a unit group to the map. This will use the group's starting position data in the chapter by default. Alternatively, a separate unit group nid can be provided as _StartingGroup_ to cause the units to be placed at this other group's starting position. _EntryType_ selects the method of placement, and _Placement_ defines the behavior that occurs if any of the chosen map positions are already occupied.
 
 If the _create_ flag is set, a copy of each unit will be created and deployed instead of using the unit itself.
         """
@@ -866,10 +866,10 @@ class ChangeItemName(EventCommand):
 
     desc = \
         """
-Changes the name of _Item_ in the inventory of _GlobalUnit_ to _String_.
+Changes the name of _Item_ in the inventory of _GlobalUnit_ to _Text_.
         """
 
-    keywords = ["GlobalUnit", "Item", "String"]
+    keywords = ["GlobalUnit", "Item", "Text"]
 
 class ChangeItemDesc(EventCommand):
     nid = 'change_item_desc'
@@ -877,10 +877,10 @@ class ChangeItemDesc(EventCommand):
 
     desc = \
         """
-Changes the description of _Item_ in the inventory of _GlobalUnit_ to _String_.
+Changes the description of _Item_ in the inventory of _GlobalUnit_ to _Text_.
         """
 
-    keywords = ["GlobalUnit", "Item", "String"]
+    keywords = ["GlobalUnit", "Item", "Text"]
 
 class AddItemToMultiItem(EventCommand):
     nid = 'add_item_to_multiitem'
@@ -923,11 +923,11 @@ class GiveBexp(EventCommand):
 
     desc = \
         """
-Gives bonus experience of the amount defined by _Condition_ (can just be a number) to the indicated _Party_. If _Party_ is not specified, the player's current party will be used. The optional _String_ keyword specifies what text is shown to the player in the banner. If _String_ is not specified, the banner will state "Got X BEXP". If the _no_banner_ flag is set, the player will not be informed that the bonus experience was awarded.
+Gives bonus experience of the amount defined by _Condition_ (can just be a number) to the indicated _Party_. If _Party_ is not specified, the player's current party will be used. The optional _Text_ keyword specifies what text is shown to the player in the banner. If _Text_ is not specified, the banner will state "Got X BEXP". If the _no_banner_ flag is set, the player will not be informed that the bonus experience was awarded.
         """
 
     keywords = ["Condition"]
-    optional_keywords = ["Party", "String"]
+    optional_keywords = ["Party", "Text"]
     flags = ['no_banner']
 
 class GiveExp(EventCommand):
@@ -1035,7 +1035,7 @@ Changes _GlobalUnit_'s portrait to the one specified by _PortraitNid_.
 class ChangeStats(EventCommand):
     nid = 'change_stats'
     tag = Tags.MODIFY_UNIT_PROPERTIES
-    
+
     desc = \
         """
 Changes the stats (STR, SKL, etc.) of _GlobalUnit_. The _StatList_ defines the changes to be applied. This will display the unit's stat changes similarly to a level-up unless the _immediate_ flag is set.
@@ -1183,10 +1183,10 @@ class AddBaseConvo(EventCommand):
 
     desc = \
         """
-Unlocks a base conversation specified by _String_ for later viewing by the player.
+Unlocks a base conversation specified by _Text_ for later viewing by the player.
         """
 
-    keywords = ["String"]
+    keywords = ["Text"]
 
 class IgnoreBaseConvo(EventCommand):
     nid = 'ignore_base_convo'
@@ -1194,10 +1194,10 @@ class IgnoreBaseConvo(EventCommand):
 
     desc = \
         """
-Sets the base conversation specified by _String_ to unselectable and greyed-out, but still visible. You usually want to use this at the end of a base convo to prevent the player from viewing it again.
+Sets the base conversation specified by _Text_ to unselectable and greyed-out, but still visible. You usually want to use this at the end of a base convo to prevent the player from viewing it again.
         """
 
-    keywords = ["String"]
+    keywords = ["Text"]
 
 class RemoveBaseConvo(EventCommand):
     nid = 'remove_base_convo'
@@ -1205,10 +1205,10 @@ class RemoveBaseConvo(EventCommand):
 
     desc = \
         """
-Removes the base conversation specified by _String_ from the list entirely unless it is later re-added using **add_base_convo**.
+Removes the base conversation specified by _Text_ from the list entirely unless it is later re-added using **add_base_convo**.
         """
 
-    keywords = ["String"]
+    keywords = ["Text"]
 
 class IncrementSupportPoints(EventCommand):
     nid = 'increment_support_points'
@@ -1343,10 +1343,10 @@ class ChangeObjectiveSimple(EventCommand):
 
     desc = \
         """
-Changes the simple version of the chapter's objective text to _String_.
+Changes the simple version of the chapter's objective text to _Text_.
         """
 
-    keywords = ["String"]
+    keywords = ["Text"]
 
 class ChangeObjectiveWin(EventCommand):
     nid = 'change_objective_win'
@@ -1354,10 +1354,10 @@ class ChangeObjectiveWin(EventCommand):
 
     desc = \
         """
-Changes the victory condition of the chapter's objective text to _String_.
+Changes the victory condition of the chapter's objective text to _Text_.
         """
 
-    keywords = ["String"]
+    keywords = ["Text"]
 
 class ChangeObjectiveLoss(EventCommand):
     nid = 'change_objective_loss'
@@ -1365,10 +1365,10 @@ class ChangeObjectiveLoss(EventCommand):
 
     desc = \
         """
-Changes the defeat condition of the chapter's objective text to _String_.
+Changes the defeat condition of the chapter's objective text to _Text_.
         """
 
-    keywords = ["String"]
+    keywords = ["Text"]
 
 class SetPosition(EventCommand):
     nid = 'set_position'
@@ -1458,10 +1458,10 @@ class Choice(EventCommand):
         """
 Presents the player with a menu in which he/she can choose from several options. An example would be the choice to go with Eirika or Ephraim in The Sacred Stones.
 
-_Nid_ is the name of this choice, which can be checked later to recall the player's decision. _String_ is the text describing the choice, such as "which will you choose?" _StringList_ specifies the different options that the player can choose among. The optional _Orientation_ keyword specifies whether the options are displayed as a vertical list or side-by-side.
+_Nid_ is the name of this choice, which can be checked later to recall the player's decision. _Text_ is the text describing the choice, such as "which will you choose?" _StringList_ specifies the different options that the player can choose among. The optional _Orientation_ keyword specifies whether the options are displayed as a vertical list or side-by-side.
         """
 
-    keywords = ['Nid', 'String', 'StringList']
+    keywords = ['Nid', 'Text', 'StringList']
     optional_keywords = ['Orientation']
 
 class ChapterTitle(EventCommand):
@@ -1470,10 +1470,10 @@ class ChapterTitle(EventCommand):
 
     desc = \
         """
-Brings up the chapter title screen, optionally with the specified _Music_ and chapter name (_String_).
+Brings up the chapter title screen, optionally with the specified _Music_ and chapter name (_Text_).
         """
 
-    optional_keywords = ["Music", "String"]
+    optional_keywords = ["Music", "Text"]
 
 class Alert(EventCommand):
     nid = 'alert'
@@ -1481,10 +1481,10 @@ class Alert(EventCommand):
 
     desc = \
         """
-Displays the text given in _String_ in an alert box. This is used for events such as "The switch was pulled!".
+Displays the text given in _Text_ in an alert box. This is used for events such as "The switch was pulled!".
         """
 
-    keywords = ["String"]
+    keywords = ["Text"]
 
 class VictoryScreen(EventCommand):
     nid = 'victory_screen'
@@ -1510,10 +1510,10 @@ class LocationCard(EventCommand):
 
     desc = \
         """
-Used to display text (_String_) in the upper-left corner of the screen. This is often used to indicate the current location shown, such as "Castle Ostia".
+Used to display text (_Text_) in the upper-left corner of the screen. This is often used to indicate the current location shown, such as "Castle Ostia".
         """
 
-    keywords = ["String"]
+    keywords = ["Text"]
 
 class Credits(EventCommand):
     nid = 'credits'
@@ -1521,10 +1521,10 @@ class Credits(EventCommand):
 
     desc = \
         """
-Display a line of credits. The first _String_ specifies the credit type ("Director"). The second _String_ is a comma-delimited list of credits ("Spielberg,Tarantino"). If the _no_split_ flag is set, the list will not be split based on the commas in _String_. The _wait_ and _center_ flags modify how the credit line is displayed.
+Display a line of credits. The first _Text_ specifies the credit type ("Director"). The second _Text_ is a comma-delimited list of credits ("Spielberg,Tarantino"). If the _no_split_ flag is set, the list will not be split based on the commas in _Text_. The _wait_ and _center_ flags modify how the credit line is displayed.
         """
 
-    keywords = ["String", "String"]
+    keywords = ["Text", "Text"]
     flags = ['wait', 'center', 'no_split']
 
 class Ending(EventCommand):
@@ -1533,10 +1533,10 @@ class Ending(EventCommand):
 
     desc = \
         """
-Displays the epilogue text for a character. _Portrait_ is the portrait to be displayed, the first _String_ is the name displayed (ex: "Marcus, Badass Paladin"), the second _String_ is the block of text describing what happened to the character.
+Displays the epilogue text for a character. _Portrait_ is the portrait to be displayed, the first _Text_ is the name displayed (ex: "Marcus, Badass Paladin"), the second _Text_ is the block of text describing what happened to the character.
         """
 
-    keywords = ["Portrait", "String", "String"]
+    keywords = ["Portrait", "Text", "Text"]
 
 class PopDialog(EventCommand):
     nid = 'pop_dialog'
@@ -1756,7 +1756,7 @@ def parse_text(text: str, strict=False) -> EventCommand:
                 else:
                     cmd_keyword = "N/A"
                 # if parentheses exists, then they contain the "true" arg, with everything outside parens essentially as comments
-                if '(' in arg and ')' in arg and not cmd_keyword == 'Condition':
+                if '(' in arg and ')' in arg and not (cmd_keyword == 'Condition' or cmd_keyword == 'Text'):
                     true_arg = arg[arg.find("(")+1:arg.find(")")]
                     true_cmd_args.append(true_arg)
                 else:

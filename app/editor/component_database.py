@@ -1,6 +1,6 @@
 from functools import partial
 
-from PyQt5.QtWidgets import QWidget, QLabel, QToolButton, QDoubleSpinBox, \
+from PyQt5.QtWidgets import QComboBox, QWidget, QLabel, QToolButton, QDoubleSpinBox, \
     QSpinBox, QHBoxLayout, QListWidgetItem, QItemDelegate, QLineEdit
 from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtCore import Qt
@@ -66,7 +66,7 @@ class BoolItemComponent(QWidget):
     @property
     def data(self):
         return self._data
-        
+
 class IntItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         self.editor = QSpinBox(self)
@@ -122,6 +122,24 @@ class StringItemComponent(BoolItemComponent):
 
     def on_value_changed(self, text):
         self._data.value = text
+
+class DropDownItemComponent(BoolItemComponent):
+    def __init__(self, data, parent, options):
+        self.options = options if options else ['N/A']
+        super().__init__(data, parent)
+
+    def create_editor(self, hbox):
+        self.editor = QComboBox(self)
+        self.editor.setMaximumWidth(320)
+        self.editor.addItems(self.options)
+        if not self._data.value:
+            self._data.value = self.options[0]
+        self.editor.setCurrentIndex(self.options.index(self._data.value))
+        self.editor.currentIndexChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.editor)
+
+    def on_value_changed(self, val):
+        self._data.value = self.options[val]
 
 class WeaponTypeItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
@@ -486,6 +504,8 @@ def get_display_widget(component, parent):
             c = DictItemComponent(component, parent, delegate)
         elif component.expose[0] == Type.FloatDict:
             c = FloatDictItemComponent(component, parent, delegate)
+        elif component.expose[0] == Type.MultipleChoice:
+            c = DropDownItemComponent(component, parent, component.expose[1])
 
     else:  # TODO
         c = BoolItemComponent(component, parent)

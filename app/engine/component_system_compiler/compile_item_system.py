@@ -9,7 +9,7 @@ false_hooks = ('is_weapon', 'is_spell', 'is_accessory', 'equippable',
 formula = ('damage_formula', 'resist_formula', 'accuracy_formula', 'avoid_formula',
            'crit_accuracy_formula', 'crit_avoid_formula', 'attack_speed_formula', 'defense_speed_formula')
 default_hooks = ('full_price', 'buy_price', 'sell_price', 'special_sort', 'num_targets', 'minimum_range', 'maximum_range',
-                 'weapon_type', 'weapon_rank', 'modify_weapon_triangle', 'damage', 'hit', 'crit', 'effect_animation')
+                 'weapon_type', 'weapon_rank', 'modify_weapon_triangle', 'damage', 'hit', 'crit', 'effect_animation', 'text_color')
 default_hooks += formula
 
 target_hooks = ('wexp', 'exp')

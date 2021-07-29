@@ -32,6 +32,7 @@ class BaseCombat(SimpleCombat):
         self.actions = []
 
         self.start_combat()
+        self.start_event()
         while self.state_machine.get_state():
             self.actions, self.playback = self.state_machine.do()
             self.full_playback += self.playback
@@ -41,7 +42,6 @@ class BaseCombat(SimpleCombat):
     def start_combat(self):
         self.initial_random_state = static_random.get_combat_random_state()
 
-        game.events.trigger('combat_start', self.attacker, self.defender, self.main_item, self.attacker.position)
         skill_system.pre_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
         if self.attacker is not self.defender:
             skill_system.pre_combat(self.full_playback, self.defender, self.def_item, self.attacker, 'defense')

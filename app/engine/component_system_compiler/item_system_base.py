@@ -97,6 +97,10 @@ class Defaults():
     def defense_speed_formula(unit, item) -> str:
         return 'DEFENSE_SPEED'
 
+    @staticmethod
+    def text_color(unit, item) -> str:
+        return None
+
 def available(unit, item) -> bool:
     """
     If any hook reports false, then it is false

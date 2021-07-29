@@ -277,31 +277,35 @@ class MapEditorView(QGraphicsView):
         if not self.tilemap.check_bounds(tile_pos):
             return
 
-        coords_to_replace = set()
-
-        def find_similar(x, y, terrain_nid):
-            if not self.tilemap.check_bounds((x, y)):
-                return
-            if (x, y) in coords_to_replace:
-                return
-            other_nid = current_layer.get_terrain((x, y))
-            if terrain_nid != other_nid:
-                return
-
-            coords_to_replace.add((x, y))
-
-            # Now recur for all directions
-            find_similar(x + 1, y, terrain_nid)
-            find_similar(x - 1, y, terrain_nid)
-            find_similar(x, y + 1, terrain_nid)
-            find_similar(x, y - 1, terrain_nid)
-
         current_layer = self.get_current_layer()
+
+        coords_to_replace = set()
+        unexplored_stack = []
+
+        def find_similar(starting_pos, terrain_nid):
+            unexplored_stack.append(starting_pos)
+
+            while unexplored_stack:
+                current_pos = unexplored_stack.pop()
+
+                if current_pos in coords_to_replace:
+                    continue
+                if not self.tilemap.check_bounds(current_pos):
+                    continue
+                other_nid = current_layer.get_terrain(current_pos)
+                if terrain_nid != other_nid:
+                    continue
+
+                coords_to_replace.add(current_pos)
+                unexplored_stack.append((current_pos[0] + 1, current_pos[1]))
+                unexplored_stack.append((current_pos[0] - 1, current_pos[1]))
+                unexplored_stack.append((current_pos[0], current_pos[1] + 1))
+                unexplored_stack.append((current_pos[0], current_pos[1] - 1))
 
         # Get coords like current coord in current_layer
         terrain_nid = current_layer.get_terrain(tile_pos)
         # Determine which coords should be flood-filled
-        find_similar(tile_pos[0], tile_pos[1], terrain_nid)
+        find_similar((tile_pos[0], tile_pos[1]), terrain_nid)
 
         # Do the deed
         for coord in coords_to_replace:
@@ -312,39 +316,43 @@ class MapEditorView(QGraphicsView):
         if not self.tilemap.check_bounds(tile_pos):
             return
 
-        coords_to_replace = set()
-
-        def find_similar(x, y, sprite):
-            if not self.tilemap.check_bounds((x, y)):
-                return
-            if (x, y) in coords_to_replace:
-                return
-            tile = current_layer.get_sprite((x, y))
-            if tile:
-                nid = tile.tileset_nid
-                coord = tile.tileset_position
-            else:
-                nid, coord = None, None
-            if sprite:
-                if nid != sprite.tileset_nid or coord != sprite.tileset_position:
-                    return
-            elif tile:
-                return
-
-            coords_to_replace.add((x, y))
-
-            # Now recur for all directions
-            find_similar(x + 1, y, sprite)
-            find_similar(x - 1, y, sprite)
-            find_similar(x, y + 1, sprite)
-            find_similar(x, y - 1, sprite)
-
         current_layer = self.get_current_layer()
+
+        coords_to_replace = set()
+        unexplored_stack = []
+
+        def find_similar(starting_pos, sprite):
+            unexplored_stack.append(starting_pos)
+
+            while unexplored_stack:
+                current_pos = unexplored_stack.pop()
+
+                if current_pos in coords_to_replace:
+                    continue
+                if not self.tilemap.check_bounds(current_pos):
+                    continue
+                tile = current_layer.get_sprite(current_pos)
+                if tile:
+                    nid = tile.tileset_nid
+                    coord = tile.tileset_position
+                else:
+                    nid, coord = None, None
+                if sprite:
+                    if nid != sprite.tileset_nid or coord != sprite.tileset_position:
+                        continue
+                elif tile:
+                    continue
+
+                coords_to_replace.add(current_pos)
+                unexplored_stack.append((current_pos[0] + 1, current_pos[1]))
+                unexplored_stack.append((current_pos[0] - 1, current_pos[1]))
+                unexplored_stack.append((current_pos[0], current_pos[1] + 1))
+                unexplored_stack.append((current_pos[0], current_pos[1] - 1))
 
         # Get coords like current coord in current_layer
         current_tile = current_layer.get_sprite(tile_pos)
         # Determine which coords should be flood-filled
-        find_similar(tile_pos[0], tile_pos[1], current_tile)
+        find_similar((tile_pos[0], tile_pos[1]), current_tile)
 
         if self.right_selection:
             # Only handles the topleft tile

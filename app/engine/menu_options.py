@@ -186,7 +186,7 @@ class ItemOption(BasicOption):
         self.idx = idx
         self.item = item
         self.help_box = None
-        self.color = None
+        self.color = item_system.text_color(None, item)
         self.ignore = False
 
     def get(self):
@@ -212,8 +212,9 @@ class ItemOption(BasicOption):
             pass
         elif self.color:
             main_font = self.color
-            uses_font = self.color
-            if main_font == 'text-white':
+            if owner and not item_funcs.available(owner, self.item):
+                pass
+            else:
                 uses_font = 'text-blue'
         elif self.item.droppable:
             main_font = 'text-green'
@@ -263,9 +264,7 @@ class ConvoyItemOption(ItemOption):
             pass
         elif self.color:
             main_font = self.color
-            uses_font = self.color
-            if main_font == 'text-white':
-                uses_font = 'text-blue'
+            uses_font = 'text-blue'
         elif item_funcs.available(self.owner, self.item):
             main_font = 'text-white'
             uses_font = 'text-blue'

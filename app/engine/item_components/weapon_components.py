@@ -107,7 +107,6 @@ class Damage(ItemComponent):
 
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode)
-
         true_damage = min(damage, target.get_hp())
         actions.append(action.ChangeHP(target, -damage))
 

@@ -280,12 +280,10 @@ class StringList(Validator):
         return text
 
 class Speaker(Validator):
-    def validate(self, text, level):
-        return text
+    pass  # Any text will do
 
 class Text(Validator):
-    def validate(self, text, level):
-        return text
+    pass  # Any text will do
 
 class Panorama(Validator):
     def validate(self, text, level):

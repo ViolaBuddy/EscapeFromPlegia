@@ -49,11 +49,11 @@ class MapCombat(SimpleCombat):
         # Only for the very first phase
         if self.state == 'init':
             self.start_combat()
+            self.start_event()
             self.state = 'init_pause'
 
         elif self.state == 'init_pause':
             if self._skip or current_time > 200:
-                self.start_combat()
                 self.state = 'begin_phase'
 
         # print("Map Combat %s" % self.state)

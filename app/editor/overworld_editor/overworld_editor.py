@@ -102,7 +102,12 @@ class OverworldEditor(QMainWindow):
             # delete current road from overworld
             current_road = sel.obj
             road_key = OverworldPrefab.points_to_key(current_road[0], current_road[-1])
-            self.current_overworld.map_paths.pop(road_key, None)
+            if not self.current_overworld.map_paths.pop(road_key, None):
+                # this shouldn't happen, but in the interest of supporting legacy data:
+                reverse_road_key = str(tuple(current_road[1])) + '-' + str(tuple(current_road[0]))
+                self.current_overworld.map_paths.pop(reverse_road_key, None)
+                reverse_road_key = str(tuple(current_road[0])) + '-' + str(tuple(current_road[1]))
+                self.current_overworld.map_paths.pop(reverse_road_key, None)
         elif sel.type == OverworldEditorInternalTypes.MAP_NODE:
             # delete node from overworld
             current_node = sel.obj

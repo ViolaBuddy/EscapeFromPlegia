@@ -1,7 +1,7 @@
 from app.constants import WINWIDTH, WINHEIGHT
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
-from app.engine import engine, base_surf, image_mods, icons, text_funcs
+from app.engine import engine, base_surf, image_mods, icons, text_funcs, item_system
 
 class Banner():
     update_flag = False
@@ -67,13 +67,14 @@ class AcquiredItem(Banner):
         self.unit = unit
         self.item = item
         article = 'an' if self.item.name.lower()[0] in ('a', 'e', 'i', 'o', 'u') else 'a'
+        item_color = item_system.text_color(None, item) if item_system.text_color(None, item) else 'text-blue'
         if "'" in self.item.name:
             # No article for things like Prim's Charm, Ophie's Blade, etc.
             self.text = [unit.name, ' got ', item.name, '.']
-            self.font = ['text-blue', 'text-white', 'text-blue', 'text-white']
+            self.font = ['text-blue', 'text-white', item_color, 'text-white']
         else:
             self.text = [unit.name, ' got ', article, ' ', item.name, '.']
-            self.font = ['text-blue', 'text-white', 'text-white', 'text-white', 'text-blue', 'text-white']
+            self.font = ['text-blue', 'text-white', 'text-white', 'text-white', item_color, 'text-white']
         self.figure_out_size()
         self.sound = 'Item'
 
@@ -82,14 +83,15 @@ class StoleItem(Banner):
         super().__init__()
         self.unit = unit
         self.item = item
+        item_color = item_system.text_color(None, item) if item_system.text_color(None, item) else 'text-blue'
         article = 'an' if self.item.name.lower()[0] in ('a', 'e', 'i', 'o', 'u') else 'a'
         if "'" in self.item.name:
             # No article for things like Prim's Charm, Ophie's Blade, etc.
             self.text = [unit.name, ' stole ', item.name, '.']
-            self.font = ['text-blue', 'text-white', 'text-blue', 'text-white']
+            self.font = ['text-blue', 'text-white', item_color, 'text-white']
         else:
             self.text = [unit.name, ' stole ', article, ' ', item.name, '.']
-            self.font = ['text-blue', 'text-white', 'text-white', 'text-white', 'text-blue', 'text-white']
+            self.font = ['text-blue', 'text-white', 'text-white', 'text-white', item_color, 'text-white']
         self.figure_out_size()
         if self.unit.team in ('player', 'other'):
             self.sound = 'Item'
@@ -100,8 +102,9 @@ class SentToConvoy(Banner):
     def __init__(self, item):
         super().__init__()
         self.item = item
+        item_color = item_system.text_color(None, item) if item_system.text_color(None, item) else 'text-blue'
         self.text = [item.name, ' sent to convoy.']
-        self.font = ['text-blue', 'text-white']
+        self.font = [item_color, 'text-white']
         self.figure_out_size()
         self.sound = 'Item'
 
@@ -110,8 +113,9 @@ class BrokenItem(Banner):
         super().__init__()
         self.unit = unit
         self.item = item
+        item_color = item_system.text_color(None, item) if item_system.text_color(None, item) else 'text-blue'
         self.text = [unit.name, ' broke ', item.name, '.']
-        self.font = ['text-blue', 'text-white', 'text-blue', 'text-blue']
+        self.font = ['text-blue', 'text-white', item_color, 'text-blue']
         self.figure_out_size()
         self.sound = 'ItemBreak'
 
@@ -134,7 +138,7 @@ class GainWexp(Banner):
 
     def draw_icon(self, surf):
         if self.weapon_type:
-            icons.draw_weapon(surf, self.item, (self.size[0] - 20, 7))    
+            icons.draw_weapon(surf, self.item, (self.size[0] - 20, 7))
 
 class GiveSkill(Banner):
     def __init__(self, unit, skill):

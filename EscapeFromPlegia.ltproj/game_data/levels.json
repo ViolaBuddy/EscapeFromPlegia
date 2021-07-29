@@ -1,0 +1,128 @@
+[
+    {
+        "nid": "0",
+        "name": "Prologue",
+        "tilemap": "PlegiaCastle",
+        "party": "Eirika",
+        "music": {
+            "player_phase": "Storm Clouds (Awakening)",
+            "enemy_phase": "Shadow of the Enemy",
+            "other_phase": null,
+            "enemy2_phase": null,
+            "player_battle": "Attack",
+            "enemy_battle": "Defense",
+            "other_battle": null,
+            "enemy2_battle": null,
+            "base": null
+        },
+        "objective": {
+            "simple": "Escape",
+            "win": "Escape",
+            "loss": "Nephthys or Isis dies"
+        },
+        "roam": false,
+        "roam_unit": "Eirika",
+        "go_to_overworld": false,
+        "units": [
+            {
+                "nid": "Nephthys",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    15,
+                    3
+                ],
+                "generic": false
+            },
+            {
+                "nid": "Isis",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    10,
+                    22
+                ],
+                "generic": false
+            },
+            {
+                "nid": "101",
+                "variant": null,
+                "level": 1,
+                "klass": "Fighter",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    13,
+                    5
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "102",
+                "variant": null,
+                "level": 2,
+                "klass": "Fighter",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Attack",
+                "ai_group": null,
+                "starting_position": [
+                    8,
+                    6
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "Validar",
+                "team": "enemy",
+                "ai": "Validar",
+                "ai_group": null,
+                "starting_position": [
+                    10,
+                    27
+                ],
+                "generic": false
+            }
+        ],
+        "regions": [],
+        "unit_groups": [
+            {
+                "nid": "Enemy1",
+                "units": [
+                    "101",
+                    "102"
+                ],
+                "positions": {
+                    "101": [
+                        14,
+                        7
+                    ],
+                    "102": [
+                        14,
+                        8
+                    ]
+                }
+            }
+        ]
+    }
+]
